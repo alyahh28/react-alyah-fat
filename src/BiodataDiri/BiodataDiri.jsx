@@ -9,7 +9,7 @@ export default function BiodataDiri() {
 
       <div className="snow-overlay"></div>
 
-      <h1 className="title-pororo">PETUALANGAN PORORO</h1>
+      <h1 className="title-pororo">Biodata Diri</h1>
       <div className="divider-snow">❄️❄️❄️</div>
 
       <div className="content-scroll">
@@ -27,7 +27,7 @@ export default function BiodataDiri() {
 function DataPribadi() {
   return (
     <div className="info-section ice-card">
-      <h3>🐧 Profil Pinguin</h3>
+      <h3>🐧 Profil </h3>
       <p><strong>Nama:</strong> Alyah Najwa Restu Islami</p>
       <p><strong>Jurusan:</strong> Sistem Informasi</p>
     </div>
@@ -63,7 +63,7 @@ function Skill() {
 function Hobi() {
   return (
     <div className="info-section ice-card">
-      <h3>⛷️ Aktivitas Seru</h3>
+      <h3>⛷️ Hobi </h3>
       <p>ngoding tipis, nonton drakor, game dan Musik</p>
     </div>
   );
@@ -72,7 +72,7 @@ function Hobi() {
 function MediaSosial() {
   return (
     <div className="info-section ice-card">
-      <h3>📱 Sinyal Kutub</h3>
+      <h3>📱Sosmed</h3>
       <p>Instagram: @najwa.alyahh </p>
     </div>
   );
