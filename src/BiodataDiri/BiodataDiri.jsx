@@ -64,7 +64,7 @@ function Hobi() {
   return (
     <div className="info-section ice-card">
       <h3>⛷️ Aktivitas Seru</h3>
-      <p>ngoding tipis, nonton drakor, dan Musik</p>
+      <p>ngoding tipis, nonton drakor, game dan Musik</p>
     </div>
   );
 }
