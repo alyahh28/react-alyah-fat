@@ -23,14 +23,6 @@ export default function UserForm() {
         placeholder="ex: 0812..."
         />
 
-        <SelectField label="Pilih Kursus" options={["React JS", "Node JS", "Python Data Science"]} 
-          value={formData.kursus} onChange={(e) => { setFormData({...formData, kursus: e.target.value}); validate("kursus", e.target.value) }} 
-          error={errors.kursus} />
-
-        <SelectField label="Level" options={["Pemula", "Menengah", "Mahir"]} 
-          value={formData.level} onChange={(e) => { setFormData({...formData, level: e.target.value}); validate("level", e.target.value) }} 
-          error={errors.level} />
-
         <button className="w-full bg-green-500 text-white p-2 rounded">
           Simpan
         </button>
