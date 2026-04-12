@@ -1,0 +1,382 @@
+[
+  {
+    "id": 1,
+    "title": "Mastering React Modern",
+    "category": "Web Development",
+    "level": "Intermediate",
+    "price": 750000,
+    "image": "https://img-c.udemycdn.com/course/480x270/6729257_df54_5.jpg",
+    "instructor": {
+      "name": "Budi Santoso",
+      "experience": "8 Years",
+      "rating": 4.9
+    },
+    "stats": {
+      "students": 1250,
+      "lessons": 45,
+      "duration": "12 Hours"
+    },
+    "curriculum": ["Hooks", "Context API", "Redux", "Testing"]
+  },
+  {
+    "id": 2,
+    "title": "Fullstack Laravel & Vue",
+    "category": "Web Development",
+    "level": "Advanced",
+    "price": 1200000,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8V9Ah5ZQfAwUCnRclb96duVKsrgd0I4xJVA&s",
+    "instructor": {
+      "name": "Siti Aminah",
+      "experience": "6 Years",
+      "rating": 4.8
+    },
+    "stats": {
+      "students": 850,
+      "lessons": 60,
+      "duration": "20 Hours"
+    },
+    "curriculum": ["REST API", "Inertia.js", "MySQL", "Deployment"]
+  },
+  {
+    "id": 3,
+    "title": "Python for Data Science",
+    "category": "Data Science",
+    "level": "Beginner",
+    "price": 500000,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxJSMafl7fu2a1VY1hThhyP45z3bBPRp1zeg&s",
+    "instructor": {
+      "name": "Andi Wijaya",
+      "experience": "5 Years",
+      "rating": 4.7
+    },
+    "stats": {
+      "students": 2100,
+      "lessons": 30,
+      "duration": "10 Hours"
+    },
+    "curriculum": ["NumPy", "Pandas", "Matplotlib", "Sklearn"]
+  },
+  {
+    "id": 4,
+    "title": "UI/UX Design Principles",
+    "category": "UI/UX",
+    "level": "Beginner",
+    "price": 450000,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZjGI3XaLoZR0BFoV0Fpp-LSWXsLT1u2ievg&s",
+    "instructor": {
+      "name": "Dewi Kartika",
+      "experience": "7 Years",
+      "rating": 4.9
+    },
+    "stats": {
+      "students": 3200,
+      "lessons": 28,
+      "duration": "8 Hours"
+    },
+    "curriculum": ["Figma", "Wireframing", "Prototyping", "Usability Testing"]
+  },
+  {
+    "id": 5,
+    "title": "Flutter Mobile Development",
+    "category": "Mobile Development",
+    "level": "Intermediate",
+    "price": 850000,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShpH7UhNyL2C2IJ5Dgl-LmQdMnJ2z8al6mIQ&s",
+    "instructor": {
+      "name": "Rizki Fauzi",
+      "experience": "4 Years",
+      "rating": 4.6
+    },
+    "stats": {
+      "students": 950,
+      "lessons": 50,
+      "duration": "15 Hours"
+    },
+    "curriculum": ["Dart", "Widgets", "State Management", "Firebase"]
+  },
+  {
+    "id": 6,
+    "title": "Machine Learning with TensorFlow",
+    "category": "Data Science",
+    "level": "Advanced",
+    "price": 1500000,
+    "image": "https://image.web.id/images/Machine-Learning.jpg",
+    "instructor": {
+      "name": "Dr. Hermawan",
+      "experience": "10 Years",
+      "rating": 5.0
+    },
+    "stats": {
+      "students": 620,
+      "lessons": 55,
+      "duration": "25 Hours"
+    },
+    "curriculum": ["Neural Networks", "CNN", "RNN", "Model Deployment"]
+  },
+  {
+    "id": 7,
+    "title": "JavaScript from Zero to Hero",
+    "category": "Web Development",
+    "level": "Beginner",
+    "price": 400000,
+    "image": "https://www.macworld.com/wp-content/uploads/2023/01/learn_javascript_on_mac.jpg?quality=50&strip=all",
+    "instructor": {
+      "name": "Eko Prasetyo",
+      "experience": "6 Years",
+      "rating": 4.8
+    },
+    "stats": {
+      "students": 4500,
+      "lessons": 40,
+      "duration": "14 Hours"
+    },
+    "curriculum": ["ES6+", "DOM Manipulation", "Async/Await", "OOP"]
+  },
+  {
+    "id": 8,
+    "title": "iOS Development with Swift",
+    "category": "Mobile Development",
+    "level": "Intermediate",
+    "price": 950000,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6HoyVHS0suncsUgbeeLF7lfLa1iT2BroCqA&s",
+    "instructor": {
+      "name": "Made Wiranatha",
+      "experience": "5 Years",
+      "rating": 4.7
+    },
+    "stats": {
+      "students": 540,
+      "lessons": 48,
+      "duration": "18 Hours"
+    },
+    "curriculum": ["Swift UI", "UIKit", "Core Data", "Push Notifications"]
+  },
+  {
+    "id": 9,
+    "title": "Adobe XD Masterclass",
+    "category": "UI/UX",
+    "level": "Intermediate",
+    "price": 550000,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGnLK8lcySl9ReG5uphjlR2ixeVJjLTE1dvw&s",
+    "instructor": {
+      "name": "Rina Setiawati",
+      "experience": "6 Years",
+      "rating": 4.8
+    },
+    "stats": {
+      "students": 1780,
+      "lessons": 35,
+      "duration": "11 Hours"
+    },
+    "curriculum": ["UI Kits", "Auto-Animate", "Component States", "Share Prototypes"]
+  },
+  {
+    "id": 10,
+    "title": "DevOps with Docker & Kubernetes",
+    "category": "Web Development",
+    "level": "Advanced",
+    "price": 1800000,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQz7MbYziWmZARspWiNAlShKkZdDkfiKH5_Lw&ss",
+    "instructor": {
+      "name": "Agus Pratama",
+      "experience": "9 Years",
+      "rating": 4.9
+    },
+    "stats": {
+      "students": 430,
+      "lessons": 52,
+      "duration": "22 Hours"
+    },
+    "curriculum": ["Docker", "K8s", "CI/CD", "Monitoring"]
+  },
+  {
+    "id": 11,
+    "title": "SQL for Data Analysis",
+    "category": "Data Science",
+    "level": "Beginner",
+    "price": 350000,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXGJs23xBQkceobak8p8FXi3kBug8JFx_kHg&s",
+    "instructor": {
+      "name": "Nina Susanti",
+      "experience": "4 Years",
+      "rating": 4.6
+    },
+    "stats": {
+      "students": 2800,
+      "lessons": 25,
+      "duration": "7 Hours"
+    },
+    "curriculum": ["JOINs", "Subqueries", "Window Functions", "Query Optimization"]
+  },
+  {
+    "id": 12,
+    "title": "React Native Cross Platform",
+    "category": "Mobile Development",
+    "level": "Intermediate",
+    "price": 900000,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQl6sKKgDMxhl6pf2f40lCf05Barkc8jdTFow&s",
+    "instructor": {
+      "name": "Ricky Hermawan",
+      "experience": "5 Years",
+      "rating": 4.7
+    },
+    "stats": {
+      "students": 1100,
+      "lessons": 46,
+      "duration": "16 Hours"
+    },
+    "curriculum": ["React Navigation", "Redux", "Native Modules", "App Store Deploy"]
+  },
+  {
+    "id": 13,
+    "title": "Figma for UI/UX Designers",
+    "category": "UI/UX",
+    "level": "Beginner",
+    "price": 400000,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjkBgtykKCvWipKSlRekLB8W7lLhZ0_OB0Qg&s",
+    "instructor": {
+      "name": "Sarah Azzahra",
+      "experience": "4 Years",
+      "rating": 4.8
+    },
+    "stats": {
+      "students": 3900,
+      "lessons": 32,
+      "duration": "9 Hours"
+    },
+    "curriculum": ["Auto Layout", "Variants", "Plugins", "Collaboration"]
+  },
+  {
+    "id": 14,
+    "title": "Backend with Golang",
+    "category": "Web Development",
+    "level": "Advanced",
+    "price": 1100000,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMb3r_jEjC-1feJ7E0v4NCg1plEYuz8fI18g&s",
+    "instructor": {
+      "name": "Bayu Purnama",
+      "experience": "7 Years",
+      "rating": 4.8
+    },
+    "stats": {
+      "students": 680,
+      "lessons": 44,
+      "duration": "17 Hours"
+    },
+    "curriculum": ["Gin Framework", "GORM", "JWT", "Microservices"]
+  },
+  {
+    "id": 15,
+    "title": "Data Visualization with Tableau",
+    "category": "Data Science",
+    "level": "Intermediate",
+    "price": 600000,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvRWzAdk6uqOqRQdpUiHrWC3fpmR26I5YHww&s",
+    "instructor": {
+      "name": "Maya Sari",
+      "experience": "5 Years",
+      "rating": 4.7
+    },
+    "stats": {
+      "students": 1350,
+      "lessons": 38,
+      "duration": "12 Hours"
+    },
+    "curriculum": ["Dashboards", "Calculated Fields", "LOD Expressions", "Storytelling"]
+  },
+  {
+    "id": 16,
+    "title": "Kotlin Android Development",
+    "category": "Mobile Development",
+    "level": "Intermediate",
+    "price": 800000,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3y1V7_hkFUbZolB3DunG60uLWolYKB_mqCg&s",
+    "instructor": {
+      "name": "Dimas Aditya",
+      "experience": "6 Years",
+      "rating": 4.8
+    },
+    "stats": {
+      "students": 980,
+      "lessons": 49,
+      "duration": "16 Hours"
+    },
+    "curriculum": ["Coroutines", "Jetpack Compose", "Room DB", "Retrofit"]
+  },
+  {
+    "id": 17,
+    "title": "Web Accessibility (A11Y)",
+    "category": "UI/UX",
+    "level": "Intermediate",
+    "price": 480000,
+    "image": "https://miro.medium.com/1*HnSxmR5WbFCD98wXgUe3EA.png",
+    "instructor": {
+      "name": "Tari Handayani",
+      "experience": "5 Years",
+      "rating": 4.9
+    },
+    "stats": {
+      "students": 890,
+      "lessons": 33,
+      "duration": "10 Hours"
+    },
+    "curriculum": ["WCAG", "ARIA", "Screen Readers", "Keyboard Navigation"]
+  },
+  {
+    "id": 18,
+    "title": "Cloud Computing with AWS",
+    "category": "Web Development",
+    "level": "Advanced",
+    "price": 1700000,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgcSqRSwi1YaWRl_UXbguf6XW7B8Eg1yxsFA&s",
+    "instructor": {
+      "name": "Chandra Wijaya",
+      "experience": "8 Years",
+      "rating": 4.9
+    },
+    "stats": {
+      "students": 560,
+      "lessons": 58,
+      "duration": "24 Hours"
+    },
+    "curriculum": ["EC2", "S3", "Lambda", "RDS"]
+  },
+  {
+    "id": 19,
+    "title": "Statistics for Data Science",
+    "category": "Data Science",
+    "level": "Beginner",
+    "price": 380000,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSnXPoczfTxuQQx3mTiXxBPW5IvTR9EjodnQg&s",
+    "instructor": {
+      "name": "Prof. Rahmat",
+      "experience": "12 Years",
+      "rating": 4.8
+    },
+    "stats": {
+      "students": 1950,
+      "lessons": 28,
+      "duration": "9 Hours"
+    },
+    "curriculum": ["Probability", "Hypothesis Testing", "Regression", "Bayesian"]
+  },
+  {
+    "id": 20,
+    "title": "UX Research Methods",
+    "category": "UI/UX",
+    "level": "Advanced",
+    "price": 700000,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8IHHr2o0rS6cFKuVxwBQUMu-Dv-6-k1uoKw&s",
+    "instructor": {
+      "name": "Wulan Permatasari",
+      "experience": "7 Years",
+      "rating": 4.9
+    },
+    "stats": {
+      "students": 720,
+      "lessons": 36,
+      "duration": "13 Hours"
+    },
+    "curriculum": ["User Interviews", "Surveys", "A/B Testing", "Persona Creation"]
+  }
+]
