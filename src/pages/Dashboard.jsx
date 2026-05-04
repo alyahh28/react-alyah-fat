@@ -7,7 +7,7 @@ export default function Dashboard() {
         { day: "Mon", value: 45 },
         { day: "Tue", value: 72 },
         { day: "Wed", value: 38 },
-        { day: "Thu", value: 85 }, // Titik tertinggi
+        { day: "Thu", value: 85 }, // Puncak
         { day: "Fri", value: 55 },
         { day: "Sat", value: 40 },
         { day: "Sun", value: 65 },
