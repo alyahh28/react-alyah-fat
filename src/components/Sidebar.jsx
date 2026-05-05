@@ -1,40 +1,61 @@
-import { MdDashboard, MdOutlineChair, MdMessage, MdSettings } from "react-icons/md";
-import { FaUsers, FaBoxOpen, FaUserFriends } from "react-icons/fa";
+import { MdDashboard, MdOutlineChair, MdShoppingCart, MdPeople, MdHandyman, MdMessage, MdSettings, MdHelp } from "react-icons/md";
 import { NavLink } from "react-router-dom";
+import Logo from "../assets/Logo.png"; 
 
 export default function Sidebar() {
+    // Styling menu mengikuti anatomi template (Putih saat aktif, Transparan saat tidak)
     const menuClass = ({ isActive }) =>
-        `flex items-center rounded-2xl p-4 space-x-3 transition-all duration-300
-        ${isActive ? "text-amber-900 bg-amber-50 font-bold shadow-sm ring-1 ring-amber-100" : "text-stone-400 hover:text-amber-800 hover:bg-stone-50"}`;
+        `flex items-center rounded-[18px] px-6 py-3.5 space-x-4 transition-all duration-300 
+        ${isActive 
+            ? "text-[#9E4BDC] bg-white shadow-lg font-bold" 
+            : "text-white/70 hover:text-white hover:bg-white/10 font-medium"}`;
 
     return (
-        <div className="flex min-h-screen w-72 flex-col bg-white p-6 border-r border-stone-100 sticky top-0 z-40">
-            <div className="flex items-center gap-3 mb-12 px-2">
-                <div className="w-10 h-10 bg-amber-800 rounded-2xl flex items-center justify-center text-white font-bold shadow-lg shadow-amber-200">L</div>
-                <span className="font-bold text-xl text-stone-800 tracking-tight">LuxWood</span>
-            </div>
-
-            <nav className="flex flex-col space-y-2 flex-1">
-                <NavLink to="/" className={menuClass}><MdDashboard className="text-2xl" /> <span>Overview</span></NavLink>
-                <NavLink to="/products" className={menuClass}><MdOutlineChair className="text-2xl" /> <span>Collections</span></NavLink>
-                <NavLink to="/orders" className={menuClass}><FaBoxOpen className="text-2xl" /> <span>Orders</span></NavLink>
-                <NavLink to="/customers" className={menuClass}><FaUserFriends className="text-2xl" /> <span>Customers</span></NavLink>
-                <NavLink to="/craftsmen" className={menuClass}><FaUsers className="text-2xl" /> <span>Craftsmen</span></NavLink>
-                <NavLink to="/messages" className={menuClass}><MdMessage className="text-2xl" /> <span>Messages</span></NavLink>
-                <NavLink to="/settings" className={menuClass}><MdSettings className="text-2xl" /> <span>Settings</span></NavLink>
-            </nav>
-
-            {/* Upgrade Card */}
-            <div className="mt-auto bg-stone-900 rounded-[32px] p-6 relative overflow-hidden group">
-                <div className="absolute -top-6 -right-6 w-20 h-20 bg-amber-600/20 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
-                <div className="relative z-10">
-                    <p className="text-white font-bold text-lg leading-tight">Upgrade<br />to Pro</p>
-                    <p className="text-stone-500 text-[10px] mt-2 mb-4">Dapatkan akses fitur inventory & analytics premium.</p>
-                    <button className="w-full bg-amber-700 hover:bg-amber-600 text-white py-3 rounded-2xl text-xs font-bold transition-all shadow-lg shadow-black/20">
-                        Get Premium
-                    </button>
+        <div className="flex min-h-screen w-64 shrink-0 flex-col bg-[#9E4BDC] p-6 sticky top-0 z-40 font-poppins rounded-r-[40px] shadow-2xl">
+            {/* Bagian Logo - Mengikuti gaya template dengan latar transparan putih */}
+            <div className="flex justify-center mb-16 mt-4">
+                <div className="bg-white/20 p-4 rounded-[22px] backdrop-blur-sm">
+                    <img src={Logo} alt="Logo" className="w-10 h-10 object-contain invert brightness-0" />
                 </div>
             </div>
+
+            {/* Navigasi Menu - Isian mengikuti dashboard furniture lama kamu */}
+            <nav className="flex flex-col space-y-2 flex-1">
+                <NavLink to="/" className={menuClass}>
+                    <MdDashboard className="text-xl" /> <span>Dashboard</span>
+                </NavLink>
+                <NavLink to="/products" className={menuClass}>
+                    <MdOutlineChair className="text-xl" /> <span>Collections</span>
+                </NavLink>
+                <NavLink to="/orders" className={menuClass}>
+                    <MdShoppingCart className="text-xl" /> <span>Orders</span>
+                </NavLink>
+                <NavLink to="/customers" className={menuClass}>
+                    <MdPeople className="text-xl" /> <span>Customers</span>
+                </NavLink>
+                <NavLink to="/craftsmen" className={menuClass}>
+                    <MdHandyman className="text-xl" /> <span>Craftsmen</span>
+                </NavLink>
+                <NavLink to="/messages" className={menuClass}>
+                    <MdMessage className="text-xl" /> <span>Messages</span>
+                </NavLink>
+
+                {/* Bagian Bawah (Settings & Help) sesuai template */}
+                <div className="pt-10 space-y-2 border-t border-white/10 mt-6">
+                    <NavLink to="/settings" className={menuClass}>
+                        <MdSettings className="text-xl" /> <span>Settings</span>
+                    </NavLink>
+                    <NavLink to="/help" className={menuClass}>
+                        <MdHelp className="text-xl" /> <span>Help</span>
+                    </NavLink>
+                    
+                    {/* Tombol Log Out dengan gaya template */}
+                    <button className="flex items-center w-full px-6 py-3.5 space-x-4 text-white/70 font-medium hover:text-white transition-all mt-4 group">
+                        <span className="rotate-180 text-xl font-bold group-hover:-translate-x-1 transition-transform">➔</span> 
+                        <span>Log Out</span>
+                    </button>
+                </div>
+            </nav>
         </div>
     );
-}
+}   

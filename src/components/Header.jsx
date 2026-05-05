@@ -1,53 +1,48 @@
-import { useState } from "react";
-import { FaBell, FaSearch, FaMoon, FaSun, FaChevronDown } from "react-icons/fa";
-// Import ini dipakai jika folder assets ada di dalam folder src
-import alyahPhoto from "../assets/alyah.jpeg"; 
+import { FaSearch, FaUserCircle } from "react-icons/fa";
+import { HiMenuAlt2 } from "react-icons/hi";
+import ProfileImage from "../assets/alyah.jpeg"; 
 
-export default function Header() {
-    const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const [isDark, setIsDark] = useState(false);
-
+export default function Header({ pageTitle = "Dashboard" }) {
     return (
-        <div className={`flex justify-between items-center py-4 px-2 transition-all duration-500 ${isDark ? 'text-white' : 'text-stone-900'}`}>
-            
-            {/* 1. SEARCH BAR */}
-            <div className="relative group w-full max-w-md">
-                <div 
-                    onClick={() => setIsSearchOpen(true)}
-                    className={`flex items-center px-5 py-3 rounded-[24px] cursor-pointer transition-all duration-300 border
-                        ${isDark ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-100 shadow-sm hover:shadow-md'}`}
-                >
-                    <FaSearch className="text-stone-400 mr-3 text-sm" />
-                    <span className="text-stone-400 text-sm font-medium">Cari katalog furniture premium...</span>
-                </div>
+        <div className="flex justify-between items-center py-6 px-4 bg-transparent font-poppins w-full">
+            <div className="flex items-center gap-4">
+                <button className="lg:hidden text-[#22285E] text-2xl">
+                    <HiMenuAlt2 />
+                </button>
+                <h1 className="text-[28px] font-bold text-[#22285E] leading-none tracking-tight">{pageTitle}</h1>
             </div>
 
-            {/* ACTION BUTTONS & PROFILE */}
-            <div className="flex items-center gap-3">
-                <button onClick={() => setIsDark(!isDark)} className={`w-12 h-12 rounded-[20px] flex items-center justify-center transition-all border ${isDark ? 'bg-amber-500 border-amber-400 text-stone-900' : 'bg-white border-stone-100 text-stone-500 shadow-sm'}`}>
-                    {isDark ? <FaSun /> : <FaMoon />}
+            <div className="flex items-center gap-5">
+                {/* Search Bar */}
+                <div className="hidden md:flex items-center bg-[#F2F2F2] px-6 py-3.5 rounded-[20px] w-[300px]">
+                    <FaSearch className="text-[#9E4BDC] mr-3 text-lg" />
+                    <input 
+                        type="text" 
+                        placeholder="Cari sesuatu..." 
+                        className="bg-transparent border-none outline-none text-[13px] text-[#22285E] w-full font-medium"
+                    />
+                </div>
+
+                {/* Profil Icon */}
+                <button className="p-3.5 bg-white rounded-full shadow-sm border border-gray-100 flex items-center justify-center">
+                    <FaUserCircle className="text-[#7A7E9E] text-2xl" />
                 </button>
 
-                <div className={`relative w-12 h-12 rounded-[20px] flex items-center justify-center cursor-pointer border ${isDark ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-100 shadow-sm'}`}>
-                    <FaBell />
-                    <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
-                </div>
-                
-                <div className={`flex items-center gap-3 p-1.5 pr-4 rounded-[24px] border ml-2 transition-all ${isDark ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-100 shadow-sm'}`}>
+                {/* User Info */}
+                <div className="flex items-center gap-3 pl-5 border-l border-gray-200">
+                    <div className="text-right hidden sm:block">
+                        <p className="text-[14px] font-bold text-[#22285E] leading-tight">Alya Zahra</p>
+                        <p className="text-[11px] text-[#7A7E9E] font-semibold uppercase tracking-wider">Administrator</p>
+                    </div>
                     <div className="relative">
                         <img 
-                            src={alyahPhoto} 
-                            onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=Alyah+Woody&background=random"; }}
-                            className="w-9 h-9 rounded-[18px] object-cover border-2 border-amber-100 shadow-sm" 
-                            alt="Admin Alyah"
+                            src={ProfileImage} 
+                            onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=Alya+Zahra&background=9E4BDC&color=fff"; }}
+                            className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md" 
+                            alt="Alya"
                         />
-                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                        <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#4BDC9E] border-2 border-white rounded-full"></div>
                     </div>
-                    <div className="hidden lg:block text-left leading-tight">
-                        <p className="text-xs font-black text-stone-800 uppercase tracking-tighter">Alyah Woody</p>
-                        <p className="text-[10px] text-stone-400 font-bold">Store Admin</p>
-                    </div>
-                    <FaChevronDown className="text-[10px] text-stone-300 ml-1" />
                 </div>
             </div>
         </div>

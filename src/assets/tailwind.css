@@ -22,6 +22,14 @@
     --color-merah: #ef4444; 
     --color-biru: #3b82f6;
     --color-kuning: #f59e0b; 
+
+    /* template figma */
+    --color-primary: #9E4BDC; 
+    --color-Secondary: #95D5B6; 
+    --color-Success: #00AABB; 
+    --color-background: #FFFFFF; 
+    --color-shade: #22285E; 
+    --color-text: #7A7E9E; 
     
 }
 
