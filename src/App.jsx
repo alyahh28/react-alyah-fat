@@ -11,7 +11,8 @@ const AuthLayout = React.lazy(() => import('./layouts/AuthLayout.jsx'))
 const Dashboard = React.lazy(() => import('./pages/Dashboard.jsx'))
 const Orders = React.lazy(() => import('./pages/Orders.jsx'))
 const Customers = React.lazy(() => import('./pages/Customers.jsx')) 
-const Courses = React.lazy(() => import('./pages/Courses.jsx')) 
+const Courses = React.lazy(() => import('./pages/Courses.jsx'))
+const ProductDetail = React.lazy(() => import('./pages/ProductDetail.jsx')) 
 const Mentor = React.lazy(() => import('./pages/Mentor.jsx'))   
 const Message = React.lazy(() => import('./pages/Message.jsx'))
 const Settings = React.lazy(() => import('./pages/Settings.jsx'))
@@ -33,6 +34,8 @@ function App() {
           <Route path="/orders" element={<Orders />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/products" element={<Courses />} />
+          <Route path="/products" element={<Courses />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/craftsmen" element={<Mentor />} />
           <Route path="/messages" element={<Message />} />
           <Route path="/settings" element={<Settings />} />
