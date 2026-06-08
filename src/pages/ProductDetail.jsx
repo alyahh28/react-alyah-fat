@@ -5,7 +5,6 @@ import { FaArrowLeft, FaWarehouse, FaMoneyBillWave, FaTag, FaCheckCircle } from 
 import productsData from "../data/products.json";
 
 export default function ProductDetail() {
-    // Mengambil nilai ID dinamis dari rute URL (contoh: /products/1 -> id bernilai "1")
     const { id } = useParams();
     const navigate = useNavigate();
     
@@ -13,15 +12,12 @@ export default function ProductDetail() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Simulasi pencarian data dari file JSON lokal berdasarkan ID
-        // Parameter id dari URL bertipe String, jadi gunakan parseInt() agar cocok dengan Number di JSON
         const foundProduct = productsData.find((item) => item.id === parseInt(id));
         
         if (foundProduct) {
             setProduct(foundProduct);
         }
         
-        // Selesai memuat
         setLoading(false);
     }, [id]);
 

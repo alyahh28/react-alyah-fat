@@ -23,21 +23,16 @@ export default function Header({ pageTitle = "Dashboard" }) {
                     />
                 </div>
 
-                {/* Profil Icon */}
-                <button className="p-3.5 bg-white rounded-full shadow-sm border border-gray-100 flex items-center justify-center">
-                    <FaUserCircle className="text-[#7A7E9E] text-2xl" />
-                </button>
-
                 {/* User Info */}
                 <div className="flex items-center gap-3 pl-5 border-l border-gray-200">
                     <div className="text-right hidden sm:block">
-                        <p className="text-[14px] font-bold text-[#22285E] leading-tight">Alya Zahra</p>
+                        <p className="text-[14px] font-bold text-[#22285E] leading-tight">Alyah Najwa</p>
                         <p className="text-[11px] text-[#7A7E9E] font-semibold uppercase tracking-wider">Administrator</p>
                     </div>
                     <div className="relative">
                         <img 
                             src={ProfileImage} 
-                            onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=Alya+Zahra&background=9E4BDC&color=fff"; }}
+                            onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=Alyah+Najwa&background=9E4BDC&color=fff"; }}
                             className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md" 
                             alt="Alya"
                         />
