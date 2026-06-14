@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useState } from "react";
 import { BsFillExclamationDiamondFill } from "react-icons/bs";
 import { ImSpinner2 } from "react-icons/im";
@@ -20,47 +19,52 @@ export default function Login() {
         setDataForm({ ...dataForm, [name]: value });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
         setError("");
 
-        axios.post("https://dummyjson.com/user/login", {
-            username: dataForm.email,
-            password: dataForm.password,
-        })
-        .then(() => { navigate("/"); })
-        .catch((err) => {
-            setError(err.response?.data?.message || "Login gagal, cek kembali data anda.");
-        })
-        .finally(() => setLoading(false));
+        // Menggunakan setTimeout untuk memberikan efek simulasi loading otentikasi
+        setTimeout(() => {
+            // Ambil data akun yang sebelumnya sudah didaftarkan lewat form Register
+            const savedAccount = localStorage.getItem("userAccount");
+
+            if (!savedAccount) {
+                setError("Akun belum terdaftar! Silakan registrasi terlebih dahulu.");
+                setLoading(false);
+                return;
+            }
+
+            const parsedAccount = JSON.parse(savedAccount);
+
+            // Validasi pencocokan username/email dan password
+            if (dataForm.email === parsedAccount.email && dataForm.password === parsedAccount.password) {
+                // Set token/status penanda sesi login aktif
+                localStorage.setItem("isLoggedIn", "true");
+                setLoading(false);
+                navigate("/"); // Alihkan ke halaman dashboard utama
+            } else {
+                setError("Username atau Password salah! Cek kembali data Anda.");
+                setLoading(false);
+            }
+        }, 1000);
     };
 
     return (
-        /* Menggunakan fixed inset-0 agar memaksa keluar dari container parent yang sempit */
         <div className="fixed inset-0 w-screen h-screen bg-background font-poppins flex items-center justify-center overflow-hidden">
-            
-            {/* Background Style Samping Kiri */}
             <div className="absolute top-0 left-0 h-full w-full pointer-events-none -z-10">
-                <img 
-                    src={BackgroundWave} 
-                    alt="Background Decor" 
-                    className="h-full w-auto object-cover object-left"
-                />
+                <img src={BackgroundWave} alt="Background Decor" className="h-full w-auto object-cover object-left" />
             </div>
 
-            {/* Aksen Lingkaran Kanan Atas */}
             <div className="absolute -top-20 -right-20 w-80 h-80 border border-primary/20 rounded-full pointer-events-none -z-10"></div>
 
             <div className="w-full max-w-[360px] px-4 flex flex-col items-center">
                 <img src={Logo} alt="Logo" className="w-20 h-auto mb-4" />
-                
-                {/* Tipografi Display Medium 30px Bold sesuai permintaan */}
                 <h1 className="text-[30px] font-bold text-primary mb-8">Login</h1>
 
                 {error && (
-                    <div className="w-full mb-4 p-3 bg-red-50 text-merah border border-red-100 rounded-xl flex items-center gap-2 text-[12px]">
-                        <BsFillExclamationDiamondFill /> {error}
+                    <div className="w-full mb-4 p-3 bg-red-50 text-red-600 border border-red-100 rounded-xl flex items-center gap-2 text-[12px] font-medium">
+                        <BsFillExclamationDiamondFill className="shrink-0" /> {error}
                     </div>
                 )}
 
@@ -68,14 +72,16 @@ export default function Login() {
                     <input 
                         type="text" 
                         name="email" 
+                        value={dataForm.email}
                         onChange={handleChange} 
-                        placeholder="Username" 
+                        placeholder="Username / Email" 
                         className="w-full px-5 py-3.5 bg-[#F2F2F2] border-none rounded-xl text-shade text-sm outline-none focus:ring-2 focus:ring-primary/30 placeholder:text-text/60"
                         required 
                     />
                     <input 
                         type="password" 
                         name="password" 
+                        value={dataForm.password}
                         onChange={handleChange} 
                         placeholder="Password" 
                         className="w-full px-5 py-3.5 bg-[#F2F2F2] border-none rounded-xl text-shade text-sm outline-none focus:ring-2 focus:ring-primary/30 placeholder:text-text/60"
@@ -87,7 +93,7 @@ export default function Login() {
                             <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" />
                             <span className="text-[11px] text-text">Keep me logged in</span>
                         </label>
-                        <Link to="/auth/forgot" className="text-[11px] text-primary font-semibold hover:underline">
+                        <Link to="/forgot" className="text-[11px] text-primary font-semibold hover:underline">
                             Forgot Password!
                         </Link>
                     </div>
@@ -111,7 +117,7 @@ export default function Login() {
                 </div>
 
                 <div className="mt-10 text-[13px] text-text">
-                    Don't have an account? <Link to="/auth/register" className="text-primary font-bold hover:underline">Create now</Link>
+                    Don't have an account? <Link to="/register" className="text-primary font-bold hover:underline">Create now</Link>
                 </div>
             </div>
         </div>

@@ -1,9 +1,17 @@
 import { MdDashboard, MdOutlineChair, MdShoppingCart, MdPeople, MdHandyman, MdMessage, MdSettings, MdHelp } from "react-icons/md";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import Logo from "../assets/Logo.png"; 
 
 export default function Sidebar() {
-    // Styling menu mengikuti anatomi template (Putih saat aktif, Transparan saat tidak)
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        // Hapus penanda sesi login aktif dari localStorage
+        localStorage.removeItem("isLoggedIn");
+        // Bawa admin kembali keluar menuju halaman login
+        navigate("/login");
+    };
+
     const menuClass = ({ isActive }) =>
         `flex items-center rounded-[18px] px-6 py-3.5 space-x-4 transition-all duration-300 
         ${isActive 
@@ -12,14 +20,12 @@ export default function Sidebar() {
 
     return (
         <div className="flex min-h-screen w-64 shrink-0 flex-col bg-[#9E4BDC] p-6 sticky top-0 z-40 font-poppins rounded-r-[40px] shadow-2xl">
-            {/* Bagian Logo - Mengikuti gaya template dengan latar transparan putih */}
             <div className="flex justify-center mb-16 mt-4">
                 <div className="bg-white/20 p-4 rounded-[22px] backdrop-blur-sm">
                     <img src={Logo} alt="Logo" className="w-10 h-10 object-contain invert brightness-0" />
                 </div>
             </div>
 
-            {/* Navigasi Menu - Isian mengikuti dashboard furniture lama kamu */}
             <nav className="flex flex-col space-y-2 flex-1">
                 <NavLink to="/" className={menuClass}>
                     <MdDashboard className="text-xl" /> <span>Dashboard</span>
@@ -40,7 +46,6 @@ export default function Sidebar() {
                     <MdMessage className="text-xl" /> <span>Messages</span>
                 </NavLink>
 
-                {/* Bagian Bawah (Settings & Help) sesuai template */}
                 <div className="pt-10 space-y-2 border-t border-white/10 mt-6">
                     <NavLink to="/settings" className={menuClass}>
                         <MdSettings className="text-xl" /> <span>Settings</span>
@@ -49,8 +54,11 @@ export default function Sidebar() {
                         <MdHelp className="text-xl" /> <span>Help</span>
                     </NavLink>
                     
-                    {/* Tombol Log Out dengan gaya template */}
-                    <button className="flex items-center w-full px-6 py-3.5 space-x-4 text-white/70 font-medium hover:text-white transition-all mt-4 group">
+                    {/* Tombol Log Out Aktif */}
+                    <button 
+                        onClick={handleLogout}
+                        className="flex items-center w-full px-6 py-3.5 space-x-4 text-white/70 font-medium hover:text-white transition-all mt-4 group"
+                    >
                         <span className="rotate-180 text-xl font-bold group-hover:-translate-x-1 transition-transform">➔</span> 
                         <span>Log Out</span>
                     </button>
@@ -58,4 +66,4 @@ export default function Sidebar() {
             </nav>
         </div>
     );
-}   
+}

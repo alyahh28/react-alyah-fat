@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react'
 import "./assets/tailwind.css"
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, Navigate } from 'react-router-dom'
 import Loading from './components/Loading'
 
 // --- LAZY LOADING LAYOUTS ---
@@ -23,17 +23,22 @@ const Login = React.lazy(() => import('./pages/auth/Login.jsx'))
 const Register = React.lazy(() => import('./pages/auth/Register.jsx'))
 const Forgot = React.lazy(() => import('./pages/auth/Forgot.jsx'))
 
+// 🔒 Komponen Pelindung Rute (Mencegah Akses Tanpa Login)
+function ProtectedRoute({ children }) {
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  return isLoggedIn ? children : <Navigate to="/login" replace />;
+}
+
 function App() {
   return (
     <Suspense fallback={<Loading />}>
       <Routes>
         
-        {/* 1. PRIVATE ROUTES (Memerlukan Sidebar & Header dari MainLayout) */}
-        <Route element={<MainLayout />}>
+        {/* 1. PRIVATE ROUTES (Dilindungi dengan ProtectedRoute) */}
+        <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/customers" element={<Customers />} />
-          <Route path="/products" element={<Courses />} />
           <Route path="/products" element={<Courses />} />
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/craftsmen" element={<Mentor />} />
@@ -41,14 +46,12 @@ function App() {
           <Route path="/settings" element={<Settings />} />
         </Route>
 
-        {/* 2. AUTH ROUTES (Halaman Penuh tanpa Sidebar) */}
+        {/* 2. AUTH ROUTES */}
         <Route element={<AuthLayout />}>
-          {/* Path Standar */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot" element={<Forgot />} />
           
-          {/* Path Alias (Untuk memastikan link /auth/... tetap bekerja) */}
           <Route path="/auth/login" element={<Login />} />
           <Route path="/auth/register" element={<Register />} />
           <Route path="/auth/forgot" element={<Forgot />} />
@@ -62,4 +65,4 @@ function App() {
   )
 }
 
-export default App
+export default App;
