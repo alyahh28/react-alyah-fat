@@ -51,7 +51,7 @@ function App() {
 
         {/* 1. PRIVATE ROUTES (Admin/User) */}
         <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/  " element={<Dashboard />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/products" element={<Courses isGuest={false} />} />
