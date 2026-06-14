@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import FloatingChat from "@/components/FloatingChat";
 import {
   ShoppingCart,
   Heart,
@@ -26,7 +27,8 @@ const allProducts = [
     material: "Kayu Jati & Linen Premium",
     harga: 12500000,
     kategori: "Ruang Tamu",
-    gambar: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    gambar:
+      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     badge: "Best Seller",
     rating: 5,
   },
@@ -36,7 +38,8 @@ const allProducts = [
     material: "Rotan Sintetis & Kayu Mahoni",
     harga: 4200000,
     kategori: "Ruang Tamu",
-    gambar: "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    gambar:
+      "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     badge: "New",
     rating: 4,
   },
@@ -46,7 +49,8 @@ const allProducts = [
     material: "Kayu Mangga Solid",
     harga: 9800000,
     kategori: "Kamar Tidur",
-    gambar: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    gambar:
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     badge: "Promo",
     rating: 4,
   },
@@ -56,7 +60,8 @@ const allProducts = [
     material: "Kayu Pinus & Cermin",
     harga: 5600000,
     kategori: "Kamar Tidur",
-    gambar: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    gambar:
+      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     badge: "",
     rating: 3,
   },
@@ -66,7 +71,8 @@ const allProducts = [
     material: "Kayu Jati Belanda",
     harga: 18900000,
     kategori: "Ruang Makan",
-    gambar: "https://images.unsplash.com/photo-1617098900591-3f90928e8c54?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    gambar:
+      "https://images.unsplash.com/photo-1617098900591-3f90928e8c54?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     badge: "Hot",
     rating: 5,
   },
@@ -76,7 +82,8 @@ const allProducts = [
     material: "Kayu Suar dengan Ukiran Tangan",
     harga: 14200000,
     kategori: "Ruang Makan",
-    gambar: "https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    gambar:
+      "https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     badge: "",
     rating: 4,
   },
@@ -86,7 +93,8 @@ const allProducts = [
     material: "Rotan Alami & Baja Tahan Karat",
     harga: 3800000,
     kategori: "Outdoor",
-    gambar: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    gambar:
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     badge: "Eco",
     rating: 4,
   },
@@ -96,17 +104,38 @@ const allProducts = [
     material: "Kayu Merbau & Kaca Tempered",
     harga: 7900000,
     kategori: "Outdoor",
-    gambar: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    gambar:
+      "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     badge: "",
     rating: 4,
   },
 ];
 
 const categories = [
-  { name: "Ruang Tamu", image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop&auto=format", slug: "ruang-tamu" },
-  { name: "Kamar Tidur", image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=400&h=300&fit=crop&auto=format", slug: "kamar-tidur" },
-  { name: "Ruang Makan", image: "https://images.unsplash.com/photo-1617098900591-3f90928e8c54?w=400&h=300&fit=crop&auto=format", slug: "ruang-makan" },
-  { name: "Outdoor", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&h=300&fit=crop&auto=format", slug: "outdoor" },
+  {
+    name: "Ruang Tamu",
+    image:
+      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop&auto=format",
+    slug: "ruang-tamu",
+  },
+  {
+    name: "Kamar Tidur",
+    image:
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=400&h=300&fit=crop&auto=format",
+    slug: "kamar-tidur",
+  },
+  {
+    name: "Ruang Makan",
+    image:
+      "https://images.unsplash.com/photo-1617098900591-3f90928e8c54?w=400&h=300&fit=crop&auto=format",
+    slug: "ruang-makan",
+  },
+  {
+    name: "Outdoor",
+    image:
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&h=300&fit=crop&auto=format",
+    slug: "outdoor",
+  },
 ];
 
 const testimonials = [
@@ -114,30 +143,47 @@ const testimonials = [
     name: "Rina Anggraini",
     city: "Jakarta",
     stars: 5,
-    quote: "Furnitur dari FurniCraft membuat rumah saya terasa begitu hangat. Kualitasnya luar biasa, desainnya timeless.",
+    quote:
+      "Furnitur dari FurniCraft membuat rumah saya terasa begitu hangat. Kualitasnya luar biasa, desainnya timeless.",
     avatar: "https://i.pravatar.cc/150?img=44",
   },
   {
     name: "Bayu Prasetyo",
     city: "Bandung",
     stars: 5,
-    quote: "Proses pemesanan sangat personal. Saya merasa dilibatkan dalam setiap detail. Hasilnya melebihi ekspektasi.",
+    quote:
+      "Proses pemesanan sangat personal. Saya merasa dilibatkan dalam setiap detail. Hasilnya melebihi ekspektasi.",
     avatar: "https://i.pravatar.cc/150?img=32",
   },
   {
     name: "Dewi Lestari",
     city: "Surabaya",
     stars: 4,
-    quote: "Saya suka bagaimana mereka memadukan estetika modern dengan sentuhan alami. Rumah jadi lebih hidup.",
+    quote:
+      "Saya suka bagaimana mereka memadukan estetika modern dengan sentuhan alami. Rumah jadi lebih hidup.",
     avatar: "https://i.pravatar.cc/150?img=68",
   },
 ];
 
 const faqData = [
-  { question: "Berapa lama pengiriman?", answer: "Estimasi 3-7 hari kerja tergantung wilayah. Untuk area Jabodetabek biasanya 1-2 hari." },
-  { question: "Apakah ada garansi?", answer: "Ya, semua produk bergaransi 1-3 tahun sesuai jenis produk." },
-  { question: "Bisa custom warna?", answer: "Tentu, kami menyediakan layanan custom warna sesuai katalog pilihan." },
-  { question: "Apakah bisa COD?", answer: "COD tersedia untuk area Jabodetabek dan kota besar tertentu." },
+  {
+    question: "Berapa lama pengiriman?",
+    answer:
+      "Estimasi 3-7 hari kerja tergantung wilayah. Untuk area Jabodetabek biasanya 1-2 hari.",
+  },
+  {
+    question: "Apakah ada garansi?",
+    answer: "Ya, semua produk bergaransi 1-3 tahun sesuai jenis produk.",
+  },
+  {
+    question: "Bisa custom warna?",
+    answer:
+      "Tentu, kami menyediakan layanan custom warna sesuai katalog pilihan.",
+  },
+  {
+    question: "Apakah bisa COD?",
+    answer: "COD tersedia untuk area Jabodetabek dan kota besar tertentu.",
+  },
 ];
 
 const keunggulan = [
@@ -163,7 +209,7 @@ const useScrollReveal = (threshold = 0.1) => {
           observer.unobserve(node);
         }
       },
-      { threshold }
+      { threshold },
     );
     observer.observe(node);
     return () => observer.disconnect();
@@ -189,7 +235,8 @@ const ScrollReveal = ({ children, className = "", delay = 0 }) => {
 
 /* ===================== IMAGE FALLBACK ===================== */
 const handleImageError = (e) => {
-  e.target.src = "https://placehold.co/400x300/e2e8f0/475569?text=Gambar+Tidak+Tersedia";
+  e.target.src =
+    "https://placehold.co/400x300/e2e8f0/475569?text=Gambar+Tidak+Tersedia";
 };
 
 /* ===================== MAIN ===================== */
@@ -197,7 +244,12 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState("Semua");
-  const [countdown, setCountdown] = useState({ days: 2, hours: 12, minutes: 0, seconds: 0 });
+  const [countdown, setCountdown] = useState({
+    days: 2,
+    hours: 12,
+    minutes: 0,
+    seconds: 0,
+  });
   const [openFaq, setOpenFaq] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [leadEmail, setLeadEmail] = useState("");
@@ -216,10 +268,19 @@ export default function LandingPage() {
       setCountdown((prev) => {
         let { days, hours, minutes, seconds } = prev;
         if (seconds > 0) seconds--;
-        else if (minutes > 0) { minutes = 59; seconds = 59; }
-        else if (hours > 0) { hours--; minutes = 59; seconds = 59; }
-        else if (days > 0) { days--; hours = 23; minutes = 59; seconds = 59; }
-        else clearInterval(timer);
+        else if (minutes > 0) {
+          minutes = 59;
+          seconds = 59;
+        } else if (hours > 0) {
+          hours--;
+          minutes = 59;
+          seconds = 59;
+        } else if (days > 0) {
+          days--;
+          hours = 23;
+          minutes = 59;
+          seconds = 59;
+        } else clearInterval(timer);
         return { days, hours, minutes, seconds };
       });
     }, 1000);
@@ -227,9 +288,17 @@ export default function LandingPage() {
   }, []);
 
   const filteredProducts =
-    activeFilter === "Semua" ? allProducts : allProducts.filter((p) => p.kategori === activeFilter);
+    activeFilter === "Semua"
+      ? allProducts
+      : allProducts.filter((p) => p.kategori === activeFilter);
 
-  const filters = ["Semua", "Ruang Tamu", "Kamar Tidur", "Ruang Makan", "Outdoor"];
+  const filters = [
+    "Semua",
+    "Ruang Tamu",
+    "Kamar Tidur",
+    "Ruang Makan",
+    "Outdoor",
+  ];
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -251,9 +320,7 @@ export default function LandingPage() {
       {/* ===== HEADER ===== */}
       <header
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
-          scrolled
-            ? "bg-white shadow-md"
-            : "bg-white shadow-sm"
+          scrolled ? "bg-white shadow-md" : "bg-white shadow-sm"
         }`}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
@@ -262,21 +329,34 @@ export default function LandingPage() {
             <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-xl">F</span>
             </div>
-            <span className="font-bold text-2xl text-slate-900">FurniCraft</span>
+            <span className="font-bold text-2xl text-slate-900">
+              FurniCraft
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
-            <a href="#koleksi" className="hover:text-indigo-600 transition">Koleksi</a>
-            <a href="#inspirasi" className="hover:text-indigo-600 transition">Inspirasi</a>
-            <a href="#tentang" className="hover:text-indigo-600 transition">Tentang</a>
-            <a href="#kontak" className="hover:text-indigo-600 transition">Kontak</a>
+            <a href="#koleksi" className="hover:text-indigo-600 transition">
+              Koleksi
+            </a>
+            <a href="#inspirasi" className="hover:text-indigo-600 transition">
+              Inspirasi
+            </a>
+            <a href="#tentang" className="hover:text-indigo-600 transition">
+              Tentang
+            </a>
+            <a href="#kontak" className="hover:text-indigo-600 transition">
+              Kontak
+            </a>
           </nav>
 
           {/* Right actions */}
           <div className="flex items-center space-x-4">
             {/* Search (hidden on mobile) */}
-            <form onSubmit={handleSearch} className="hidden lg:flex items-center bg-slate-100 rounded-full px-4 py-2">
+            <form
+              onSubmit={handleSearch}
+              className="hidden lg:flex items-center bg-slate-100 rounded-full px-4 py-2"
+            >
               <Search size={16} className="text-slate-400" />
               <input
                 type="text"
@@ -290,14 +370,22 @@ export default function LandingPage() {
             {/* Cart */}
             <button className="relative p-2 text-slate-600 hover:text-indigo-600 transition">
               <ShoppingCart size={20} />
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-indigo-600 text-white text-xs rounded-full flex items-center justify-center">2</span>
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-indigo-600 text-white text-xs rounded-full flex items-center justify-center">
+                2
+              </span>
             </button>
 
             {/* Login / CTA */}
-            <Link to="/login" className="hidden md:inline-flex text-sm font-semibold text-slate-700 hover:text-indigo-600 transition">
+            <Link
+              to="/login"
+              className="hidden md:inline-flex text-sm font-semibold text-slate-700 hover:text-indigo-600 transition"
+            >
               Masuk
             </Link>
-            <Link to="/register" className="hidden md:inline-flex bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-5 py-2.5 rounded-full transition shadow-md">
+            <Link
+              to="/register"
+              className="hidden md:inline-flex bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-5 py-2.5 rounded-full transition shadow-md"
+            >
               Daftar
             </Link>
 
@@ -315,7 +403,9 @@ export default function LandingPage() {
         {/* Mobile Menu */}
         <div
           className={`fixed inset-0 bg-white z-40 flex flex-col items-center justify-center space-y-8 text-2xl font-semibold transition-all duration-500 md:hidden ${
-            mobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full pointer-events-none"
+            mobileMenuOpen
+              ? "opacity-100 translate-x-0"
+              : "opacity-0 translate-x-full pointer-events-none"
           }`}
         >
           <button
@@ -324,13 +414,49 @@ export default function LandingPage() {
           >
             <X size={28} />
           </button>
-          <a href="#koleksi" onClick={() => setMobileMenuOpen(false)} className="hover:text-indigo-600">Koleksi</a>
-          <a href="#inspirasi" onClick={() => setMobileMenuOpen(false)} className="hover:text-indigo-600">Inspirasi</a>
-          <a href="#tentang" onClick={() => setMobileMenuOpen(false)} className="hover:text-indigo-600">Tentang</a>
-          <a href="#kontak" onClick={() => setMobileMenuOpen(false)} className="hover:text-indigo-600">Kontak</a>
+          <a
+            href="#koleksi"
+            onClick={() => setMobileMenuOpen(false)}
+            className="hover:text-indigo-600"
+          >
+            Koleksi
+          </a>
+          <a
+            href="#inspirasi"
+            onClick={() => setMobileMenuOpen(false)}
+            className="hover:text-indigo-600"
+          >
+            Inspirasi
+          </a>
+          <a
+            href="#tentang"
+            onClick={() => setMobileMenuOpen(false)}
+            className="hover:text-indigo-600"
+          >
+            Tentang
+          </a>
+          <a
+            href="#kontak"
+            onClick={() => setMobileMenuOpen(false)}
+            className="hover:text-indigo-600"
+          >
+            Kontak
+          </a>
           <div className="flex flex-col gap-4 w-64">
-            <Link to="/login" className="w-full text-center py-3 text-slate-700 border border-slate-200 rounded-full hover:bg-slate-50 transition" onClick={() => setMobileMenuOpen(false)}>Masuk</Link>
-            <Link to="/register" className="w-full text-center py-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition" onClick={() => setMobileMenuOpen(false)}>Daftar</Link>
+            <Link
+              to="/login"
+              className="w-full text-center py-3 text-slate-700 border border-slate-200 rounded-full hover:bg-slate-50 transition"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Masuk
+            </Link>
+            <Link
+              to="/register"
+              className="w-full text-center py-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Daftar
+            </Link>
           </div>
         </div>
       </header>
@@ -346,7 +472,10 @@ export default function LandingPage() {
           />
         </div>
         <div className="absolute top-20 -left-20 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
-        <div className="absolute bottom-10 -right-20 w-80 h-80 bg-amber-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: "2s" }} />
+        <div
+          className="absolute bottom-10 -right-20 w-80 h-80 bg-amber-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"
+          style={{ animationDelay: "2s" }}
+        />
 
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-8">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 text-xs font-semibold text-white/90">
@@ -354,17 +483,27 @@ export default function LandingPage() {
             Tersedia Diskon Hingga 40%
           </div>
           <h1 className="text-4xl md:text-7xl font-extrabold text-white leading-tight tracking-tight">
-            Furniture Modern untuk <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Rumah Impian</span>
+            Furniture Modern untuk{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">
+              Rumah Impian
+            </span>
           </h1>
           <p className="text-slate-300 text-lg md:text-2xl max-w-2xl mx-auto font-light">
-            Temukan sofa, meja, dan kursi dengan desain premium yang nyaman dan tahan lama.
+            Temukan sofa, meja, dan kursi dengan desain premium yang nyaman dan
+            tahan lama.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4 pt-4">
-            <Link to="/produk" className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-full shadow-xl shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:scale-105 transition-all">
+            <Link
+              to="/produk"
+              className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-full shadow-xl shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:scale-105 transition-all"
+            >
               Belanja Sekarang
             </Link>
-            <Link to="/koleksi" className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white border border-white/30 font-bold rounded-full hover:bg-white/20 transition">
+            <Link
+              to="/koleksi"
+              className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white border border-white/30 font-bold rounded-full hover:bg-white/20 transition"
+            >
               Lihat Koleksi
             </Link>
             <Button className="px-8 py-4 bg-amber-400 text-slate-900 font-bold rounded-full hover:bg-amber-300 transition shadow-lg shadow-amber-500/30">
@@ -379,10 +518,17 @@ export default function LandingPage() {
       </section>
 
       {/* ===== KATEGORI ===== */}
-      <section id="koleksi" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section
+        id="koleksi"
+        className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         <ScrollReveal className="text-center mb-14">
-          <h2 className="text-4xl font-bold text-[#22285E] mb-3">Kategori Pilihan</h2>
-          <p className="text-slate-500 text-lg">Jelajahi berbagai jenis furniture sesuai ruangan dan gaya Anda</p>
+          <h2 className="text-4xl font-bold text-[#22285E] mb-3">
+            Kategori Pilihan
+          </h2>
+          <p className="text-slate-500 text-lg">
+            Jelajahi berbagai jenis furniture sesuai ruangan dan gaya Anda
+          </p>
         </ScrollReveal>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {categories.map((cat, idx) => (
@@ -391,9 +537,16 @@ export default function LandingPage() {
                 to={`/kategori/${cat.slug}`}
                 className="group relative overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 bg-white"
               >
-                <img src={cat.image} alt={cat.name} className="w-full h-40 object-cover group-hover:scale-110 transition duration-500" onError={handleImageError} />
+                <img
+                  src={cat.image}
+                  alt={cat.name}
+                  className="w-full h-40 object-cover group-hover:scale-110 transition duration-500"
+                  onError={handleImageError}
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-4">
-                  <h3 className="text-white font-semibold text-lg">{cat.name}</h3>
+                  <h3 className="text-white font-semibold text-lg">
+                    {cat.name}
+                  </h3>
                 </div>
               </Link>
             </ScrollReveal>
@@ -405,8 +558,12 @@ export default function LandingPage() {
       <section id="produk" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal className="text-center mb-14">
-            <h2 className="text-4xl font-bold text-[#22285E] mb-3">Produk Unggulan</h2>
-            <p className="text-slate-500 text-lg">Koleksi terbaik kami dengan ribuan review positif</p>
+            <h2 className="text-4xl font-bold text-[#22285E] mb-3">
+              Produk Unggulan
+            </h2>
+            <p className="text-slate-500 text-lg">
+              Koleksi terbaik kami dengan ribuan review positif
+            </p>
           </ScrollReveal>
 
           <div className="flex flex-wrap justify-center gap-3 mb-14">
@@ -425,12 +582,20 @@ export default function LandingPage() {
             ))}
           </div>
 
-          <div key={activeFilter} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+          <div
+            key={activeFilter}
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8"
+          >
             {filteredProducts.map((product, index) => (
               <ScrollReveal key={product.id} delay={index * 100}>
                 <div className="bg-[#F4F4F4] rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col group">
                   <div className="relative overflow-hidden">
-                    <img src={product.gambar} alt={product.nama} className="w-full h-56 object-cover group-hover:scale-105 transition duration-700" onError={handleImageError} />
+                    <img
+                      src={product.gambar}
+                      alt={product.nama}
+                      className="w-full h-56 object-cover group-hover:scale-105 transition duration-700"
+                      onError={handleImageError}
+                    />
                     {product.badge && (
                       <span className="absolute top-3 left-3 bg-amber-400 text-amber-900 text-xs font-bold px-3 py-1 rounded-full shadow">
                         {product.badge}
@@ -441,11 +606,23 @@ export default function LandingPage() {
                     </button>
                   </div>
                   <div className="p-5 flex flex-col flex-1">
-                    <h3 className="font-bold text-xl text-slate-800 mb-1">{product.nama}</h3>
-                    <p className="text-sm text-slate-500 mb-2">{product.material}</p>
+                    <h3 className="font-bold text-xl text-slate-800 mb-1">
+                      {product.nama}
+                    </h3>
+                    <p className="text-sm text-slate-500 mb-2">
+                      {product.material}
+                    </p>
                     <div className="flex items-center gap-1 mb-4">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={16} className={i < product.rating ? "text-amber-400 fill-current" : "text-slate-300"} />
+                        <Star
+                          key={i}
+                          size={16}
+                          className={
+                            i < product.rating
+                              ? "text-amber-400 fill-current"
+                              : "text-slate-300"
+                          }
+                        />
                       ))}
                       <span className="text-sm text-slate-400 ml-1">(128)</span>
                     </div>
@@ -488,8 +665,12 @@ export default function LandingPage() {
       <section id="inspirasi" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal className="text-center mb-14">
-            <h2 className="text-4xl font-bold text-[#22285E] mb-3">Inspirasi Ruangan</h2>
-            <p className="text-slate-500 text-lg">Lihat furniture kami dalam suasana nyata</p>
+            <h2 className="text-4xl font-bold text-[#22285E] mb-3">
+              Inspirasi Ruangan
+            </h2>
+            <p className="text-slate-500 text-lg">
+              Lihat furniture kami dalam suasana nyata
+            </p>
           </ScrollReveal>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {/* Ruang Tamu */}
@@ -556,17 +737,29 @@ export default function LandingPage() {
       </section>
 
       {/* ===== TESTIMONI ===== */}
-      <section id="testimoni" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section
+        id="testimoni"
+        className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         <ScrollReveal className="text-center mb-14">
-          <h2 className="text-4xl font-bold text-[#22285E] mb-3">Apa Kata Pelanggan</h2>
-          <p className="text-slate-500 text-lg">Ribuan pelanggan sudah merasakan kualitas kami</p>
+          <h2 className="text-4xl font-bold text-[#22285E] mb-3">
+            Apa Kata Pelanggan
+          </h2>
+          <p className="text-slate-500 text-lg">
+            Ribuan pelanggan sudah merasakan kualitas kami
+          </p>
         </ScrollReveal>
         <div className="grid md:grid-cols-3 gap-8">
           {testimonials.map((t, idx) => (
             <ScrollReveal key={idx} delay={idx * 150}>
               <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg transition">
                 <div className="flex items-center gap-4 mb-4">
-                  <img src={t.avatar} alt={t.name} className="w-14 h-14 rounded-full object-cover ring-4 ring-indigo-100" onError={handleImageError} />
+                  <img
+                    src={t.avatar}
+                    alt={t.name}
+                    className="w-14 h-14 rounded-full object-cover ring-4 ring-indigo-100"
+                    onError={handleImageError}
+                  />
                   <div>
                     <div className="font-bold text-slate-900">{t.name}</div>
                     <div className="text-slate-400 text-sm">{t.city}</div>
@@ -574,7 +767,13 @@ export default function LandingPage() {
                 </div>
                 <div className="flex text-amber-400 mb-2">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16} className={i < t.stars ? "fill-current" : "text-slate-300"} />
+                    <Star
+                      key={i}
+                      size={16}
+                      className={
+                        i < t.stars ? "fill-current" : "text-slate-300"
+                      }
+                    />
                   ))}
                 </div>
                 <p className="text-slate-600 italic">"{t.quote}"</p>
@@ -587,13 +786,25 @@ export default function LandingPage() {
       {/* ===== PROMO ===== */}
       <section className="py-20 bg-gradient-to-r from-amber-400 to-orange-500">
         <div className="max-w-4xl mx-auto px-4 text-center space-y-8">
-          <span className="inline-block bg-slate-900 text-amber-300 text-sm font-bold px-4 py-1 rounded-full">FLASH SALE</span>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900">Diskon Hingga 40%</h2>
-          <p className="text-slate-800 text-lg">Promo akhir pekan terbatas! Jangan sampai ketinggalan.</p>
+          <span className="inline-block bg-slate-900 text-amber-300 text-sm font-bold px-4 py-1 rounded-full">
+            FLASH SALE
+          </span>
+          <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900">
+            Diskon Hingga 40%
+          </h2>
+          <p className="text-slate-800 text-lg">
+            Promo akhir pekan terbatas! Jangan sampai ketinggalan.
+          </p>
           <div className="flex justify-center gap-3 text-2xl font-mono font-bold text-slate-900 bg-white/30 backdrop-blur-sm rounded-2xl py-5 px-8 max-w-md mx-auto">
-            <span>{String(countdown.days).padStart(2, "0")}d</span>:<span>{String(countdown.hours).padStart(2, "0")}h</span>:<span>{String(countdown.minutes).padStart(2, "0")}m</span>:<span>{String(countdown.seconds).padStart(2, "0")}s</span>
+            <span>{String(countdown.days).padStart(2, "0")}d</span>:
+            <span>{String(countdown.hours).padStart(2, "0")}h</span>:
+            <span>{String(countdown.minutes).padStart(2, "0")}m</span>:
+            <span>{String(countdown.seconds).padStart(2, "0")}s</span>
           </div>
-          <Link to="/promo" className="inline-block px-10 py-4 bg-slate-900 text-white font-bold rounded-full hover:bg-slate-800 transition shadow-xl shadow-slate-900/30">
+          <Link
+            to="/promo"
+            className="inline-block px-10 py-4 bg-slate-900 text-white font-bold rounded-full hover:bg-slate-800 transition shadow-xl shadow-slate-900/30"
+          >
             Belanja Sekarang
           </Link>
         </div>
@@ -603,14 +814,34 @@ export default function LandingPage() {
       <section id="tentang" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-12 items-center">
           <ScrollReveal className="order-2 md:order-1">
-            <h2 className="text-4xl font-bold text-[#22285E] mb-6">Tentang FurniCraft</h2>
+            <h2 className="text-4xl font-bold text-[#22285E] mb-6">
+              Tentang FurniCraft
+            </h2>
             <p className="text-slate-600 leading-relaxed mb-6">
-              Sejak 2015, kami menghadirkan furniture premium dengan material kayu pilihan terbaik. Setiap produk dirancang oleh pengrajin berpengalaman untuk memberikan kenyamanan dan keindahan di rumah Anda.
+              Sejak 2015, kami menghadirkan furniture premium dengan material
+              kayu pilihan terbaik. Setiap produk dirancang oleh pengrajin
+              berpengalaman untuk memberikan kenyamanan dan keindahan di rumah
+              Anda.
             </p>
             <div className="grid grid-cols-3 gap-6 text-center">
-              <div><div className="text-3xl font-extrabold text-indigo-600">8+</div><div className="text-slate-500 text-sm">Tahun</div></div>
-              <div><div className="text-3xl font-extrabold text-indigo-600">50K+</div><div className="text-slate-500 text-sm">Pelanggan</div></div>
-              <div><div className="text-3xl font-extrabold text-indigo-600">100%</div><div className="text-slate-500 text-sm">Kayu Asli</div></div>
+              <div>
+                <div className="text-3xl font-extrabold text-indigo-600">
+                  8+
+                </div>
+                <div className="text-slate-500 text-sm">Tahun</div>
+              </div>
+              <div>
+                <div className="text-3xl font-extrabold text-indigo-600">
+                  50K+
+                </div>
+                <div className="text-slate-500 text-sm">Pelanggan</div>
+              </div>
+              <div>
+                <div className="text-3xl font-extrabold text-indigo-600">
+                  100%
+                </div>
+                <div className="text-slate-500 text-sm">Kayu Asli</div>
+              </div>
             </div>
           </ScrollReveal>
           <ScrollReveal delay={200} className="order-1 md:order-2">
@@ -625,9 +856,14 @@ export default function LandingPage() {
       </section>
 
       {/* ===== FAQ ===== */}
-      <section id="faq" className="py-20 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section
+        id="faq"
+        className="py-20 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         <ScrollReveal className="text-center mb-14">
-          <h2 className="text-4xl font-bold text-[#22285E] mb-3">Pertanyaan Umum</h2>
+          <h2 className="text-4xl font-bold text-[#22285E] mb-3">
+            Pertanyaan Umum
+          </h2>
         </ScrollReveal>
         <div className="space-y-4">
           {faqData.map((item, idx) => (
@@ -638,10 +874,18 @@ export default function LandingPage() {
                   onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
                 >
                   {item.question}
-                  <span className={`transform transition-transform duration-300 text-2xl ${openFaq === idx ? "rotate-45 text-indigo-600" : "text-slate-400"}`}>+</span>
+                  <span
+                    className={`transform transition-transform duration-300 text-2xl ${openFaq === idx ? "rotate-45 text-indigo-600" : "text-slate-400"}`}
+                  >
+                    +
+                  </span>
                 </button>
-                <div className={`transition-all duration-500 ease-in-out ${openFaq === idx ? "max-h-40 opacity-100" : "max-h-0 opacity-0"} overflow-hidden`}>
-                  <div className="px-6 pb-4 text-slate-600 border-t border-slate-100 pt-3 bg-slate-50/50">{item.answer}</div>
+                <div
+                  className={`transition-all duration-500 ease-in-out ${openFaq === idx ? "max-h-40 opacity-100" : "max-h-0 opacity-0"} overflow-hidden`}
+                >
+                  <div className="px-6 pb-4 text-slate-600 border-t border-slate-100 pt-3 bg-slate-50/50">
+                    {item.answer}
+                  </div>
                 </div>
               </div>
             </ScrollReveal>
@@ -653,9 +897,14 @@ export default function LandingPage() {
       <section id="kontak" className="py-20 bg-slate-900 text-white">
         <div className="max-w-2xl mx-auto px-4 text-center space-y-6">
           <h2 className="text-3xl font-bold">Dapatkan Promo Eksklusif</h2>
-          <p className="text-slate-400">Berlangganan newsletter kami dan dapatkan diskon 20% pertama Anda</p>
+          <p className="text-slate-400">
+            Berlangganan newsletter kami dan dapatkan diskon 20% pertama Anda
+          </p>
           {!isSubmitted ? (
-            <form onSubmit={handleNewsletter} className="flex gap-2 max-w-md mx-auto">
+            <form
+              onSubmit={handleNewsletter}
+              className="flex gap-2 max-w-md mx-auto"
+            >
               <Input
                 type="email"
                 placeholder="Alamat email Anda"
@@ -664,13 +913,17 @@ export default function LandingPage() {
                 required
                 className="flex-1 bg-slate-800 border-slate-700 rounded-full text-white placeholder-slate-500 focus:ring-amber-400"
               />
-              <Button type="submit" className="bg-amber-400 text-slate-900 font-bold rounded-full px-6 hover:bg-amber-300 transition">
+              <Button
+                type="submit"
+                className="bg-amber-400 text-slate-900 font-bold rounded-full px-6 hover:bg-amber-300 transition"
+              >
                 Klaim
               </Button>
             </form>
           ) : (
             <div className="p-4 bg-emerald-600/20 border border-emerald-500 rounded-xl text-emerald-300 font-semibold max-w-md mx-auto">
-              🎉 Terima kasih! Kode voucher diskon 20% telah dikirim ke email Anda.
+              🎉 Terima kasih! Kode voucher diskon 20% telah dikirim ke email
+              Anda.
             </div>
           )}
         </div>
@@ -682,9 +935,21 @@ export default function LandingPage() {
           <div>
             <h4 className="text-white font-bold mb-4">Tentang</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/tentang" className="hover:text-amber-400 transition">Cerita Kami</Link></li>
-              <li><Link to="/tim" className="hover:text-amber-400 transition">Tim</Link></li>
-              <li><Link to="/karir" className="hover:text-amber-400 transition">Karir</Link></li>
+              <li>
+                <Link to="/tentang" className="hover:text-amber-400 transition">
+                  Cerita Kami
+                </Link>
+              </li>
+              <li>
+                <Link to="/tim" className="hover:text-amber-400 transition">
+                  Tim
+                </Link>
+              </li>
+              <li>
+                <Link to="/karir" className="hover:text-amber-400 transition">
+                  Karir
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
@@ -692,7 +957,12 @@ export default function LandingPage() {
             <ul className="space-y-2 text-sm">
               {categories.map((cat) => (
                 <li key={cat.slug}>
-                  <Link to={`/kategori/${cat.slug}`} className="hover:text-amber-400 transition">{cat.name}</Link>
+                  <Link
+                    to={`/kategori/${cat.slug}`}
+                    className="hover:text-amber-400 transition"
+                  >
+                    {cat.name}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -708,22 +978,37 @@ export default function LandingPage() {
           <div>
             <h4 className="text-white font-bold mb-4">Ikuti Kami</h4>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-amber-400 hover:text-slate-900 transition">
+              <a
+                href="#"
+                className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-amber-400 hover:text-slate-900 transition"
+              >
                 <span className="text-sm font-bold">IG</span>
               </a>
-              <a href="#" className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-amber-400 hover:text-slate-900 transition">
+              <a
+                href="#"
+                className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-amber-400 hover:text-slate-900 transition"
+              >
                 <span className="text-sm font-bold">TT</span>
               </a>
-              <a href="#" className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-amber-400 hover:text-slate-900 transition">
+              <a
+                href="#"
+                className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-amber-400 hover:text-slate-900 transition"
+              >
                 <span className="text-sm font-bold">PIN</span>
               </a>
             </div>
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 pt-6 border-t border-slate-800 text-sm text-center">
-          &copy; {new Date().getFullYear()} FurniCraft. All rights reserved. | <Link to="/privacy" className="hover:text-amber-400 transition">Kebijakan Privasi</Link>
+          &copy; {new Date().getFullYear()} FurniCraft. All rights reserved. |{" "}
+          <Link to="/privacy" className="hover:text-amber-400 transition">
+            Kebijakan Privasi
+          </Link>
         </div>
       </footer>
+
+      {/* ===== FLOATING CHATBOT ===== */}
+      <FloatingChat />
 
       {/* ===== FLOATING WHATSAPP ===== */}
       <div className="fixed bottom-6 right-6 z-50 group flex flex-col items-end">
