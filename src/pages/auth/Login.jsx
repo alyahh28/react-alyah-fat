@@ -7,6 +7,8 @@ import { FcGoogle } from "react-icons/fc";
 
 import Logo from "../../assets/Logo.png";
 import BackgroundWave from "../../assets/style.png";
+// 🌟 Import service API autentikasi Supabase
+import { authAPI } from "../../services/authAPI";
 
 export default function Login() {
     const navigate = useNavigate();
@@ -19,35 +21,33 @@ export default function Login() {
         setDataForm({ ...dataForm, [name]: value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError("");
 
-        // Menggunakan setTimeout untuk memberikan efek simulasi loading otentikasi
-        setTimeout(() => {
-            // Ambil data akun yang sebelumnya sudah didaftarkan lewat form Register
-            const savedAccount = localStorage.getItem("userAccount");
+        try {
+            // 🌟 Cari data user ke Supabase REST API menggunakan email dan password
+            const usersFound = await authAPI.loginUser(dataForm.email, dataForm.password);
 
-            if (!savedAccount) {
-                setError("Akun belum terdaftar! Silakan registrasi terlebih dahulu.");
-                setLoading(false);
-                return;
-            }
-
-            const parsedAccount = JSON.parse(savedAccount);
-
-            // Validasi pencocokan username/email dan password
-            if (dataForm.email === parsedAccount.email && dataForm.password === parsedAccount.password) {
-                // Set token/status penanda sesi login aktif
+            // Supabase REST API mengembalikan array. Jika kosong, berarti kredensial salah.
+            if (usersFound && usersFound.length > 0) {
+                // Set status penanda sesi login aktif agar diizinkan lewat di ProtectedRoute
                 localStorage.setItem("isLoggedIn", "true");
-                setLoading(false);
-                navigate("/"); // Alihkan ke halaman dashboard utama
+                
+                // Simpan juga info nama user aktif ke session jika sewaktu-waktu ingin ditampilkan di dashboard
+                localStorage.setItem("activeUser", usersFound[0].fullName);
+
+                navigate("/"); // Alihkan langsung ke dashboard utama LuxWood
             } else {
-                setError("Username atau Password salah! Cek kembali data Anda.");
-                setLoading(false);
+                setError("Username/Email atau Password salah! Cek kembali data Anda.");
             }
-        }, 1000);
+        } catch (err) {
+            console.error(err);
+            setError("Gagal terhubung ke server database. Periksa konfigurasi Supabase Anda.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (

@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+// 🌟 Import service API yang telah dibuat
+import { authAPI } from "../../services/authAPI";
 
 export default function Register() {
     const navigate = useNavigate();
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         fullName: "",
         email: "",
@@ -15,20 +18,33 @@ export default function Register() {
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleRegister = (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
         setError("");
+        setLoading(true);
 
         if (!formData.fullName || !formData.email || !formData.password) {
             setError("Semua kolom formulir wajib diisi!");
+            setLoading(false);
             return;
         }
 
-        // Simpan data akun pendaftaran secara lokal ke localStorage
-        localStorage.setItem("userAccount", JSON.stringify(formData));
+        try {
+            // 🌟 Jalankan query insert data user baru ke tabel Supabase via REST API
+          await authAPI.registerUser({
+        fullname: formData.fullName, // 👈 Ganti dari fullName menjadi fullname
+        email: formData.email,
+        password: formData.password
+    });
 
-        // Setelah berhasil mendaftar, otomatis arahkan ke halaman login
-        navigate("/login");
+    // Jika sukses, arahkan ke login
+    navigate("/login");
+        } catch (err) {
+            console.error(err);
+            setError("Pendaftaran gagal! Silakan periksa koneksi internet atau gunakan email lain.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -79,8 +95,12 @@ export default function Register() {
                         required
                     />
                 </div>
-                <button type="submit" className="w-full bg-amber-800 hover:bg-amber-900 text-white font-bold py-3 rounded-xl mt-4 transition-all text-sm shadow-md">
-                    Create Account
+                <button 
+                    type="submit" 
+                    disabled={loading}
+                    className="w-full bg-amber-800 hover:bg-amber-900 text-white font-bold py-3 rounded-xl mt-4 transition-all text-sm shadow-md flex justify-center items-center"
+                >
+                    {loading ? "Memproses..." : "Create Account"}
                 </button>
             </form>
             <p className="mt-6 text-center text-sm text-stone-500">
