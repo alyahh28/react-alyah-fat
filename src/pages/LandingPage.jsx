@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import FloatingChat from "@/components/FloatingChat";
+import Logo from "../assets/Logo.png";
 import {
   ShoppingCart,
   Heart,
@@ -63,7 +64,7 @@ const allProducts = [
     harga: 5600000,
     kategori: "Kamar Tidur",
     gambar:
-      "https://images.unsplash.com/photo-1765745518752-68a289300789?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1765745518752-68a289300789?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D  ",
     badge: "",
     rating: 3,
   },
@@ -352,9 +353,14 @@ export default function LandingPage() {
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center shadow-md shadow-indigo-500/30">
-              <span className="text-white font-bold text-xl">F</span>
+          {/* 🌟 PERBAIKAN 2: Pembaruan komponen Logo menggunakan Gambar format .png */}
+          <Link to="/" className="flex items-center space-x-3 group">
+            <div className="w-10 h-10 bg-gradient-to-br from-indigo-200 to-violet-600 rounded-xl flex items-center justify-center shadow-md shadow-indigo-500/30 overflow-hidden">
+              <img 
+                src={Logo} 
+                alt="FurniCraft Logo" 
+                className="w-full h-full object-cover p-1.5" 
+              />
             </div>
             <span className={`font-bold text-2xl transition-colors duration-300 ${scrolled ? "text-slate-900" : "text-white"}`}>
               FurniCraft

@@ -1,5 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { BsFillExclamationDiamondFill } from "react-icons/bs";
+import { ImSpinner2 } from "react-icons/im";
+
+import Logo from "../../assets/Logo.png";
+import BackgroundWave from "../../assets/style.png";
 // 🌟 Import service API yang telah dibuat
 import { authAPI } from "../../services/authAPI";
 
@@ -31,81 +36,92 @@ export default function Register() {
 
         try {
             // 🌟 Jalankan query insert data user baru ke tabel Supabase via REST API
-          await authAPI.registerUser({
-        fullname: formData.fullName, // 👈 Ganti dari fullName menjadi fullname
-        email: formData.email,
-        password: formData.password
-    });
+            await authAPI.registerUser({
+                fullname: formData.fullName, // 👈 Menggunakan fullname sesuai skema database Supabase Anda
+                email: formData.email,
+                password: formData.password
+            });
 
-    // Jika sukses, arahkan ke login
-    navigate("/login");
+            // Jika sukses, arahkan ke login
+            navigate("/login");
         } catch (err) {
             console.error(err);
             setError("Pendaftaran gagal! Silakan periksa koneksi internet atau gunakan email lain.");
         } finally {
-            setLoading(false);
+            loading(false);
         }
     };
 
     return (
-        <div className="w-full max-w-[360px] mx-auto p-4">
-            <h2 className="text-2xl font-bold text-stone-800 mb-2 text-center">Join LuxWood</h2>
-            <p className="text-sm text-stone-500 mb-6 text-center">Create account to manage your furniture orders.</p>
-            
-            {error && (
-                <div className="mb-4 p-3 bg-red-50 text-red-600 border border-red-100 rounded-xl text-xs text-center font-medium">
-                    {error}
-                </div>
-            )}
+        <div className="fixed inset-0 w-screen h-screen bg-background font-poppins flex items-center justify-center overflow-hidden">
+            {/* Latar Belakang Gelombang */}
+            <div className="absolute top-0 left-0 h-full w-full pointer-events-none -z-10">
+                <img src={BackgroundWave} alt="Background Decor" className="h-full w-auto object-cover object-left" />
+            </div>
 
-            <form onSubmit={handleRegister} className="space-y-4">
-                <div>
-                    <label className="block text-xs font-semibold text-stone-600 mb-1">Full Name</label>
+            {/* Dekorasi Lingkaran */}
+            <div className="absolute -top-20 -right-20 w-80 h-80 border border-primary/20 rounded-full pointer-events-none -z-10"></div>
+
+            <div className="w-full max-w-[360px] px-4 flex flex-col items-center">
+                {/* Logo & Judul Utama */}
+                <img src={Logo} alt="Logo" className="w-20 h-auto mb-4" />
+                <h1 className="text-[30px] font-bold text-primary mb-2 text-center">Join FurniCraft</h1>
+                <p className="text-xs text-text/60 mb-6 text-center">Create account to manage your furniture orders.</p>
+                
+                {/* Kotak Pesan Error */}
+                {error && (
+                    <div className="w-full mb-4 p-3 bg-red-50 text-red-600 border border-red-100 rounded-xl flex items-center gap-2 text-[12px] font-medium">
+                        <BsFillExclamationDiamondFill className="shrink-0" /> {error}
+                    </div>
+                )}
+
+                {/* Formulir Pendaftaran */}
+                <form onSubmit={handleRegister} className="w-full space-y-4">
                     <input 
                         type="text" 
                         name="fullName"
                         value={formData.fullName}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-600 outline-none" 
-                        placeholder="John Doe" 
+                        placeholder="Full Name" 
+                        className="w-full px-5 py-3.5 bg-[#F2F2F2] border-none rounded-xl text-shade text-sm outline-none focus:ring-2 focus:ring-primary/30 placeholder:text-text/60"
                         required
                     />
-                </div>
-                <div>
-                    <label className="block text-xs font-semibold text-stone-600 mb-1">Email Address / Username</label>
+                    
                     <input 
                         type="text" 
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-600 outline-none" 
-                        placeholder="john@example.com atau john123" 
+                        placeholder="Username / Email Address" 
+                        className="w-full px-5 py-3.5 bg-[#F2F2F2] border-none rounded-xl text-shade text-sm outline-none focus:ring-2 focus:ring-primary/30 placeholder:text-text/60"
                         required
                     />
-                </div>
-                <div>
-                    <label className="block text-xs font-semibold text-stone-600 mb-1">Password</label>
+                    
                     <input 
                         type="password" 
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
-                        placeholder="••••••••" 
-                        className="w-full px-4 py-2 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-600 outline-none" 
+                        placeholder="Password" 
+                        className="w-full px-5 py-3.5 bg-[#F2F2F2] border-none rounded-xl text-shade text-sm outline-none focus:ring-2 focus:ring-primary/30 placeholder:text-text/60"
                         required
                     />
+
+                    {/* Tombol Kirim */}
+                    <button 
+                        type="submit" 
+                        disabled={loading}
+                        className="w-full bg-primary hover:opacity-90 text-white font-bold py-3.5 rounded-xl mt-4 shadow-lg shadow-primary/30 transition-all flex justify-center items-center text-sm"
+                    >
+                        {loading ? <ImSpinner2 className="animate-spin text-lg" /> : "Create Account"}
+                    </button>
+                </form>
+
+                {/* Tautan Navigasi Kembali */}
+                <div className="mt-10 text-[13px] text-text">
+                    Already member? <Link to="/login" className="text-primary font-bold hover:underline">Login here</Link>
                 </div>
-                <button 
-                    type="submit" 
-                    disabled={loading}
-                    className="w-full bg-amber-800 hover:bg-amber-900 text-white font-bold py-3 rounded-xl mt-4 transition-all text-sm shadow-md flex justify-center items-center"
-                >
-                    {loading ? "Memproses..." : "Create Account"}
-                </button>
-            </form>
-            <p className="mt-6 text-center text-sm text-stone-500">
-                Already member? <Link to="/login" className="text-amber-700 font-bold hover:underline">Login here</Link>
-            </p>
+            </div>
         </div>
     );
 }
