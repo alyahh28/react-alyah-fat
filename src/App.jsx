@@ -9,7 +9,7 @@ const AuthLayout = React.lazy(() => import('./layouts/AuthLayout.jsx'))
 const GuestLayout = React.lazy(() => import('./layouts/GuestLayout.jsx'))
 
 // --- LAZY LOADING PAGES (GUEST / PUBLIK) ---
-const LandingPage = React.lazy(() => import('./pages/LandingPage.jsx')) // 👈 Halaman default
+const LandingPage = React.lazy(() => import('./pages/LandingPage.jsx')) 
 const GuestDashboard = React.lazy(() => import('./pages/GuestDashboard.jsx'))
 
 // --- LAZY LOADING PAGES (ADMIN) ---
@@ -31,7 +31,7 @@ const Forgot = React.lazy(() => import('./pages/auth/Forgot.jsx'))
 // 🔒 Komponen Pelindung Rute (Mencegah Akses Tanpa Login)
 function ProtectedRoute({ children }) {
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-  // Jika belum login, arahkan ke landing page (bebas diakses)
+  // Jika belum login, ARahkan ke Landing Page
   return isLoggedIn ? children : <Navigate to="/" replace />;
 }
 
@@ -41,15 +41,13 @@ function App() {
       <Routes>
         {/* 🌟 PUBLIC / GUEST ROUTES */}
         <Route element={<GuestLayout />}>
-          {/* Halaman default sekarang LandingPage */}
           <Route index element={<LandingPage />} />
-          {/* Route opsional guest dashboard (bisa diakses via /guest) */}
           <Route path="/guest" element={<GuestDashboard />} />
           <Route path="/guest/products" element={<Courses isGuest={true} />} />
           <Route path="/guest/products/:id" element={<ProductDetail isGuest={true} />} />
         </Route>
 
-        {/* 1. PRIVATE ROUTES (Admin/User) */}
+        {/* 🔒 1. PRIVATE ROUTES (Wajib Login) */}
         <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/orders" element={<Orders />} />
@@ -61,7 +59,7 @@ function App() {
           <Route path="/settings" element={<Settings />} />
         </Route>
 
-        {/* 2. AUTH ROUTES */}
+        {/* 🔓 2. AUTH ROUTES */}
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
