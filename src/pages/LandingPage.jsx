@@ -911,7 +911,7 @@ export default function LandingPage() {
                 value={leadEmail}
                 onChange={(e) => setLeadEmail(e.target.value)}
                 required
-                className="flex-1 bg-slate-800 border-slate-700 rounded-full text-white placeholder-slate-500 focus:ring-amber-400"
+                className="flex-1 bg-slate-800 border-slate-700 rounded-full text-black placeholder-slate-500 focus:ring-amber-400"
               />
               <Button
                 type="submit"
