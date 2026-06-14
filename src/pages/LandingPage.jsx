@@ -72,18 +72,18 @@ const allProducts = [
     harga: 18900000,
     kategori: "Ruang Makan",
     gambar:
-      "https://images.unsplash.com/photo-1617098900591-3f90928e8c54?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1602872030490-4a484a7b3ba6?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     badge: "Hot",
     rating: 5,
   },
   {
     id: 6,
-    nama: "Bufet Penyimpanan Kayu Ukir",
+    nama: "Ruang Makan Minimalis ",
     material: "Kayu Suar dengan Ukiran Tangan",
     harga: 14200000,
     kategori: "Ruang Makan",
     gambar:
-      "https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1723750290151-164cb19ebab7?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     badge: "",
     rating: 4,
   },
@@ -100,12 +100,12 @@ const allProducts = [
   },
   {
     id: 8,
-    nama: "Set Meja Teras Minimalis",
+    nama: "Set Meja dan kursi Teras Minimalis",
     material: "Kayu Merbau & Kaca Tempered",
     harga: 7900000,
     kategori: "Outdoor",
     gambar:
-      "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1600210492090-a159ffa3aeaf?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     badge: "",
     rating: 4,
   },
@@ -115,7 +115,7 @@ const categories = [
   {
     name: "Ruang Tamu",
     image:
-      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop&auto=format",
+      "https://images.unsplash.com/photo-1631679706909-1844bbd07221?q=80&w=1092&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     slug: "ruang-tamu",
   },
   {
@@ -127,7 +127,7 @@ const categories = [
   {
     name: "Ruang Makan",
     image:
-      "https://images.unsplash.com/photo-1617098900591-3f90928e8c54?w=400&h=300&fit=crop&auto=format",
+      "https://images.unsplash.com/photo-1593136596203-7212b076f4d2?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     slug: "ruang-makan",
   },
   {
@@ -677,7 +677,7 @@ export default function LandingPage() {
             <ScrollReveal delay={150}>
               <div className="group relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition">
                 <img
-                  src="https://images.unsplash.com/photo-1586105251261-72a756497a11?w=400&h=300&fit=crop&auto=format"
+                  src="https://images.unsplash.com/photo-1631679706909-1844bbd07221?q=80&w=1092&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                   alt="Ruang Tamu"
                   className="w-full h-52 object-cover group-hover:scale-110 transition duration-700"
                   onError={handleImageError}
@@ -722,7 +722,7 @@ export default function LandingPage() {
             <ScrollReveal delay={600}>
               <div className="group relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition">
                 <img
-                  src="https://images.unsplash.com/photo-1600585152220-90363fe7e115?w=400&h=300&fit=crop&auto=format"
+                  src="https://images.unsplash.com/photo-1593136596203-7212b076f4d2?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                   alt="Ruang Makan"
                   className="w-full h-52 object-cover group-hover:scale-110 transition duration-700"
                   onError={handleImageError}
