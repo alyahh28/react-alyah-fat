@@ -9,7 +9,7 @@ import CurrencyStatusCard from "../components/CurrencyStatusCard";
 import MiningStatusCard from "../components/MiningStatusCard";
 import MyBalancesCard from "../components/MyBalancesCard";
 
-export default function Dashboard() {
+export default function Dashboard() {   
     return (
         <div className="flex-1 bg-[#F4F4F4] min-h-screen p-8 overflow-x-hidden font-poppins text-slate-800">
             
