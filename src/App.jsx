@@ -16,6 +16,7 @@ const GuestDashboard = React.lazy(() => import('./pages/GuestDashboard.jsx'))
 const Dashboard = React.lazy(() => import('./pages/Dashboard.jsx'))
 const Orders = React.lazy(() => import('./pages/Orders.jsx'))
 const Customers = React.lazy(() => import('./pages/Customers.jsx'))
+const Users = React.lazy(() => import('./pages/Users.jsx')) 
 const Courses = React.lazy(() => import('./pages/Courses.jsx'))
 const ProductDetail = React.lazy(() => import('./pages/ProductDetail.jsx'))
 const Mentor = React.lazy(() => import('./pages/Mentor.jsx'))
@@ -28,11 +29,25 @@ const Login = React.lazy(() => import('./pages/auth/Login.jsx'))
 const Register = React.lazy(() => import('./pages/auth/Register.jsx'))
 const Forgot = React.lazy(() => import('./pages/auth/Forgot.jsx'))
 
-// 🔒 Komponen Pelindung Rute (Mencegah Akses Tanpa Login)
+// 🔒 1. Komponen Pelindung Private Route (Mencegah Akses Admin Tanpa Login)
 function ProtectedRoute({ children }) {
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-  // Jika belum login, ARahkan ke Landing Page
+  // Jika BELUM login, arahkan paksa ke Landing Page (Rute Root /)
   return isLoggedIn ? children : <Navigate to="/" replace />;
+}
+
+// 🔓 2. Komponen Pelindung Auth Route (Mencegah User yang Sudah Login Mengakses Halaman Login/Register Lagi)
+// Jika mereka sudah masuk, arahkan langsung ke /dashboard
+function PublicRoute({ children }) {
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  return !isLoggedIn ? children : <Navigate to="/dashboard" replace />;
+}
+
+// 🏠 3. Logika Penentu Rute Root (/)
+// Jika sudah login, komponen ini akan meneruskan ke /dashboard. Jika belum, barulah menampilkan LandingPage.
+function RootRoute() {
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  return isLoggedIn ? <Navigate to="/dashboard" replace /> : <LandingPage />;
 }
 
 function App() {
@@ -41,17 +56,19 @@ function App() {
       <Routes>
         {/* 🌟 PUBLIC / GUEST ROUTES */}
         <Route element={<GuestLayout />}>
-          <Route index element={<LandingPage />} />
+          {/* Perubahan Utama: index tidak langsung memanggil LandingPage, tetapi melewati pengecekan RootRoute */}
+          <Route index element={<RootRoute />} />
           <Route path="/guest" element={<GuestDashboard />} />
           <Route path="/guest/products" element={<Courses isGuest={true} />} />
           <Route path="/guest/products/:id" element={<ProductDetail isGuest={true} />} />
         </Route>
 
-        {/* 🔒 1. PRIVATE ROUTES (Wajib Login) */}
+        {/* 🔒 PRIVATE ROUTES (Wajib Login) */}
         <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/customers" element={<Customers />} />
+          <Route path="/users" element={<Users />} /> 
           <Route path="/products" element={<Courses isGuest={false} />} />
           <Route path="/products/:id" element={<ProductDetail isGuest={false} />} />
           <Route path="/craftsmen" element={<Mentor />} />
@@ -59,8 +76,8 @@ function App() {
           <Route path="/settings" element={<Settings />} />
         </Route>
 
-        {/* 🔓 2. AUTH ROUTES */}
-        <Route element={<AuthLayout />}>
+        {/* 🔓 AUTH ROUTES (Diproteksi oleh PublicRoute agar tidak bisa diakses jika sudah login) */}
+        <Route element={<PublicRoute><AuthLayout /></PublicRoute>}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot" element={<Forgot />} />

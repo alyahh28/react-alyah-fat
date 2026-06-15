@@ -3,6 +3,7 @@ import {
   MdOutlineChair,
   MdShoppingCart,
   MdPeople,
+  MdSupervisorAccount, // 🌟 Gunakan ikon ini untuk membedakan dengan Customers
   MdHandyman,
   MdMessage,
   MdSettings,
@@ -16,9 +17,7 @@ export default function Sidebar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Hapus penanda sesi login aktif dari localStorage
     localStorage.removeItem("isLoggedIn");
-    // Bawa admin kembali keluar menuju halaman login
     navigate("/login");
   };
 
@@ -43,7 +42,6 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex flex-col space-y-2 flex-1">
-        {/* PERBAIKAN: Menggunakan NavLink dan MdDashboard agar rapi dan seragam */}
         <NavLink to="/dashboard" className={menuClass}>
           <MdDashboard className="text-xl" /> <span>Dashboard</span>
         </NavLink>
@@ -57,6 +55,12 @@ export default function Sidebar() {
         <NavLink to="/customers" className={menuClass}>
           <MdPeople className="text-xl" /> <span>Customers</span>
         </NavLink>
+        
+        {/* 🌟 BARU: Menu Navigasi Samping menuju Halaman Users CRM */}
+        <NavLink to="/users" className={menuClass}>
+          <MdSupervisorAccount className="text-xl" /> <span>Users</span>
+        </NavLink>
+
         <NavLink to="/craftsmen" className={menuClass}>
           <MdHandyman className="text-xl" /> <span>Craftsmen</span>
         </NavLink>
@@ -72,7 +76,6 @@ export default function Sidebar() {
             <MdHelp className="text-xl" /> <span>Help</span>
           </NavLink>
 
-          {/* Tombol Log Out Aktif */}
           <button
             onClick={handleLogout}
             className="flex items-center w-full px-6 py-3.5 space-x-4 text-white/70 font-medium hover:text-white transition-all mt-4 group"

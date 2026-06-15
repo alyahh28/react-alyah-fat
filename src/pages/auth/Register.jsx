@@ -58,7 +58,7 @@ export default function Register() {
             <div className="absolute top-0 left-0 h-full w-full pointer-events-none -z-10">
                 <img src={BackgroundWave} alt="Background Decor" className="h-full w-auto object-cover object-left" />
             </div>
-
+        
             {/* Dekorasi Lingkaran */}
             <div className="absolute -top-20 -right-20 w-80 h-80 border border-primary/20 rounded-full pointer-events-none -z-10"></div>
 

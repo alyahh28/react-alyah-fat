@@ -8,22 +8,21 @@ const headers = {
     apikey: API_KEY,
     Authorization: `Bearer ${API_KEY}`,
     "Content-Type": "application/json",
-    "Prefer": "return=representation" // Menginstruksikan Supabase mengembalikan data objek setelah di-insert/update
+    "Prefer": "return=representation" 
 }
 
 export const authAPI = {
     // 1. Fungsi Registrasi (Insert user baru ke tabel)
-    async registerUser(data) {
+    async registerUser(data) {  
         const response = await axios.post(API_URL, data, { headers })
         return response.data
     },
 
     // 2. Fungsi Login (Cari user berdasarkan email dan password)
     async loginUser(email, password) {
-        // Menggunakan query params Supabase untuk filter: ?email=eq.nilai&password=eq.nilai
         const urlWithFilter = `${API_URL}?email=eq.${encodeURIComponent(email)}&password=eq.${encodeURIComponent(password)}`
         const response = await axios.get(urlWithFilter, { headers })
-        return response.data // Menghasilkan array, kosong jika tidak ditemukan
+        return response.data 
     },
 
     // 3. Fungsi Cek Email Terdaftar (Untuk validasi di halaman forgot)
@@ -38,5 +37,11 @@ export const authAPI = {
         const urlWithFilter = `${API_URL}?email=eq.${encodeURIComponent(email)}`
         const response = await axios.patch(urlWithFilter, { password: newPassword }, { headers })
         return response.data
+    },
+
+    // 🌟 5. BARU: Fungsi mengambil seluruh daftar users dari Supabase
+    async getAllUsers() {
+        const response = await axios.get(API_URL, { headers });
+        return response.data;
     }
 }
