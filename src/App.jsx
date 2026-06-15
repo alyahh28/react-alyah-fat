@@ -32,22 +32,15 @@ const Forgot = React.lazy(() => import('./pages/auth/Forgot.jsx'))
 // 🔒 1. Komponen Pelindung Private Route (Mencegah Akses Admin Tanpa Login)
 function ProtectedRoute({ children }) {
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-  // Jika BELUM login, arahkan paksa ke Landing Page (Rute Root /)
+  // Jika BELUM login dan mencoba bypass ke halaman admin, arahkan paksa ke Landing Page (/)
   return isLoggedIn ? children : <Navigate to="/" replace />;
 }
 
 // 🔓 2. Komponen Pelindung Auth Route (Mencegah User yang Sudah Login Mengakses Halaman Login/Register Lagi)
-// Jika mereka sudah masuk, arahkan langsung ke /dashboard
 function PublicRoute({ children }) {
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  // Jika sudah login tapi iseng ketik /login, langsung arahkan ke /dashboard
   return !isLoggedIn ? children : <Navigate to="/dashboard" replace />;
-}
-
-// 🏠 3. Logika Penentu Rute Root (/)
-// Jika sudah login, komponen ini akan meneruskan ke /dashboard. Jika belum, barulah menampilkan LandingPage.
-function RootRoute() {
-  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-  return isLoggedIn ? <Navigate to="/dashboard" replace /> : <LandingPage />;
 }
 
 function App() {
@@ -56,9 +49,9 @@ function App() {
       <Routes>
         {/* 🌟 PUBLIC / GUEST ROUTES */}
         <Route element={<GuestLayout />}>
-          {/* Perubahan Utama: index tidak langsung memanggil LandingPage, tetapi melewati pengecekan RootRoute */}
-          <Route index element={<RootRoute />} />
-          <Route path="/guest" element={<GuestDashboard />} />
+          {/* ✅ Sesuai Request: Ketika mengakses rute utama "/", maka otomatis memunculkan LandingPage */}
+          <Route index element={<LandingPage />} />
+          <Route path="/guest" element={<LandingPage />} />
           <Route path="/guest/products" element={<Courses isGuest={true} />} />
           <Route path="/guest/products/:id" element={<ProductDetail isGuest={true} />} />
         </Route>
@@ -76,7 +69,7 @@ function App() {
           <Route path="/settings" element={<Settings />} />
         </Route>
 
-        {/* 🔓 AUTH ROUTES (Diproteksi oleh PublicRoute agar tidak bisa diakses jika sudah login) */}
+        {/* 🔓 AUTH ROUTES (Diproteksi oleh PublicRoute agar tidak double login) */}
         <Route element={<PublicRoute><AuthLayout /></PublicRoute>}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

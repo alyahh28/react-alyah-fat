@@ -7,7 +7,7 @@ import { FcGoogle } from "react-icons/fc";
 
 import Logo from "../../assets/Logo.png";
 import BackgroundWave from "../../assets/style.png";
-// 🌟 Import service API autentikasi Supabase
+// Import service API autentikasi Supabase
 import { authAPI } from "../../services/authAPI";
 
 export default function Login() {
@@ -27,7 +27,7 @@ export default function Login() {
         setError("");
 
         try {
-            // 🌟 Cari data user ke Supabase REST API menggunakan email dan password
+            // Cari data user ke Supabase REST API menggunakan email dan password
             const usersFound = await authAPI.loginUser(dataForm.email, dataForm.password);
 
             // Supabase REST API mengembalikan array. Jika kosong, berarti kredensial salah.
@@ -36,9 +36,10 @@ export default function Login() {
                 localStorage.setItem("isLoggedIn", "true");
                 
                 // Simpan juga info nama user aktif ke session jika sewaktu-waktu ingin ditampilkan di dashboard
-                localStorage.setItem("activeUser", usersFound[0].fullName);
+                localStorage.setItem("activeUser", usersFound[0].fullname || usersFound[0].fullName);
 
-                navigate("/"); // Alihkan langsung ke dashboard utama LuxWood
+                // ✅ Sesuai Request 2: Alihkan langsung menuju rute dasbor panel admin internal, bukan ke rute depan "/"
+                navigate("/dashboard"); 
             } else {
                 setError("Username/Email atau Password salah! Cek kembali data Anda.");
             }
@@ -46,6 +47,7 @@ export default function Login() {
             console.error(err);
             setError("Gagal terhubung ke server database. Periksa konfigurasi Supabase Anda.");
         } finally {
+            
             setLoading(false);
         }
     };
