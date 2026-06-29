@@ -1,17 +1,66 @@
-import { useState } from "react";
-import { FaSearch, FaFilter, FaEllipsisV, FaBox, FaShippingFast, FaCheckCircle, FaClock } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { FaSearch, FaBox, FaShippingFast, FaCheckCircle, FaClock } from "react-icons/fa";
+import { authAPI } from "../services/authAPI";
 
 export default function Orders() {
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [updatingId, setUpdatingId] = useState(null);
 
-    // Data Dummy Pesanan
-    const orders = [
-        { id: "#LW-9901", customer: "Dian Sastro", product: "Meja Makan Jati", date: "12 May 2024", amount: "Rp 12.500.000", status: "Processing", color: "text-amber-600 bg-amber-50" },
-        { id: "#LW-9902", customer: "Reza Rahadian", product: "Kursi Kerja Ergonomis", date: "11 May 2024", amount: "Rp 4.200.000", status: "Shipped", color: "text-blue-600 bg-blue-50" },
-        { id: "#LW-9903", customer: "Nicholas Saputra", product: "Lemari Pakaian Minimalis", date: "10 May 2024", amount: "Rp 8.750.000", status: "Completed", color: "text-emerald-600 bg-emerald-50" },
-        { id: "#LW-9904", customer: "Raisa Andriana", product: "Buffet TV Mahoni", date: "09 May 2024", amount: "Rp 6.300.000", status: "Pending", color: "text-stone-400 bg-stone-50" },
-        { id: "#LW-9905", customer: "Ariel Noah", product: "Set Meja Cafe", date: "08 May 2024", amount: "Rp 15.000.000", status: "Completed", color: "text-emerald-600 bg-emerald-50" },
-    ];
+    const fetchOrders = async () => {
+        setLoading(true);
+        try {
+            const data = await authAPI.getAllOrders();
+            setOrders(data);
+        } catch (err) {
+            console.error("Gagal mengambil data pesanan:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchOrders();
+    }, []);
+
+    const handleStatusChange = async (orderId, newStatus) => {
+        setUpdatingId(orderId);
+        try {
+            await authAPI.updateOrderStatus(orderId, newStatus);
+            await fetchOrders();
+        } catch (err) {
+            console.error("Gagal mengalihkan status pesanan:", err);
+            alert("Gagal memperbarui status: " + err.message);
+        } finally {
+            setUpdatingId(null);
+        }
+    };
+
+    const filteredOrders = orders.filter((o) => {
+        const customerName = o.users?.fullname || "Member";
+        const productTitle = o.products?.title || "Produk";
+        const matchesSearch = 
+            o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            productTitle.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesSearch;
+    });
+
+    const pendingCount = orders.filter(o => o.status === 'pending').length;
+    const processingCount = orders.filter(o => o.status === 'processing').length;
+    const shippedCount = orders.filter(o => o.status === 'shipped').length;
+    const completedCount = orders.filter(o => o.status === 'completed').length;
+
+    const getStatusBadgeClass = (status) => {
+        switch (status) {
+            case 'pending': return 'text-amber-700 bg-amber-50 border-amber-200';
+            case 'processing': return 'text-blue-700 bg-blue-50 border-blue-200';
+            case 'shipped': return 'text-indigo-700 bg-indigo-50 border-indigo-200';
+            case 'completed': return 'text-emerald-700 bg-emerald-50 border-emerald-200';
+            default: return 'text-stone-600 bg-stone-50 border-stone-200';
+        }
+    };
 
     return (
         <div className="p-6 animate-in fade-in duration-700">
@@ -19,25 +68,17 @@ export default function Orders() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-3xl font-black text-stone-800 tracking-tight">Pesanan Masuk</h1>
-                    <p className="text-stone-400 text-sm font-medium">Kelola dan pantau semua pesanan furniture pelanggan.</p>
-                </div>
-                <div className="flex gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-stone-200 rounded-xl text-sm font-bold text-stone-600 hover:bg-stone-50 transition-all shadow-sm">
-                        <FaFilter className="text-xs" /> Filter
-                    </button>
-                    <button className="px-6 py-2.5 bg-amber-800 text-white rounded-xl text-sm font-bold hover:bg-amber-900 transition-all shadow-lg shadow-amber-200">
-                        Export Report
-                    </button>
+                    <p className="text-stone-400 text-sm font-medium">Kelola dan pantau semua pesanan furnitur pelanggan dari Supabase.</p>
                 </div>
             </div>
 
             {/* Ringkasan Status */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 {[
-                    { label: "Total Pesanan", count: "1,240", icon: <FaBox />, color: "bg-stone-900" },
-                    { label: "Menunggu QC", count: "12", icon: <FaClock />, color: "bg-amber-600" },
-                    { label: "Sedang Kirim", count: "45", icon: <FaShippingFast />, color: "bg-blue-600" },
-                    { label: "Selesai", count: "1,183", icon: <FaCheckCircle />, color: "bg-emerald-600" },
+                    { label: "Total Pesanan", count: orders.length, icon: <FaBox />, color: "bg-stone-900" },
+                    { label: "Pending", count: pendingCount, icon: <FaClock />, color: "bg-amber-600" },
+                    { label: "Sedang Kirim", count: shippedCount, icon: <FaShippingFast />, color: "bg-blue-600" },
+                    { label: "Selesai", count: completedCount, icon: <FaCheckCircle />, color: "bg-emerald-600" },
                 ].map((item, i) => (
                     <div key={i} className="bg-white p-5 rounded-[24px] border border-stone-100 shadow-sm flex items-center gap-4">
                         <div className={`${item.color} w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm`}>
@@ -58,48 +99,68 @@ export default function Orders() {
                         <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-300 text-xs" />
                         <input 
                             type="text"
-                            placeholder="Cari ID atau nama..."
+                            placeholder="Cari ID pesanan, member, atau produk..."
                             className="w-full pl-10 pr-4 py-2 bg-stone-50 border-none rounded-xl text-xs focus:ring-2 focus:ring-amber-200 outline-none transition-all"
+                            value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
                 </div>
 
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-stone-50/50">
-                                <th className="p-4 pl-8 text-[10px] font-black text-stone-400 uppercase tracking-widest">ID Pesanan</th>
-                                <th className="p-4 text-[10px] font-black text-stone-400 uppercase tracking-widest">Pelanggan</th>
-                                <th className="p-4 text-[10px] font-black text-stone-400 uppercase tracking-widest">Produk</th>
-                                <th className="p-4 text-[10px] font-black text-stone-400 uppercase tracking-widest">Tanggal</th>
-                                <th className="p-4 text-[10px] font-black text-stone-400 uppercase tracking-widest">Total</th>
-                                <th className="p-4 text-[10px] font-black text-stone-400 uppercase tracking-widest">Status</th>
-                                <th className="p-4 pr-8"></th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-stone-50">
-                            {orders.map((order) => (
-                                <tr key={order.id} className="hover:bg-stone-50/30 transition-colors group">
-                                    <td className="p-4 pl-8 font-bold text-stone-800 text-xs">{order.id}</td>
-                                    <td className="p-4 font-bold text-stone-600 text-xs">{order.customer}</td>
-                                    <td className="p-4 text-stone-500 text-xs font-medium">{order.product}</td>
-                                    <td className="p-4 text-stone-400 text-xs">{order.date}</td>
-                                    <td className="p-4 font-black text-stone-800 text-xs">{order.amount}</td>
-                                    <td className="p-4">
-                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${order.color}`}>
-                                            {order.status}
-                                        </span>
-                                    </td>
-                                    <td className="p-4 pr-8 text-right">
-                                        <button className="p-2 text-stone-300 hover:text-amber-700 transition-colors">
-                                            <FaEllipsisV className="text-xs" />
-                                        </button>
-                                    </td>
+                    {loading ? (
+                        <div className="p-20 text-center font-bold text-amber-800 animate-pulse text-xs tracking-wide">
+                            🔄 Memuat transaksi pesanan dari Supabase...
+                        </div>
+                    ) : (
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-stone-50/50">
+                                    <th className="p-4 pl-8 text-[10px] font-black text-stone-400 uppercase tracking-widest">ID Pesanan</th>
+                                    <th className="p-4 text-[10px] font-black text-stone-400 uppercase tracking-widest">Pelanggan (Member)</th>
+                                    <th className="p-4 text-[10px] font-black text-stone-400 uppercase tracking-widest">Produk Dipesan</th>
+                                    <th className="p-4 text-[10px] font-black text-stone-400 uppercase tracking-widest">Jumlah</th>
+                                    <th className="p-4 text-[10px] font-black text-stone-400 uppercase tracking-widest">Total Harga</th>
+                                    <th className="p-4 text-[10px] font-black text-stone-400 uppercase tracking-widest">Ubah Status</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-stone-50">
+                                {filteredOrders.length > 0 ? (
+                                    filteredOrders.map((order) => (
+                                        <tr key={order.id} className="hover:bg-stone-50/30 transition-colors group">
+                                            <td className="p-4 pl-8 font-bold text-stone-800 text-xs font-mono">#{order.id.slice(0, 8)}</td>
+                                            <td className="p-4 font-bold text-stone-600 text-xs">
+                                                {order.users?.fullname || "Member"}
+                                                <span className="block text-[10px] font-normal text-stone-400">{order.users?.email}</span>
+                                            </td>
+                                            <td className="p-4 text-stone-700 text-xs font-medium">{order.products?.title || "Produk Furnitur"}</td>
+                                            <td className="p-4 text-stone-600 text-xs font-bold">{order.quantity} Pcs</td>
+                                            <td className="p-4 font-black text-amber-900 text-xs">Rp {(order.total_price || 0).toLocaleString('id-ID')}</td>
+                                            <td className="p-4">
+                                                <select
+                                                    value={order.status || "pending"}
+                                                    disabled={updatingId === order.id}
+                                                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                                                    className={`px-3 py-1 rounded-full text-[11px] font-bold outline-none border cursor-pointer transition-all ${getStatusBadgeClass(order.status)}`}
+                                                >
+                                                    <option value="pending">Pending</option>
+                                                    <option value="processing">Processing</option>
+                                                    <option value="shipped">Shipped</option>
+                                                    <option value="completed">Completed</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="6" className="p-10 text-center text-xs font-medium text-stone-400">
+                                            Belum ada pesanan masuk di database.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
             </div>
         </div>

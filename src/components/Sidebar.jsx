@@ -12,12 +12,13 @@ import {
 } from "react-icons/md";
 import { NavLink, useNavigate } from "react-router-dom";
 import Logo from "../assets/Logo.png";
+import { authAPI } from "../services/authAPI";
 
 export default function Sidebar() {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
+  const handleLogout = async () => {
+    await authAPI.logoutUser();
     navigate("/login");
   };
 

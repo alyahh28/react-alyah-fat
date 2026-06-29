@@ -26,37 +26,21 @@ export default function Login() {
         setError("");
 
         try {
-            // Memanggil fungsi loginUser dari authAPI yang melakukan GET filter ke Supabase
-            const usersFound = await authAPI.loginUser(dataForm.email, dataForm.password);
+            const user = await authAPI.loginUser(dataForm.email, dataForm.password);
+            const currentRole = (user.role || "member").toLowerCase(); 
 
-            if (usersFound && usersFound.length > 0) {
-                const user = usersFound[0];
-                
-                // 🌟 Normalisasi string role ke huruf kecil untuk menghindari error akibat typo (misal 'Admin' atau 'User')
-                const currentRole = (user.role || "user").toLowerCase(); 
+            localStorage.setItem("isLoggedIn", "true");
+            localStorage.setItem("activeUser", user.fullname || "User");
+            localStorage.setItem("userRole", currentRole); 
 
-                // Menyimpan data autentikasi & peran ke dalam LocalStorage untuk divalidasi oleh ProtectedRoute
-                localStorage.setItem("isLoggedIn", "true");
-                localStorage.setItem("activeUser", user.fullname || user.fullName || "User");
-                localStorage.setItem("userRole", currentRole); 
-
-                // 🌟 ALUR REDIRECT BERDASARKAN PERAN SUPABASE
-                if (currentRole === "admin") {
-                    // Jika rolenya admin, arahkan ke dashboard admin panel
-                    navigate("/dashboard");
-                } else if (currentRole === "user" || currentRole === "member") {
-                    // Jika rolenya adalah 'user' atau 'member', arahkan ke dashboard loyalty member
-                    navigate("/member"); 
-                } else {
-                    // Fallback aman jika role di Supabase tidak terisi / berbeda string
-                    navigate("/member");
-                }
+            if (currentRole === "admin") {
+                navigate("/dashboard");
             } else {
-                setError("Username/Email atau Password salah! Cek kembali data Anda.");
+                navigate("/member"); 
             }
         } catch (err) {
             console.error(err);
-            setError("Gagal terhubung ke server database. Periksa konfigurasi Supabase Anda.");
+            setError(err.message || "Email atau Password salah! Cek kembali data Anda.");
         } finally {
             setLoading(false);
         }

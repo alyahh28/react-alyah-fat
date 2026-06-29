@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import FloatingChat from "@/components/FloatingChat";
 import Logo from "../assets/Logo.png";
+import { authAPI } from "../services/authAPI";
+import { useCart } from "../context/CartContext";
 import {
   ShoppingCart,
   Heart,
@@ -247,6 +249,7 @@ const handleImageError = (e) => {
 /* ===================== MAIN ===================== */
 export default function LandingPage() {
   const navigate = useNavigate();
+  const { addToCart, toggleCart, totalItemsCount } = useCart();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState("Semua");
@@ -260,6 +263,7 @@ export default function LandingPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [leadEmail, setLeadEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   
   // State untuk Kode Promo
   const [promoCode, setPromoCode] = useState("");
@@ -280,6 +284,25 @@ export default function LandingPage() {
     navigate("/");
   };
   // ==========================================
+
+  const scrollToSection = (e, id) => {
+    e.preventDefault();
+    if (id === 'home') {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      const element = document.getElementById(id);
+      if (element) {
+        // Offset for the fixed header
+        const headerOffset = 80;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.scrollY - headerOffset;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth"
+        });
+      }
+    }
+  };
 
   useEffect(() => {
     const onScroll = () => {
@@ -329,7 +352,7 @@ export default function LandingPage() {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      window.location.href = `/cari?q=${encodeURIComponent(searchQuery)}`;
+      navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
     }
   };
 
@@ -385,17 +408,26 @@ export default function LandingPage() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8 text-sm font-medium">
-            <a href="#koleksi" className={`hover:text-indigo-600 transition ${scrolled ? "text-slate-600" : "text-white/80 hover:text-white"}`}>
-              Koleksi
+            <a href="#" onClick={(e) => scrollToSection(e, 'home')} className={`hover:text-indigo-600 transition ${scrolled ? "text-slate-600" : "text-white/80 hover:text-white"}`}>
+              Home
             </a>
-            <a href="#inspirasi" className={`hover:text-indigo-600 transition ${scrolled ? "text-slate-600" : "text-white/80 hover:text-white"}`}>
+            <a href="#tentang" onClick={(e) => scrollToSection(e, 'tentang')} className={`hover:text-indigo-600 transition ${scrolled ? "text-slate-600" : "text-white/80 hover:text-white"}`}>
+              Tentang
+            </a>
+            <a href="#produk" onClick={(e) => scrollToSection(e, 'produk')} className={`hover:text-indigo-600 transition ${scrolled ? "text-slate-600" : "text-white/80 hover:text-white"}`}>
+              Product
+            </a>
+            <a href="#member" onClick={(e) => scrollToSection(e, 'member')} className={`hover:text-indigo-600 transition ${scrolled ? "text-slate-600" : "text-white/80 hover:text-white"}`}>
+              Promo
+            </a>
+            <a href="#inspirasi" onClick={(e) => scrollToSection(e, 'inspirasi')} className={`hover:text-indigo-600 transition ${scrolled ? "text-slate-600" : "text-white/80 hover:text-white"}`}>
               Inspirasi
             </a>
-            <a href="#member" className={`hover:text-indigo-600 transition ${scrolled ? "text-slate-600" : "text-white/80 hover:text-white"}`}>
-              Member
+            <a href="#testimoni" onClick={(e) => scrollToSection(e, 'testimoni')} className={`hover:text-indigo-600 transition ${scrolled ? "text-slate-600" : "text-white/80 hover:text-white"}`}>
+              Ulasan
             </a>
-            <a href="#tentang" className={`hover:text-indigo-600 transition ${scrolled ? "text-slate-600" : "text-white/80 hover:text-white"}`}>
-              Tentang
+            <a href="#kontak" onClick={(e) => scrollToSection(e, 'kontak')} className={`hover:text-indigo-600 transition ${scrolled ? "text-slate-600" : "text-white/80 hover:text-white"}`}>
+              Kontak
             </a>
           </nav>
 
@@ -415,11 +447,16 @@ export default function LandingPage() {
               />
             </form>
 
-            <button className={`relative p-2 transition ${scrolled ? "text-slate-600 hover:text-indigo-600" : "text-white/80 hover:text-white"}`}>
+            <button 
+              onClick={toggleCart}
+              className={`relative p-2.5 transition rounded-full hover:bg-white/10 ${scrolled ? "text-slate-700 hover:text-indigo-600" : "text-white/90 hover:text-white"}`}
+            >
               <ShoppingCart size={20} />
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
-                2
-              </span>
+              {totalItemsCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 text-white text-[11px] rounded-full flex items-center justify-center font-black shadow-md animate-bounce">
+                  {totalItemsCount}
+                </span>
+              )}
             </button>
 
             {/* ========== KONDISI LOGIN / LOGOUT (DESKTOP) ========== */}
@@ -496,10 +533,13 @@ export default function LandingPage() {
           >
             <X size={28} />
           </button>
-          <a href="#koleksi" onClick={() => setMobileMenuOpen(false)} className="hover:text-indigo-600">Koleksi</a>
-          <a href="#inspirasi" onClick={() => setMobileMenuOpen(false)} className="hover:text-indigo-600">Inspirasi</a>
-          <a href="#member" onClick={() => setMobileMenuOpen(false)} className="hover:text-indigo-600">Member</a>
-          <a href="#tentang" onClick={() => setMobileMenuOpen(false)} className="hover:text-indigo-600">Tentang</a>
+          <a href="#" onClick={(e) => { scrollToSection(e, 'home'); setMobileMenuOpen(false); }} className="hover:text-indigo-600">Home</a>
+          <a href="#tentang" onClick={(e) => { scrollToSection(e, 'tentang'); setMobileMenuOpen(false); }} className="hover:text-indigo-600">Tentang</a>
+          <a href="#produk" onClick={(e) => { scrollToSection(e, 'produk'); setMobileMenuOpen(false); }} className="hover:text-indigo-600">Product</a>
+          <a href="#member" onClick={(e) => { scrollToSection(e, 'member'); setMobileMenuOpen(false); }} className="hover:text-indigo-600">Promo</a>
+          <a href="#inspirasi" onClick={(e) => { scrollToSection(e, 'inspirasi'); setMobileMenuOpen(false); }} className="hover:text-indigo-600">Inspirasi</a>
+          <a href="#testimoni" onClick={(e) => { scrollToSection(e, 'testimoni'); setMobileMenuOpen(false); }} className="hover:text-indigo-600">Ulasan</a>
+          <a href="#kontak" onClick={(e) => { scrollToSection(e, 'kontak'); setMobileMenuOpen(false); }} className="hover:text-indigo-600">Kontak</a>
           
           {/* ========== KONDISI LOGIN / LOGOUT (MOBILE) ========== */}
           {activeUser ? (
@@ -560,7 +600,7 @@ export default function LandingPage() {
 
           <div className="flex flex-wrap justify-center gap-4 pt-6">
             <Link
-              to="/produk"
+              to="/guest/products"
               className="group px-8 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-full shadow-xl shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:scale-105 transition-all flex items-center gap-2"
             >
               Belanja Sekarang
@@ -594,9 +634,13 @@ export default function LandingPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {categories.map((cat, idx) => (
             <ScrollReveal key={idx} delay={idx * 100}>
-              <Link
-                to={`/kategori/${cat.slug}`}
-                className="group relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-slate-900 h-64 flex items-end"
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveFilter(cat.name);
+                  document.getElementById("produk").scrollIntoView({ behavior: "smooth" });
+                }}
+                className="group relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-slate-900 h-64 flex items-end w-full text-left cursor-pointer"
               >
                 <img
                   src={cat.image}
@@ -609,7 +653,7 @@ export default function LandingPage() {
                     {cat.name}
                   </h3>
                 </div>
-              </Link>
+              </button>
             </ScrollReveal>
           ))}
         </div>
@@ -645,86 +689,76 @@ export default function LandingPage() {
           </div>
 
           <div key={activeFilter} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {filteredProducts.map((product, index) => (
-              <ScrollReveal key={product.id} delay={index * 100}>
-                <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl border border-slate-100 transition-all duration-500 flex flex-col group">
-                  <div className="relative overflow-hidden">
-                    <img
-                      src={product.gambar}
-                      alt={product.nama}
-                      className="w-full h-64 object-cover group-hover:scale-110 transition duration-700"
-                      onError={handleImageError}
-                    />
-                    {product.badge && (
-                      <span className="absolute top-4 left-4 bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
-                        {product.badge}
-                      </span>
-                    )}
-                    <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-300">
-                      <button className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-slate-600 hover:text-red-500 hover:bg-white shadow-md transition">
-                        <Heart size={18} />
-                      </button>
-                      <button className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-slate-600 hover:text-indigo-600 hover:bg-white shadow-md transition">
-                        <ShoppingCart size={18} />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="p-6 flex flex-col flex-1">
-                    <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-1">{product.kategori}</span>
-                    <h3 className="font-bold text-lg text-slate-900 mb-1">
-                      {product.nama}
-                    </h3>
-                    <p className="text-sm text-slate-500 mb-3">
-                      {product.material}
-                    </p>
-                    <div className="flex items-center gap-1 mb-4">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          size={14}
-                          className={
-                            i < product.rating
-                              ? "text-amber-400 fill-current"
-                              : "text-slate-200"
-                          }
+              {filteredProducts.map((product, index) => (
+                <ScrollReveal key={product.id} delay={index * 100}>
+                  <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl border border-slate-100 transition-all duration-500 flex flex-col group h-full">
+                    <div className="relative overflow-hidden">
+                      <Link to={`/guest/products/${product.id}`}>
+                        <img
+                          src={product.gambar || product.thumbnail || "https://placehold.co/400x300"}
+                          alt={product.nama || product.title}
+                          className="w-full h-64 object-cover group-hover:scale-110 transition duration-700 cursor-pointer"
+                          onError={handleImageError}
                         />
-                      ))}
-                      <span className="text-xs text-slate-400 ml-1">(128)</span>
-                    </div>
-                    <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
-                      <p className="text-xl font-extrabold text-slate-900">
-                        Rp {product.harga.toLocaleString("id-ID")}
-                      </p>
-                      <Link
-                        to={`/produk/${product.id}`}
-                        className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-600/20"
-                      >
-                        <ChevronDown size={18} className="-rotate-90" />
                       </Link>
+                      {(product.badge || index === 0) && (
+                        <span className="absolute top-4 left-4 bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
+                          {product.badge || "New"}
+                        </span>
+                      )}
+                      <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-300">
+                        <button className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-slate-600 hover:text-red-500 hover:bg-white shadow-md transition">
+                          <Heart size={18} />
+                        </button>
+                        <button 
+                          onClick={() => addToCart(product)}
+                          className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-slate-600 hover:text-indigo-600 hover:bg-white shadow-md transition"
+                          title="Tambah ke Keranjang"
+                        >
+                          <ShoppingCart size={18} />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="p-6 flex flex-col flex-1">
+                      <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-1">
+                        {product.kategori || product.category || "Furnitur"}
+                      </span>
+                      <h3 className="font-bold text-lg text-slate-900 mb-1">
+                        {product.nama || product.title}
+                      </h3>
+                      <p className="text-sm text-slate-500 mb-3 line-clamp-1">
+                        {product.material || product.description || "Furnitur kayu berkualitas"}
+                      </p>
+                      <div className="flex items-center gap-1 mb-4">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            size={14}
+                            className={
+                              i < (product.rating || 4)
+                                ? "text-amber-400 fill-current"
+                                : "text-slate-200"
+                            }
+                          />
+                        ))}
+                        <span className="text-xs text-slate-400 ml-1">(128)</span>
+                      </div>
+                      <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <p className="text-xl font-extrabold text-slate-900">
+                          Rp {(product.harga || product.price || 0).toLocaleString("id-ID")}
+                        </p>
+                        <button
+                          onClick={() => setSelectedProduct(product)}
+                          className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-600/20"
+                        >
+                          <ChevronDown size={18} className="-rotate-90" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== KEUNGGULAN ===== */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[2rem] p-10 md:p-16 grid grid-cols-2 md:grid-cols-5 gap-10 text-center text-white shadow-2xl shadow-indigo-600/30 relative overflow-hidden">
-          <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/10 rounded-full blur-2xl"></div>
-          <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-white/10 rounded-full blur-2xl"></div>
-          
-          {keunggulan.map((item, idx) => (
-            <div key={idx} className="space-y-3 group relative z-10">
-              <div className="w-14 h-14 mx-auto bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20 group-hover:bg-white/20 transition">
-                <item.icon size={28} className="text-amber-300" />
-              </div>
-              <h4 className="font-bold text-lg">{item.title}</h4>
-              <p className="text-indigo-200 text-sm">{item.desc}</p>
+                </ScrollReveal>
+              ))}
             </div>
-          ))}
         </div>
       </section>
 
@@ -762,73 +796,6 @@ export default function LandingPage() {
               </ScrollReveal>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ===== TESTIMONI ===== */}
-      <section id="testimoni" className="py-24 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ScrollReveal className="text-center mb-16">
-            <span className="text-indigo-600 font-semibold text-sm uppercase tracking-widest">Testimoni</span>
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mt-2 mb-4">
-              Apa Kata Pelanggan
-            </h2>
-            <p className="text-slate-500 text-lg max-w-xl mx-auto">
-              Ribuan pelanggan sudah merasakan kualitas kami
-            </p>
-          </ScrollReveal>
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((t, idx) => (
-              <ScrollReveal key={idx} delay={idx * 150}>
-                <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 h-full flex flex-col">
-                  <div className="flex text-amber-400 mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={18} className={i < t.stars ? "fill-current" : "text-slate-200"} />
-                    ))}
-                  </div>
-                  <p className="text-slate-600 italic mb-6 flex-1 text-lg leading-relaxed">"{t.quote}"</p>
-                  <div className="flex items-center gap-4 pt-4 border-t border-slate-100">
-                    <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full object-cover ring-2 ring-indigo-100" onError={handleImageError} />
-                    <div>
-                      <div className="font-bold text-slate-900">{t.name}</div>
-                      <div className="text-slate-400 text-sm">{t.city}</div>
-                    </div>
-                  </div>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== PROMO FLASH SALE ===== */}
-      <section className="py-24 bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
-        <div className="max-w-4xl mx-auto px-4 text-center space-y-8 relative z-10">
-          <span className="inline-block bg-slate-900 text-amber-300 text-sm font-bold px-5 py-2 rounded-full shadow-md">
-            🔥 FLASH SALE
-          </span>
-          <h2 className="text-5xl md:text-6xl font-extrabold text-slate-900">
-            Diskon Hingga 40%
-          </h2>
-          <p className="text-slate-800 text-xl font-medium max-w-lg mx-auto">
-            Promo akhir pekan terbatas! Jangan sampai ketinggalan koleksi premium kami.
-          </p>
-          <div className="flex justify-center gap-4 md:gap-6 text-2xl md:text-4xl font-mono font-bold text-slate-900 bg-white/30 backdrop-blur-sm rounded-3xl py-6 px-8 max-w-md mx-auto shadow-lg border border-white/40">
-            <div className="flex flex-col items-center"><span>{String(countdown.days).padStart(2, "0")}</span><span className="text-xs md:text-sm font-sans font-medium mt-1">Hari</span></div> 
-            <span className="text-amber-800">:</span>
-            <div className="flex flex-col items-center"><span>{String(countdown.hours).padStart(2, "0")}</span><span className="text-xs md:text-sm font-sans font-medium mt-1">Jam</span></div>
-            <span className="text-amber-800">:</span>
-            <div className="flex flex-col items-center"><span>{String(countdown.minutes).padStart(2, "0")}</span><span className="text-xs md:text-sm font-sans font-medium mt-1">Menit</span></div>
-            <span className="text-amber-800">:</span>
-            <div className="flex flex-col items-center"><span>{String(countdown.seconds).padStart(2, "0")}</span><span className="text-xs md:text-sm font-sans font-medium mt-1">Detik</span></div>
-          </div>
-          <Link
-            to="/promo"
-            className="inline-block px-12 py-5 bg-slate-900 text-white text-lg font-bold rounded-full hover:bg-slate-800 transition shadow-xl shadow-slate-900/40 hover:scale-105"
-          >
-            Belanja Sekarang
-          </Link>
         </div>
       </section>
 
@@ -935,38 +902,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ===== FAQ ===== */}
-      <section id="faq" className="py-24 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <ScrollReveal className="text-center mb-16">
-          <span className="text-indigo-600 font-semibold text-sm uppercase tracking-widest">FAQ</span>
-          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mt-2 mb-4">
-            Pertanyaan Umum
-          </h2>
-        </ScrollReveal>
-        <div className="space-y-4">
-          {faqData.map((item, idx) => (
-            <ScrollReveal key={idx} delay={idx * 100}>
-              <div className={`bg-white border rounded-2xl overflow-hidden transition-all duration-300 ${openFaq === idx ? "shadow-lg border-indigo-200" : "border-slate-200 shadow-sm hover:border-slate-300"}`}>
-                <button
-                  className="w-full text-left px-6 py-5 font-semibold text-slate-800 flex justify-between items-center hover:bg-slate-50 transition"
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                >
-                  {item.question}
-                  <span className={`transform transition-transform duration-300 text-2xl text-indigo-600 ${openFaq === idx ? "rotate-45" : ""}`}>
-                    +
-                  </span>
-                </button>
-                <div className={`transition-all duration-500 ease-in-out ${openFaq === idx ? "max-h-40 opacity-100" : "max-h-0 opacity-0"} overflow-hidden`}>
-                  <div className="px-6 pb-5 text-slate-600 border-t border-slate-100 pt-3 bg-slate-50/50">
-                    {item.answer}
-                  </div>
-                </div>
-              </div>
-            </ScrollReveal>
-          ))}
-        </div>
-      </section>
-
       {/* ===== NEWSLETTER ===== */}
       <section id="kontak" className="py-24 bg-slate-900 text-white relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-3xl"></div>
@@ -997,6 +932,42 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ===== TESTIMONI ===== */}
+      <section id="testimoni" className="py-24 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ScrollReveal className="text-center mb-16">
+            <span className="text-indigo-600 font-semibold text-sm uppercase tracking-widest">Testimoni</span>
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mt-2 mb-4">
+              Apa Kata Pelanggan
+            </h2>
+            <p className="text-slate-500 text-lg max-w-xl mx-auto">
+              Ribuan pelanggan sudah merasakan kualitas kami
+            </p>
+          </ScrollReveal>
+          <div className="grid md:grid-cols-3 gap-8">
+            {testimonials.map((t, idx) => (
+              <ScrollReveal key={idx} delay={idx * 150}>
+                <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 h-full flex flex-col">
+                  <div className="flex text-amber-400 mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={18} className={i < t.stars ? "fill-current" : "text-slate-200"} />
+                    ))}
+                  </div>
+                  <p className="text-slate-600 italic mb-6 flex-1 text-lg leading-relaxed">"{t.quote}"</p>
+                  <div className="flex items-center gap-4 pt-4 border-t border-slate-100">
+                    <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full object-cover ring-2 ring-indigo-100" onError={handleImageError} />
+                    <div>
+                      <div className="font-bold text-slate-900">{t.name}</div>
+                      <div className="text-slate-400 text-sm">{t.city}</div>
+                    </div>
+                  </div>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ===== FOOTER ===== */}
       <footer className="bg-slate-950 text-slate-400 pt-16 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-12">
@@ -1012,10 +983,10 @@ export default function LandingPage() {
           <div>
             <h4 className="text-white font-bold mb-4">Navigasi</h4>
             <ul className="space-y-3 text-sm">
-              <li><a href="#koleksi" className="hover:text-indigo-400 transition">Koleksi</a></li>
-              <li><a href="#inspirasi" className="hover:text-indigo-400 transition">Inspirasi</a></li>
-              <li><a href="#tentang" className="hover:text-indigo-400 transition">Tentang Kami</a></li>
-              <li><a href="#faq" className="hover:text-indigo-400 transition">FAQ</a></li>
+              <li><a href="#" onClick={(e) => scrollToSection(e, 'home')} className="hover:text-indigo-400 transition">Home</a></li>
+              <li><a href="#produk" onClick={(e) => scrollToSection(e, 'produk')} className="hover:text-indigo-400 transition">Product</a></li>
+              <li><a href="#inspirasi" onClick={(e) => scrollToSection(e, 'inspirasi')} className="hover:text-indigo-400 transition">Inspirasi</a></li>
+              <li><a href="#tentang" onClick={(e) => scrollToSection(e, 'tentang')} className="hover:text-indigo-400 transition">Tentang Kami</a></li>
             </ul>
           </div>
           <div>
@@ -1051,6 +1022,78 @@ export default function LandingPage() {
 
       {/* ===== FLOATING CHATBOT ===== */}
       <FloatingChat />
+
+      {/* ===== PRODUCT QUICK VIEW MODAL ===== */}
+      {selectedProduct && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <div 
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
+            onClick={() => setSelectedProduct(null)}
+          ></div>
+          <div className="relative bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col md:flex-row transform transition-all">
+            <button 
+              onClick={() => setSelectedProduct(null)}
+              className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/50 backdrop-blur-md rounded-full flex items-center justify-center text-slate-600 hover:text-red-500 hover:bg-white shadow-sm transition"
+            >
+              <X size={20} />
+            </button>
+            <div className="w-full md:w-1/2 h-64 md:h-auto bg-slate-100">
+              <img 
+                src={selectedProduct.gambar || selectedProduct.thumbnail || "https://placehold.co/800x800"} 
+                alt={selectedProduct.nama} 
+                className="w-full h-full object-cover"
+                onError={handleImageError}
+              />
+            </div>
+            <div className="w-full md:w-1/2 p-8 md:p-10 flex flex-col">
+              <span className="text-sm font-semibold text-indigo-600 uppercase tracking-widest mb-2">
+                {selectedProduct.kategori || "Furnitur"}
+              </span>
+              <h2 className="text-3xl font-extrabold text-slate-900 mb-4">
+                {selectedProduct.nama || selectedProduct.title}
+              </h2>
+              <div className="flex items-center gap-2 mb-6">
+                <div className="flex text-amber-400">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={16} className={i < (selectedProduct.rating || 4) ? "fill-current" : "text-slate-200"} />
+                  ))}
+                </div>
+                <span className="text-sm text-slate-500">(128 Ulasan)</span>
+              </div>
+              <p className="text-slate-600 leading-relaxed mb-8 flex-1">
+                {selectedProduct.deskripsi || selectedProduct.description || `${selectedProduct.nama || "Produk ini"} dibuat dengan ${selectedProduct.material || "material premium pilihan"}. Dirancang untuk memberikan kenyamanan maksimal dan ketahanan jangka panjang, cocok untuk melengkapi keindahan rumah Anda.`}
+              </p>
+              
+              <div className="mb-8">
+                <h4 className="text-sm font-bold text-slate-900 mb-2">Material Utama</h4>
+                <div className="inline-flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-lg border border-slate-100">
+                  <Wrench size={16} className="text-indigo-500" />
+                  <span className="text-sm text-slate-700 font-medium">{selectedProduct.material || "Material Premium"}</span>
+                </div>
+              </div>
+
+              <div className="mt-auto pt-6 border-t border-slate-100 flex items-center justify-between gap-6">
+                <div className="flex-1">
+                  <span className="text-sm text-slate-500 block mb-1">Harga Spesial</span>
+                  <p className="text-3xl font-black text-slate-900">
+                    Rp {(selectedProduct.harga || selectedProduct.price || 0).toLocaleString("id-ID")}
+                  </p>
+                </div>
+                <button 
+                  onClick={() => {
+                    addToCart(selectedProduct);
+                    setSelectedProduct(null);
+                  }}
+                  className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition-all hover:scale-105 flex items-center gap-2"
+                >
+                  <ShoppingCart size={20} />
+                  Beli Sekarang
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ===== FLOATING WHATSAPP ===== */}
       <div className="fixed bottom-6 right-6 z-50 group flex flex-col items-end">

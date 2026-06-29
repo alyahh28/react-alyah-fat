@@ -26,26 +26,15 @@ export default function Forgot() {
         setSuccess("");
 
         try {
-            // 1. Cek dulu apakah email ada di database Supabase
-            const emailCheck = await authAPI.checkEmailExists(formData.email);
-
-            if (!emailCheck || emailCheck.length === 0) {
-                setError("Email / Username tersebut tidak terdaftar di sistem kami!");
-                setLoading(false);
-                return;
-            }
-
-            // 2. Jika ada, lakukan update password baru menggunakan metode PATCH REST API
-            await authAPI.resetPassword(formData.email, formData.newPassword);
-
-            setSuccess("Password berhasil diubah di database Supabase! Mengalihkan...");
+            await authAPI.resetPassword(formData.email);
+            setSuccess("Email petunjuk reset password telah dikirim ke alamat email Anda! Silakan periksa inbox.");
             
             setTimeout(() => {
                 navigate("/login");
-            }, 2000);
+            }, 3000);
         } catch (err) {
             console.error(err);
-            setError("Gagal mereset sandi. Silakan coba beberapa saat lagi.");
+            setError(err.message || "Gagal mengirim email reset sandi. Silakan periksa kembali email Anda.");
         } finally {
             setLoading(false);
         }

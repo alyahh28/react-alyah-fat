@@ -1,54 +1,325 @@
-import axios from 'axios'
+import { createClient } from '@supabase/supabase-js';
 
-// 🌟 Targetkan ke tabel 'users' di database Supabase Anda
-const API_URL = "https://yaktyekwzcclxlylxkgz.supabase.co/rest/v1/users"
-const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlha3R5ZWt3emNjbHhseWx4a2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MjQ2NzksImV4cCI6MjA5NzAwMDY3OX0.8o2qKWPMCgE02sm8VAtypM9VxUXHQ-kIuYUEp-jcY0A"
+const SUPABASE_URL = "https://yaktyekwzcclxlylxkgz.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlha3R5ZWt3emNjbHhseWx4a2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MjQ2NzksImV4cCI6MjA5NzAwMDY3OX0.8o2qKWPMCgE02sm8VAtypM9VxUXHQ-kIuYUEp-jcY0A";
 
-const headers = {
-    apikey: API_KEY,
-    Authorization: `Bearer ${API_KEY}`,
-    "Content-Type": "application/json",
-    "Prefer": "return=representation" 
-}
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export const authAPI = {
-    // 1. Fungsi Registrasi (Insert user baru ke tabel dengan role default 'user')
-    async registerUser(data) {  
-        const response = await axios.post(API_URL, data, { headers })
-        return response.data
+    // 🌟 HELPER TIERING & DISKON LOYALTY (PRD 3)
+    calculateTier(points = 0) {
+        if (points >= 7000) return 'Platinum';
+        if (points >= 3000) return 'Gold';
+        if (points >= 1000) return 'Silver';
+        return 'Bronze';
     },
 
-    // 2. Fungsi Login (Cari user berdasarkan email dan password via query)
+    getTierDiscountRate(tier = 'Bronze') {
+        const t = (tier || 'Bronze').toLowerCase();
+        if (t === 'platinum') return 0.20; // 20%
+        if (t === 'gold') return 0.15;     // 15%
+        if (t === 'silver') return 0.10;   // 10%
+        return 0.05;                        // 5% (Bronze)
+    },
+
+    // 1. Fungsi Registrasi (Supabase Auth + insert profile ke tabel users)
+    async registerUser({ fullname, email, password, role = 'member' }) {
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: { fullname }
+            }
+        });
+
+        if (authError) throw authError;
+
+        if (authData?.user) {
+            const { data: dbData, error: dbError } = await supabase
+                .from('users')
+                .upsert([{
+                    id: authData.user.id,
+                    fullname: fullname,
+                    email: email,
+                    role: role,
+                    points: 0,
+                    tier: 'Bronze'
+                }], { onConflict: 'id' })
+                .select();
+
+            if (dbError) {
+                console.error('Gagal menyimpan profil ke tabel users:', dbError);
+            }
+            return { authData, dbData };
+        }
+        return authData;
+    },
+
+    // 2. Fungsi Login
     async loginUser(email, password) {
-        const urlWithFilter = `${API_URL}?email=eq.${encodeURIComponent(email)}&password=eq.${encodeURIComponent(password)}`
-        const response = await axios.get(urlWithFilter, { headers })
-        return response.data 
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+            email,
+            password
+        });
+
+        if (authError) throw authError;
+
+        const user = authData.user;
+        if (!user) throw new Error("User tidak ditemukan");
+
+        const { data: profile } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', user.id)
+            .maybeSingle();
+
+        const role = (profile?.role || user.user_metadata?.role || 'member').toLowerCase();
+        const fullname = profile?.fullname || user.user_metadata?.fullname || email.split('@')[0];
+        const points = profile?.points || 0;
+        const tier = profile?.tier || this.calculateTier(points);
+
+        return {
+            ...user,
+            fullname,
+            role,
+            points,
+            tier,
+            profile
+        };
     },
 
-    // 3. Fungsi Cek Email Terdaftar (Untuk validasi di halaman forgot)
-    async checkEmailExists(email) {
-        const urlWithFilter = `${API_URL}?email=eq.${encodeURIComponent(email)}`
-        const response = await axios.get(urlWithFilter, { headers })
-        return response.data
+    // 3. Fungsi Reset Password
+    async resetPassword(email) {
+        const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/login`
+        });
+        if (error) throw error;
+        return data;
     },
 
-    // 4. Fungsi Reset/Update Password (Update berdasarkan email)
-    async resetPassword(email, newPassword) {
-        const urlWithFilter = `${API_URL}?email=eq.${encodeURIComponent(email)}`
-        const response = await axios.patch(urlWithFilter, { password: newPassword }, { headers })
-        return response.data
+    // 4. Fungsi Logout
+    async logoutUser() {
+        const { error } = await supabase.auth.signOut();
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("activeUser");
+        localStorage.removeItem("userRole");
+        if (error) console.error("SignOut error:", error);
     },
 
-    // 5. Fungsi mengambil seluruh daftar users dari Supabase (Dipakai di Admin Panel)
+    // 5. Fungsi Mengambil Sesi Pengguna Saat Ini
+    async getCurrentUser() {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) return null;
+
+        const user = session.user;
+        const { data: profile } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', user.id)
+            .maybeSingle();
+
+        const role = (profile?.role || user.user_metadata?.role || 'member').toLowerCase();
+        const fullname = profile?.fullname || user.user_metadata?.fullname || user.email?.split('@')[0] || 'User';
+        const points = profile?.points || 0;
+        const tier = profile?.tier || this.calculateTier(points);
+
+        return {
+            ...user,
+            fullname,
+            role,
+            points,
+            tier,
+            profile
+        };
+    },
+
     async getAllUsers() {
-        const response = await axios.get(API_URL, { headers });
-        return response.data;
+        const { data, error } = await supabase.from('users').select('*');
+        if (error) throw error;
+        return data;
     },
 
-    // 🌟 Tambahan: Fungsi mengubah role user (Sangat berguna untuk fitur di Admin Panel kelak)
     async updateUserRole(email, newRole) {
-        const urlWithFilter = `${API_URL}?email=eq.${encodeURIComponent(email)}`
-        const response = await axios.patch(urlWithFilter, { role: newRole }, { headers })
-        return response.data
+        const { data, error } = await supabase
+            .from('users')
+            .update({ role: newRole })
+            .eq('email', email)
+            .select();
+        if (error) throw error;
+        return data;
+    },
+
+    // ================= CRUD PRODUCTS =================
+    async getAllProducts() {
+        const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        return data || [];
+    },
+
+    async getProductById(id) {
+        const { data, error } = await supabase.from('products').select('*').eq('id', id).single();
+        if (error) throw error;
+        return data;
+    },
+
+    async addProduct(productData) {
+        const { data, error } = await supabase.from('products').insert([productData]).select();
+        if (error) throw error;
+        return data[0];
+    },
+
+    async updateProduct(id, productData) {
+        const { data, error } = await supabase.from('products').update(productData).eq('id', id).select();
+        if (error) throw error;
+        return data[0];
+    },
+
+    async deleteProduct(id) {
+        const { error } = await supabase.from('products').delete().eq('id', id);
+        if (error) throw error;
+        return true;
+    },
+
+    async seedProducts(productsList) {
+        const cleanProducts = productsList.map(p => ({
+            title: p.title,
+            code: p.code || `LW-${Math.floor(100 + Math.random() * 900)}`,
+            category: p.category || 'General',
+            brand: p.brand || 'LuxWood',
+            price: p.price || 0,
+            stock: p.stock || 10,
+            thumbnail: p.thumbnail || '',
+            description: p.description || ''
+        }));
+        const { data, error } = await supabase.from('products').insert(cleanProducts).select();
+        if (error) throw error;
+        return data;
+    },
+
+    // ================= CRUD CUSTOMERS =================
+    async getAllCustomers() {
+        const { data, error } = await supabase.from('customers').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        return data || [];
+    },
+
+    async addCustomer(customerData) {
+        const { data, error } = await supabase.from('customers').insert([customerData]).select();
+        if (error) throw error;
+        return data[0];
+    },
+
+    async updateCustomer(id, customerData) {
+        const { data, error } = await supabase.from('customers').update(customerData).eq('id', id).select();
+        if (error) throw error;
+        return data[0];
+    },
+
+    async deleteCustomer(id) {
+        const { error } = await supabase.from('customers').delete().eq('id', id);
+        if (error) throw error;
+        return true;
+    },
+
+    // ================= CRUD ORDERS & LOYALTY (PRD 3) =================
+    async getAllOrders() {
+        const { data, error } = await supabase
+            .from('orders')
+            .select(`
+                *,
+                products (title, code, thumbnail, price),
+                users (fullname, email)
+            `)
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        return data || [];
+    },
+
+    async getUserOrders(userId) {
+        const { data, error } = await supabase
+            .from('orders')
+            .select(`
+                *,
+                products (title, code, thumbnail, price)
+            `)
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        return data || [];
+    },
+
+    async createOrder(orderData) {
+        const { data, error } = await supabase.from('orders').insert([orderData]).select();
+        if (error) throw error;
+        return data[0];
+    },
+
+    async updateOrderStatus(orderId, newStatus) {
+        // 1. Update status pesanan di tabel orders
+        const { data, error } = await supabase.from('orders').update({ status: newStatus }).eq('id', orderId).select();
+        if (error) throw error;
+
+        const updatedOrder = data[0];
+
+        // 2. Jika status berubah menjadi 'completed', proses akumulasi poin & tiering
+        if (updatedOrder && newStatus === 'completed' && updatedOrder.user_id) {
+            try {
+                const pointsEarned = Math.floor((updatedOrder.total_price || 0) / 1000);
+
+                if (pointsEarned > 0) {
+                    // Cek apakah poin order ini sudah dicatat di point_history
+                    const { data: existingHist } = await supabase
+                        .from('point_history')
+                        .select('id')
+                        .eq('order_id', orderId);
+
+                    if (!existingHist || existingHist.length === 0) {
+                        // Ambil user terkini
+                        const { data: userProfile } = await supabase
+                            .from('users')
+                            .select('points')
+                            .eq('id', updatedOrder.user_id)
+                            .single();
+
+                        const currentPts = userProfile?.points || 0;
+                        const newPts = currentPts + pointsEarned;
+                        const newTier = this.calculateTier(newPts);
+
+                        // Update tabel users
+                        await supabase
+                            .from('users')
+                            .update({ points: newPts, tier: newTier })
+                            .eq('id', updatedOrder.user_id);
+
+                        // Simpan log di point_history
+                        await supabase
+                            .from('point_history')
+                            .insert([{
+                                user_id: updatedOrder.user_id,
+                                order_id: orderId,
+                                points_earned: pointsEarned
+                            }]);
+                    }
+                }
+            } catch (err) {
+                console.error("Client fallback point accumulation error (mungkin sudah ditangani trigger DB):", err);
+            }
+        }
+
+        return updatedOrder;
+    },
+
+    // ================= POINT HISTORY (PRD 3) =================
+    async getPointHistory(userId) {
+        const { data, error } = await supabase
+            .from('point_history')
+            .select(`
+                *,
+                orders (id, total_price, products(title))
+            `)
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        return data || [];
     }
-}
+};

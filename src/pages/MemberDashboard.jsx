@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Logo from "../assets/Logo.png";
+import { authAPI } from "../services/authAPI";
 import {
   User,
   Award,
@@ -11,22 +12,13 @@ import {
   CheckCircle,
   Clock,
   Ticket,
-  Heart,
   ShoppingCart,
   Crown,
+  PackageCheck,
+  MapPin,
+  X,
+  Percent
 } from "lucide-react";
-
-/* ===================== DATA PRODUK ===================== */
-const memberProducts = [
-  { id: 1, nama: "Sofa Jati Minimalis", harga: 4500000, poin: 450, kategori: "Ruang Tamu", gambar: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&auto=format&fit=crop&q=60", badge: "Best Seller" },
-  { id: 2, nama: "Kursi Kerja Ergonomis", harga: 1800000, poin: 180, kategori: "Ruang Kerja", gambar: "https://images.unsplash.com/photo-1505797149-43b0069ec26b?w=500&auto=format&fit=crop&q=60", badge: "New" },
-  { id: 3, nama: "Meja Makan Kayu Mahoni", harga: 6200000, poin: 620, kategori: "Dapur", gambar: "https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?w=500&auto=format&fit=crop&q=60", badge: "Premium" },
-  { id: 4, nama: "Tempat Tidur King Size", harga: 8500000, poin: 850, kategori: "Kamar Tidur", gambar: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=500&auto=format&fit=crop&q=60", badge: "Hot" },
-  { id: 5, nama: "Lemari Pakaian Minimalis", harga: 3200000, poin: 320, kategori: "Kamar Tidur", gambar: "https://images.unsplash.com/photo-1595428774223-ef52624120d2?w=500&auto=format&fit=crop&q=60", badge: "" },
-  { id: 6, nama: "Rak Buku Kayu Gantung", harga: 750000, poin: 75, kategori: "Ruang Kerja", gambar: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=500&auto=format&fit=crop&q=60", badge: "Eco" },
-  { id: 7, nama: "Lampu Hias Sudut Ruangan", harga: 450000, poin: 45, kategori: "Dekorasi", gambar: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=500&auto=format&fit=crop&q=60", badge: "New" },
-  { id: 8, nama: "Karpet Lembut Bohemian", harga: 1200000, poin: 120, kategori: "Dekorasi", gambar: "https://images.unsplash.com/photo-1579656335182-67491d34006c?w=500&auto=format&fit=crop&q=60", badge: "" },
-];
 
 /* ===================== DATA REWARD CRM ===================== */
 const crmRewards = [
@@ -78,36 +70,108 @@ const handleImageError = (e) => {
     "https://placehold.co/400x300/e2e8f0/475569?text=Gambar+Tidak+Tersedia";
 };
 
-/* ===================== MAIN COMPONENT ===================== */
 export default function MemberDashboard() {
   const navigate = useNavigate();
   const [activeUser, setActiveUser] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [scrolled, setScrolled] = useState(false);
 
-  // --- STATE CRM / MANAGEMENT POIN ---
-  const [userPoints, setUserPoints] = useState(1250);
-  const [pointHistory, setPointHistory] = useState([
-    { id: 1, aktivitas: "Pembelian Kursi Kerja", tipe: "plus", jumlah: 180, tanggal: "12 Juni 2026" },
-    { id: 2, aktivitas: "Bonus Pendaftaran Akun", tipe: "plus", jumlah: 200, tanggal: "01 Juni 2026" },
-    { id: 3, aktivitas: "Tukar Voucher Belanja Rp 100k", tipe: "minus", jumlah: 400, tanggal: "05 Juni 2026" },
-  ]);
+  // --- SUPABASE DATA STATES ---
+  const [dbProducts, setDbProducts] = useState([]);
+  const [myOrders, setMyOrders] = useState([]);
+  const [pointLogs, setPointLogs] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+
+  // --- USER LOYALTY STATE ---
+  const [userPoints, setUserPoints] = useState(0);
+  const [userTier, setUserTier] = useState("Bronze");
+
+  // --- ORDER MODAL STATE ---
+  const [orderModalOpen, setOrderModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [orderQuantity, setOrderQuantity] = useState(1);
+  const [shippingAddress, setShippingAddress] = useState("");
+  const [submittingOrder, setSubmittingOrder] = useState(false);
+
   const [claimedRewards, setClaimedRewards] = useState([]);
   const [crmMessage, setCrmMessage] = useState("");
 
-  // Menentukan Tier otomatis berdasarkan poin CRM
-  const getMemberTier = (points) => {
-    if (points >= 2000) return { name: "Platinum Member", bar: "w-full", next: 0, icon: "💎" };
-    if (points >= 1000) return { name: "Gold Member", bar: "w-[65%]", next: 2000 - points, icon: "👑" };
-    return { name: "Silver Member", bar: "w-[35%]", next: 1000 - points, icon: "🥈" };
+  // Kalkulasi Tier Progress sesuai PRD 3
+  const getTierProgressInfo = (points) => {
+    if (points >= 7000) {
+      return { name: "Platinum", bar: "w-full", next: 0, icon: "💎", discountText: "Diskon 20%", max: true };
+    }
+    if (points >= 3000) {
+      const pct = Math.min(100, Math.floor(((points - 3000) / 4000) * 100));
+      return { name: "Gold", bar: `w-[${pct}%]`, next: 7000 - points, icon: "👑", discountText: "Diskon 15%", max: false };
+    }
+    if (points >= 1000) {
+      const pct = Math.min(100, Math.floor(((points - 1000) / 2000) * 100));
+      return { name: "Silver", bar: `w-[${pct}%]`, next: 3000 - points, icon: "🥈", discountText: "Diskon 10%", max: false };
+    }
+    const pct = Math.min(100, Math.floor((points / 1000) * 100));
+    return { name: "Bronze", bar: `w-[${pct}%]`, next: 1000 - points, icon: "🥉", discountText: "Diskon 5%", max: false };
   };
 
-  const currentTier = getMemberTier(userPoints);
+  const currentTierInfo = getTierProgressInfo(userPoints);
+  const discountRate = authAPI.getTierDiscountRate(userTier);
+
+  const loadMemberData = async () => {
+    try {
+      const user = await authAPI.getCurrentUser();
+      if (user) {
+        setCurrentUser(user);
+        setActiveUser(user.fullname);
+        const pts = user.points || 0;
+        const tr = user.tier || authAPI.calculateTier(pts);
+        setUserPoints(pts);
+        setUserTier(tr);
+
+        fetchUserOrders(user.id);
+        fetchPointHistory(user.id);
+      }
+    } catch (err) {
+      console.error("Gagal memuat sesi member:", err);
+    }
+  };
+
+  const fetchProducts = async () => {
+    setLoadingProducts(true);
+    try {
+      const prods = await authAPI.getAllProducts();
+      setDbProducts(prods);
+    } catch (err) {
+      console.error("Gagal memuat produk member:", err);
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+  const fetchUserOrders = async (userId) => {
+    try {
+      const orders = await authAPI.getUserOrders(userId);
+      setMyOrders(orders);
+    } catch (err) {
+      console.error("Gagal memuat riwayat pesanan:", err);
+    }
+  };
+
+  const fetchPointHistory = async (userId) => {
+    try {
+      const history = await authAPI.getPointHistory(userId);
+      setPointLogs(history);
+    } catch (err) {
+      console.error("Gagal memuat history poin:", err);
+    }
+  };
 
   useEffect(() => {
-    const user = localStorage.getItem("activeUser");
-    if (user) setActiveUser(user);
+    const userStr = localStorage.getItem("activeUser");
+    if (userStr) setActiveUser(userStr);
+    loadMemberData();
+    fetchProducts();
   }, []);
 
   useEffect(() => {
@@ -116,24 +180,15 @@ export default function MemberDashboard() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.clear();
+  const handleLogout = async () => {
+    await authAPI.logoutUser();
     navigate("/");
   };
 
-  // Proses klaim reward
   const handleClaimReward = (reward) => {
     if (userPoints >= reward.cost) {
       setUserPoints((prev) => prev - reward.cost);
       setClaimedRewards((prev) => [...prev, reward.id]);
-      const newHistory = {
-        id: Date.now(),
-        aktivitas: `Klaim: ${reward.title}`,
-        tipe: "minus",
-        jumlah: reward.cost,
-        tanggal: "Hari ini",
-      };
-      setPointHistory((prev) => [newHistory, ...prev]);
       setCrmMessage(`🎉 Sukses menukarkan ${reward.cost} Pts untuk ${reward.title}!`);
       setTimeout(() => setCrmMessage(""), 4000);
     } else {
@@ -141,28 +196,61 @@ export default function MemberDashboard() {
     }
   };
 
-  // Simulasi akumulasi poin saat beli produk
-  const handleBuyProduct = (product) => {
-    setUserPoints((prev) => prev + product.poin);
-    const newHistory = {
-      id: Date.now(),
-      aktivitas: `Pembelian ${product.nama}`,
-      tipe: "plus",
-      jumlah: product.poin,
-      tanggal: "Hari ini",
-    };
-    setPointHistory((prev) => [newHistory, ...prev]);
-    setCrmMessage(`🛍️ Pembelian berhasil! +${product.poin} Pts ditambahkan ke akun CRM Anda.`);
-    setTimeout(() => setCrmMessage(""), 4000);
+  const handleOpenOrderModal = (product) => {
+    setSelectedProduct(product);
+    setOrderQuantity(1);
+    setShippingAddress(currentUser?.profile?.address || "");
+    setOrderModalOpen(true);
   };
 
-  const filteredProducts = memberProducts.filter((product) => {
-    const matchesSearch = product.nama.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "Semua" || product.kategori === selectedCategory;
+  const handleCreateOrderSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedProduct || !currentUser) {
+      alert("Silakan login kembali untuk membuat pesanan.");
+      return;
+    }
+    if (!shippingAddress.trim()) {
+      alert("Silakan masukkan alamat pengiriman.");
+      return;
+    }
+
+    setSubmittingOrder(true);
+    try {
+      const origPrice = selectedProduct.price || 0;
+      const discountedUnitPrice = Math.round(origPrice * (1 - discountRate));
+      const totalPrice = discountedUnitPrice * orderQuantity;
+
+      const orderPayload = {
+        user_id: currentUser.id,
+        product_id: selectedProduct.id,
+        quantity: orderQuantity,
+        total_price: totalPrice,
+        status: "pending",
+        shipping_address: shippingAddress
+      };
+
+      await authAPI.createOrder(orderPayload);
+      
+      setCrmMessage(`🛍️ Pesanan berhasil dibuat dengan Diskon Tier ${(discountRate * 100)}%! Poin akan bertambah otomatis saat status pesanan menjadi COMPLETED.`);
+      setTimeout(() => setCrmMessage(""), 6000);
+
+      setOrderModalOpen(false);
+      fetchUserOrders(currentUser.id);
+    } catch (err) {
+      console.error("Gagal membuat pesanan:", err);
+      alert("Gagal membuat pesanan: " + err.message);
+    } finally {
+      setSubmittingOrder(false);
+    }
+  };
+
+  const filteredProducts = dbProducts.filter((product) => {
+    const matchesSearch = (product.title || "").toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === "Semua" || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const categories = ["Semua", "Ruang Tamu", "Kamar Tidur", "Ruang Kerja", "Dapur", "Dekorasi"];
+  const categories = ["Semua", "Living Room", "Bedroom", "Office", "Dining", "Decor"];
 
   return (
     <div className="font-poppins text-slate-800 bg-[#FAFAFA]">
@@ -175,7 +263,6 @@ export default function MemberDashboard() {
         }`}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-          {/* Logo — sama persis seperti Landing Page */}
           <Link to="/" className="flex items-center space-x-3 group">
             <div className="w-10 h-10 bg-gradient-to-br from-indigo-200 to-violet-600 rounded-xl flex items-center justify-center shadow-md shadow-indigo-500/30 overflow-hidden">
               <img
@@ -193,7 +280,6 @@ export default function MemberDashboard() {
             </span>
           </Link>
 
-          {/* Right actions */}
           <div className="flex items-center space-x-5">
             <div
               className={`hidden md:flex items-center gap-2 text-sm font-medium transition-colors duration-300 ${
@@ -227,26 +313,22 @@ export default function MemberDashboard() {
 
       {/* ===== HERO CRM SECTION ===== */}
       <section className="relative pt-28 pb-20 bg-gradient-to-br from-slate-900 via-indigo-950 to-violet-950 overflow-hidden">
-        {/* Decorative blur circles — sama seperti Landing Page Hero */}
         <div className="absolute top-20 -left-20 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-[120px] opacity-20 animate-pulse" />
         <div
           className="absolute bottom-10 -right-20 w-80 h-80 bg-violet-500 rounded-full mix-blend-multiply filter blur-[120px] opacity-20 animate-pulse"
           style={{ animationDelay: "2s" }}
         />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-600 rounded-full mix-blend-multiply filter blur-[150px] opacity-10" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* CRM Notification */}
           {crmMessage && (
             <div className="bg-emerald-500/20 backdrop-blur-md text-emerald-300 border border-emerald-500/30 px-5 py-3.5 rounded-2xl text-sm font-medium mb-8 shadow-sm animate-fade-in">
               {crmMessage}
             </div>
           )}
 
-          {/* Welcome Heading */}
           <ScrollReveal className="text-center mb-12">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-5 py-2 text-sm font-semibold text-amber-300 mb-4 shadow-lg">
-              <Crown size={16} /> Dashboard Member
+              <Crown size={16} /> Loyalty Tier: {userTier} ({currentTierInfo.discountText})
             </div>
             <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight tracking-tight">
               Selamat Datang,{" "}
@@ -256,13 +338,12 @@ export default function MemberDashboard() {
               ✨
             </h1>
             <p className="text-indigo-200 mt-3 text-lg max-w-xl mx-auto font-light leading-relaxed">
-              Kelola poin loyalitas Anda dan nikmati berbagai keuntungan eksklusif hanya untuk member FurniCraft.
+              Nikmati diskon eksklusif <strong className="text-amber-300">{currentTierInfo.discountText}</strong> untuk setiap checkout belanja Anda!
             </p>
           </ScrollReveal>
 
-          {/* Three CRM Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Profile Card — Glass Morphism */}
+            {/* Profile Card */}
             <ScrollReveal>
               <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 shadow-xl h-full flex flex-col justify-between">
                 <div className="flex items-center gap-4">
@@ -270,33 +351,32 @@ export default function MemberDashboard() {
                     <User size={32} />
                   </div>
                   <div>
-                    <p className="text-xs text-indigo-300 font-medium">Selamat Datang,</p>
+                    <p className="text-xs text-indigo-300 font-medium">Profil Member,</p>
                     <h2 className="text-xl font-bold text-white leading-snug">
                       {activeUser || "Member FurniCraft"}
                     </h2>
                     <span className="inline-flex items-center gap-1 mt-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                      <CheckCircle size={12} /> Terverifikasi
+                      <CheckCircle size={12} /> Status: {userTier}
                     </span>
                   </div>
                 </div>
                 <div className="mt-4 pt-4 border-t border-white/10 text-xs text-indigo-300 flex justify-between">
-                  <span>Status Akun:</span>
-                  <span className="font-semibold text-white">Loyalty Active</span>
+                  <span>Hak Diskon Checkout:</span>
+                  <span className="font-semibold text-amber-300">{currentTierInfo.discountText}</span>
                 </div>
               </div>
             </ScrollReveal>
 
-            {/* Points Wallet — Gradient Card seperti Landing Page Member Section */}
+            {/* Saldo Poin */}
             <ScrollReveal delay={100}>
               <div className="bg-gradient-to-br from-indigo-600 to-violet-700 rounded-3xl p-6 text-white shadow-2xl shadow-indigo-600/30 relative overflow-hidden h-full flex flex-col justify-between">
                 <div className="absolute -right-6 -bottom-6 text-white/10 pointer-events-none">
                   <Award size={140} />
                 </div>
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
                 <div className="flex justify-between items-start relative z-10">
                   <div>
                     <p className="text-xs text-indigo-200 font-medium tracking-wide uppercase">
-                      Saldo Poin CRM
+                      Akumulasi Poin Supabase
                     </p>
                     <h3 className="text-3xl font-extrabold mt-1">
                       {userPoints.toLocaleString()}{" "}
@@ -308,36 +388,48 @@ export default function MemberDashboard() {
                   </div>
                 </div>
                 <div className="mt-4 pt-3 border-t border-white/20 text-xs text-indigo-200 relative z-10">
-                  <p>Gunakan poin Anda untuk mengklaim keuntungan di katalog benefit.</p>
+                  <p>Dapatkan 1 Poin per kelipatan transaksi Rp 1.000 saat pesanan diselesaikan (COMPLETED).</p>
                 </div>
               </div>
             </ScrollReveal>
 
-            {/* Tier Card — Glass Morphism */}
+            {/* Level Tier & Progress Bar (PRD 3) */}
             <ScrollReveal delay={200}>
               <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 shadow-xl h-full flex flex-col justify-between">
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-xs text-indigo-300 font-medium">Level Loyalitas</p>
-                    <h4 className="text-lg font-bold text-amber-300 mt-0.5">{currentTier.name}</h4>
+                    <p className="text-xs text-indigo-300 font-medium">Level Loyalitas Saat Ini</p>
+                    <h4 className="text-xl font-black text-amber-300 mt-0.5">{userTier}</h4>
                   </div>
                   <div className="w-12 h-12 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl flex items-center justify-center font-bold shadow-sm text-xl">
-                    {currentTier.icon}
+                    {currentTierInfo.icon}
                   </div>
                 </div>
                 <div className="mt-5">
-                  <div className="w-full bg-white/10 h-2.5 rounded-full overflow-hidden">
+                  <div className="flex justify-between text-[11px] text-indigo-200 mb-1">
+                    <span>Progress Tier</span>
+                    <span>{userPoints} Pts</span>
+                  </div>
+                  <div className="w-full bg-white/20 h-3 rounded-full overflow-hidden p-0.5 border border-white/10">
                     <div
-                      className={`bg-gradient-to-r from-amber-400 to-amber-500 h-full rounded-full transition-all duration-500 ${currentTier.bar}`}
+                      className="bg-gradient-to-r from-amber-400 to-amber-500 h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${
+                          userPoints >= 7000 ? 100 :
+                          userPoints >= 3000 ? Math.min(100, ((userPoints - 3000) / 4000) * 100) :
+                          userPoints >= 1000 ? Math.min(100, ((userPoints - 1000) / 2000) * 100) :
+                          Math.min(100, (userPoints / 1000) * 100)
+                        }%`
+                      }}
                     />
                   </div>
-                  {currentTier.next > 0 ? (
+                  {!currentTierInfo.max ? (
                     <p className="text-[11px] text-indigo-300 mt-2.5">
-                      Dapatkan <strong className="text-white">{currentTier.next} Pts</strong> lagi untuk naik tingkat.
+                      Kumpulkan <strong className="text-white">{currentTierInfo.next.toLocaleString()} Pts</strong> lagi untuk naik ke tier berikutnya.
                     </p>
                   ) : (
                     <p className="text-[11px] text-emerald-300 font-medium mt-2.5">
-                      Anda berada di level tertinggi 🎉
+                      Selamat! Anda berada di tingkat tertinggi (Platinum) 👑
                     </p>
                   )}
                 </div>
@@ -347,10 +439,68 @@ export default function MemberDashboard() {
         </div>
       </section>
 
-      {/* ===== CRM REWARDS & HISTORY ===== */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ===== RIWAYAT PESANAN SAYA ===== */}
+      <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <ScrollReveal>
+          <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm">
+            <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <PackageCheck className="text-indigo-600" /> Riwayat Pesanan Saya
+            </h3>
+
+            {myOrders.length === 0 ? (
+              <p className="text-sm text-slate-400 py-6 text-center">
+                Anda belum pernah membuat pesanan furnitur. Silakan pilih produk di bawah ini!
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                      <th className="py-3 px-4">Produk</th>
+                      <th className="py-3 px-4">Jumlah</th>
+                      <th className="py-3 px-4">Total Bayar</th>
+                      <th className="py-3 px-4">Alamat Pengiriman</th>
+                      <th className="py-3 px-4">Status Pesanan</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50 text-sm">
+                    {myOrders.map((ord) => (
+                      <tr key={ord.id} className="hover:bg-slate-50/50 transition">
+                        <td className="py-3.5 px-4 font-semibold text-slate-800">
+                          {ord.products?.title || "Produk Furnitur"}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-600 font-medium">
+                          {ord.quantity} Unit
+                        </td>
+                        <td className="py-3.5 px-4 font-bold text-indigo-900">
+                          Rp {(ord.total_price || 0).toLocaleString("id-ID")}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-500 text-xs max-w-xs truncate">
+                          {ord.shipping_address || "-"}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                            ord.status === 'pending' ? 'bg-amber-100 text-amber-800' :
+                            ord.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                            ord.status === 'shipped' ? 'bg-indigo-100 text-indigo-800' :
+                            'bg-emerald-100 text-emerald-800'
+                          }`}>
+                            {ord.status || 'pending'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </ScrollReveal>
+      </section>
+
+      {/* ===== CRM REWARDS & POINT HISTORY ===== */}
+      <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Reward Catalog */}
           <div className="lg:col-span-2 space-y-6">
             <ScrollReveal>
               <div>
@@ -368,8 +518,6 @@ export default function MemberDashboard() {
                 return (
                   <ScrollReveal key={reward.id} delay={idx * 100}>
                     <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between h-full relative overflow-hidden">
-                      {/* Decorative circle — sama seperti Landing Page */}
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-50 rounded-full -translate-y-1/2 translate-x-1/2" />
                       <div className="relative z-10">
                         <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 font-bold text-xs px-3 py-1 border border-amber-200 rounded-full">
                           <Ticket size={12} /> {reward.cost} Pts
@@ -397,56 +545,56 @@ export default function MemberDashboard() {
             </div>
           </div>
 
-          {/* Point History */}
+          {/* Log Riwayat Poin Aktual (PRD 3) */}
           <ScrollReveal delay={200}>
             <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm h-full">
               <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-5">
-                <Clock size={18} className="text-indigo-600" /> Log Riwayat Poin
+                <Clock size={18} className="text-indigo-600" /> Log Riwayat Poin (point_history)
               </h3>
-              <div className="space-y-3 overflow-y-auto max-h-[300px] pr-1">
-                {pointHistory.map((log) => (
-                  <div
-                    key={log.id}
-                    className="flex justify-between items-center text-sm pb-3 border-b border-slate-50 last:border-none"
-                  >
-                    <div>
-                      <p className="font-semibold text-slate-700">{log.aktivitas}</p>
-                      <span className="text-xs text-slate-400">{log.tanggal}</span>
-                    </div>
-                    <span
-                      className={`font-bold px-2.5 py-1 rounded-full text-xs ${
-                        log.tipe === "plus"
-                          ? "text-emerald-600 bg-emerald-50"
-                          : "text-rose-600 bg-rose-50"
-                      }`}
+              <div className="space-y-3 overflow-y-auto max-h-[320px] pr-1">
+                {pointLogs.length === 0 ? (
+                  <p className="text-xs text-slate-400 py-4 text-center">Belum ada riwayat perolehan poin dari transaksi yang completed.</p>
+                ) : (
+                  pointLogs.map((log) => (
+                    <div
+                      key={log.id}
+                      className="flex justify-between items-center text-sm pb-3 border-b border-slate-50 last:border-none"
                     >
-                      {log.tipe === "plus" ? `+${log.jumlah}` : `-${log.jumlah}`}
-                    </span>
-                  </div>
-                ))}
+                      <div>
+                        <p className="font-semibold text-slate-700 text-xs">
+                          {log.orders?.products?.title ? `Pesanan: ${log.orders.products.title}` : 'Bonus Perolehan Poin'}
+                        </p>
+                        <span className="text-[10px] text-slate-400">
+                          {new Date(log.created_at).toLocaleDateString('id-ID')}
+                        </span>
+                      </div>
+                      <span className="font-bold px-2.5 py-1 rounded-full text-xs text-emerald-600 bg-emerald-50 shrink-0">
+                        +{log.points_earned} Pts
+                      </span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </ScrollReveal>
         </div>
       </section>
 
-      {/* ===== PRODUCT SECTION ===== */}
+      {/* ===== KATALOG SUPABASE WITH TIER DISCOUNT PREVIEW ===== */}
       <section className="py-20 bg-gradient-to-b from-white to-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Header — sama seperti Landing Page */}
           <ScrollReveal className="text-center mb-12">
             <span className="text-indigo-600 font-semibold text-sm uppercase tracking-widest">
-              Penawaran Khusus
+              Katalog Furnitur Supabase
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mt-2 mb-4">
               Produk Eksklusif Member
             </h2>
             <p className="text-slate-500 text-lg max-w-xl mx-auto">
-              Belanja dan kumpulkan poin CRM untuk benefit lebih banyak
+              Belanja dan manfaatkan potongan diskon <strong className="text-indigo-600">Tier {userTier} ({(discountRate * 100)}%)</strong>!
             </p>
           </ScrollReveal>
 
-          {/* Search & Filter */}
           <div className="flex flex-col sm:flex-row gap-4 justify-between items-center mb-12">
             <div className="relative w-full sm:max-w-md">
               <Search className="absolute left-4 top-3.5 text-slate-400" size={18} />
@@ -475,70 +623,163 @@ export default function MemberDashboard() {
             </div>
           </div>
 
-          {/* Product Grid — kartu sama persis seperti Landing Page */}
-          {filteredProducts.length === 0 ? (
+          {loadingProducts ? (
+            <div className="text-center py-16 text-indigo-600 font-bold animate-pulse text-sm">
+              🔄 Memuat produk dari database Supabase...
+            </div>
+          ) : filteredProducts.length === 0 ? (
             <div className="bg-white rounded-3xl border border-slate-100 p-12 text-center text-slate-400 shadow-sm">
-              Produk yang Anda cari tidak ditemukan.
+              Belum ada produk furnitur yang cocok di database.
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {filteredProducts.map((product, index) => (
-                <ScrollReveal key={product.id} delay={index * 100}>
-                  <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl border border-slate-100 transition-all duration-500 flex flex-col group">
-                    <div className="relative overflow-hidden">
-                      <img
-                        src={product.gambar}
-                        alt={product.nama}
-                        className="w-full h-64 object-cover group-hover:scale-110 transition duration-700"
-                        onError={handleImageError}
-                      />
-                      {product.badge && (
+              {filteredProducts.map((product, index) => {
+                const origPrice = product.price || 0;
+                const discPrice = Math.round(origPrice * (1 - discountRate));
+
+                return (
+                  <ScrollReveal key={product.id} delay={index * 100}>
+                    <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl border border-slate-100 transition-all duration-500 flex flex-col group h-full">
+                      <div className="relative overflow-hidden">
+                        <img
+                          src={product.thumbnail || "https://placehold.co/400x300?text=Produk"}
+                          alt={product.title}
+                          className="w-full h-64 object-cover group-hover:scale-110 transition duration-700"
+                          onError={handleImageError}
+                        />
                         <span className="absolute top-4 left-4 bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
-                          {product.badge}
+                          {product.category || "Furnitur"}
                         </span>
-                      )}
-                      {/* Points Badge */}
-                      <span className="absolute bottom-4 right-4 bg-slate-900/80 backdrop-blur-sm text-white font-medium text-xs px-3 py-1.5 rounded-full flex items-center gap-1">
-                        <Star className="fill-amber-400 text-amber-400" size={12} /> +{product.poin} Poin
-                      </span>
-                      {/* Hover Actions — sama seperti Landing Page */}
-                      <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-300">
-                        <button className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-slate-600 hover:text-red-500 hover:bg-white shadow-md transition">
-                          <Heart size={18} />
-                        </button>
+                        <span className="absolute top-4 right-4 bg-amber-500 text-white text-xs font-black px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+                          <Percent size={12} /> Tier {userTier} (-{(discountRate * 100)}%)
+                        </span>
                       </div>
-                    </div>
-                    <div className="p-6 flex flex-col flex-1">
-                      <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-1">
-                        {product.kategori}
-                      </span>
-                      <h3 className="font-bold text-lg text-slate-900 mb-2 group-hover:text-indigo-600 transition">
-                        {product.nama}
-                      </h3>
-                      <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
+                      <div className="p-6 flex flex-col flex-1 justify-between">
                         <div>
-                          <p className="text-[10px] text-slate-400 font-medium leading-none">
-                            Harga Member
-                          </p>
-                          <p className="font-extrabold text-lg text-slate-900 mt-1">
-                            Rp {product.harga.toLocaleString("id-ID")}
-                          </p>
+                          <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-1 block">
+                            {product.brand || "LuxWood"}
+                          </span>
+                          <h3 className="font-bold text-lg text-slate-900 mb-2 line-clamp-1">
+                            {product.title}
+                          </h3>
                         </div>
-                        <button
-                          onClick={() => handleBuyProduct(product)}
-                          className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-600/20"
-                        >
-                          <ShoppingCart size={18} />
-                        </button>
+                        <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                          <div>
+                            <p className="text-[10px] text-slate-400 font-medium line-through">
+                              Rp {origPrice.toLocaleString("id-ID")}
+                            </p>
+                            <p className="font-extrabold text-lg text-indigo-900 mt-0.5">
+                              Rp {discPrice.toLocaleString("id-ID")}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => handleOpenOrderModal(product)}
+                            className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-full text-xs font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all flex items-center gap-1.5"
+                          >
+                            <ShoppingCart size={14} /> Pesan
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </ScrollReveal>
-              ))}
+                  </ScrollReveal>
+                );
+              })}
             </div>
           )}
         </div>
       </section>
+
+      {/* ===== MODAL FORM PEMESANAN DENGAN DISKON TIER ===== */}
+      {orderModalOpen && selectedProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl relative border border-slate-100">
+            <button
+              onClick={() => setOrderModalOpen(false)}
+              className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-2 rounded-full hover:bg-slate-100 transition"
+            >
+              <X size={20} />
+            </button>
+
+            <h3 className="text-xl font-bold text-slate-900 mb-1 flex items-center gap-2">
+              <ShoppingCart className="text-indigo-600" size={22} /> Form Pemesanan Furnitur
+            </h3>
+            <p className="text-xs text-slate-500 mb-6">
+              Mendapatkan Potongan Diskon Member <strong className="text-amber-600">Tier {userTier} ({(discountRate * 100)}%)</strong>.
+            </p>
+
+            <form onSubmit={handleCreateOrderSubmit} className="space-y-4 text-xs">
+              <div className="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100 flex items-center gap-4">
+                <img
+                  src={selectedProduct.thumbnail || "https://placehold.co/100"}
+                  alt={selectedProduct.title}
+                  className="w-16 h-16 object-cover rounded-xl border border-indigo-100"
+                />
+                <div>
+                  <h4 className="font-bold text-sm text-slate-900">{selectedProduct.title}</h4>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-slate-400 line-through text-xs">Rp {(selectedProduct.price || 0).toLocaleString("id-ID")}</span>
+                    <span className="text-indigo-600 font-extrabold text-sm">
+                      Rp {Math.round((selectedProduct.price || 0) * (1 - discountRate)).toLocaleString("id-ID")}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Jumlah Pesanan (Quantity)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max={selectedProduct.stock || 100}
+                  value={orderQuantity}
+                  onChange={(e) => setOrderQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="w-full p-3 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm font-bold"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1 flex items-center gap-1">
+                  <MapPin size={14} className="text-indigo-600" /> Alamat Lengkap Pengiriman
+                </label>
+                <textarea
+                  rows="3"
+                  value={shippingAddress}
+                  onChange={(e) => setShippingAddress(e.target.value)}
+                  placeholder="Masukkan jalan, RT/RW, Kecamatan, Kota, Kode Pos..."
+                  className="w-full p-3 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                  required
+                />
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 flex justify-between items-center text-sm">
+                <div>
+                  <span className="text-slate-400 block text-xs">Total Pembayaran (Setelah Diskon):</span>
+                  <span className="font-extrabold text-lg text-indigo-900">
+                    Rp {(Math.round((selectedProduct.price || 0) * (1 - discountRate)) * orderQuantity).toLocaleString("id-ID")}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setOrderModalOpen(false)}
+                    className="px-4 py-2.5 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submittingOrder}
+                    className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-indigo-500/30 transition shadow-md"
+                  >
+                    {submittingOrder ? "Memproses..." : "Konfirmasi Pesanan"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* ===== FOOTER MINI ===== */}
       <footer className="bg-slate-950 text-slate-400 pt-12 pb-6">

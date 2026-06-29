@@ -27,7 +27,7 @@ export default function Register() {
         e.preventDefault();
         setError("");
         setLoading(true);
-
+        
         if (!formData.fullName || !formData.email || !formData.password) {
             setError("Semua kolom formulir wajib diisi!");
             setLoading(false);
@@ -35,19 +35,18 @@ export default function Register() {
         }
 
         try {
-            // 🌟 PERBAIKAN: Menggunakan role "user" agar seragam dengan hak akses aplikasi
             await authAPI.registerUser({
                 fullname: formData.fullName, 
                 email: formData.email,
                 password: formData.password,
-                role: "user" // 👈 Mengunci pendaftaran otomatis menjadi role 'user'
+                role: "member"
             });
 
             // Berhasil mendaftar, langsung arahkan ke halaman login
             navigate("/login");
         } catch (err) {
             console.error(err);
-            setError("Pendaftaran gagal! Silakan periksa koneksi internet atau gunakan email lain.");
+            setError(err.message || "Pendaftaran gagal! Silakan periksa koneksi internet atau gunakan email lain.");
         } finally {
             setLoading(false);
         }
