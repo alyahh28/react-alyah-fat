@@ -7,7 +7,6 @@ import { FcGoogle } from "react-icons/fc";
 
 import Logo from "../../assets/Logo.png";
 import BackgroundWave from "../../assets/style.png";
-// Import service API autentikasi Supabase
 import { authAPI } from "../../services/authAPI";
 
 export default function Login() {
@@ -27,19 +26,31 @@ export default function Login() {
         setError("");
 
         try {
-            // Cari data user ke Supabase REST API menggunakan email dan password
+            // Memanggil fungsi loginUser dari authAPI yang melakukan GET filter ke Supabase
             const usersFound = await authAPI.loginUser(dataForm.email, dataForm.password);
 
-            // Supabase REST API mengembalikan array. Jika kosong, berarti kredensial salah.
             if (usersFound && usersFound.length > 0) {
-                // Set status penanda sesi login aktif agar diizinkan lewat di ProtectedRoute
-                localStorage.setItem("isLoggedIn", "true");
+                const user = usersFound[0];
                 
-                // Simpan juga info nama user aktif ke session jika sewaktu-waktu ingin ditampilkan di dashboard
-                localStorage.setItem("activeUser", usersFound[0].fullname || usersFound[0].fullName);
+                // 🌟 Normalisasi string role ke huruf kecil untuk menghindari error akibat typo (misal 'Admin' atau 'User')
+                const currentRole = (user.role || "user").toLowerCase(); 
 
-                // ✅ Sesuai Request 2: Alihkan langsung menuju rute dasbor panel admin internal, bukan ke rute depan "/"
-                navigate("/dashboard"); 
+                // Menyimpan data autentikasi & peran ke dalam LocalStorage untuk divalidasi oleh ProtectedRoute
+                localStorage.setItem("isLoggedIn", "true");
+                localStorage.setItem("activeUser", user.fullname || user.fullName || "User");
+                localStorage.setItem("userRole", currentRole); 
+
+                // 🌟 ALUR REDIRECT BERDASARKAN PERAN SUPABASE
+                if (currentRole === "admin") {
+                    // Jika rolenya admin, arahkan ke dashboard admin panel
+                    navigate("/dashboard");
+                } else if (currentRole === "user" || currentRole === "member") {
+                    // Jika rolenya adalah 'user' atau 'member', arahkan ke dashboard loyalty member
+                    navigate("/member"); 
+                } else {
+                    // Fallback aman jika role di Supabase tidak terisi / berbeda string
+                    navigate("/member");
+                }
             } else {
                 setError("Username/Email atau Password salah! Cek kembali data Anda.");
             }
@@ -47,7 +58,6 @@ export default function Login() {
             console.error(err);
             setError("Gagal terhubung ke server database. Periksa konfigurasi Supabase Anda.");
         } finally {
-            
             setLoading(false);
         }
     };

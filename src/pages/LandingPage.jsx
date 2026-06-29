@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import FloatingChat from "@/components/FloatingChat";
 import Logo from "../assets/Logo.png";
 import {
@@ -18,6 +18,8 @@ import {
   ChevronDown,
   Ticket,
   Crown,
+  LogOut,
+  User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -244,6 +246,7 @@ const handleImageError = (e) => {
 
 /* ===================== MAIN ===================== */
 export default function LandingPage() {
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState("Semua");
@@ -262,6 +265,21 @@ export default function LandingPage() {
   const [promoCode, setPromoCode] = useState("");
   const [promoMessage, setPromoMessage] = useState(null);
   const [isPromoError, setIsPromoError] = useState(false);
+
+  // ========== STATE LOGIN / LOGOUT ==========
+  const [activeUser, setActiveUser] = useState("");
+
+  useEffect(() => {
+    const user = localStorage.getItem("activeUser");
+    if (user) setActiveUser(user);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    setActiveUser("");
+    navigate("/");
+  };
+  // ==========================================
 
   useEffect(() => {
     const onScroll = () => {
@@ -331,7 +349,6 @@ export default function LandingPage() {
       setIsPromoError(true);
       return;
     }
-    // Simulasi validasi kode promo
     if (promoCode.toUpperCase() === "FURNI20") {
       setPromoMessage("🎉 Selamat! Kode FURNI20 berhasil. Anda mendapat diskon 20% untuk pembelian selanjutnya.");
       setIsPromoError(false);
@@ -353,7 +370,6 @@ export default function LandingPage() {
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           {/* Logo */}
-          {/* 🌟 PERBAIKAN 2: Pembaruan komponen Logo menggunakan Gambar format .png */}
           <Link to="/" className="flex items-center space-x-3 group">
             <div className="w-10 h-10 bg-gradient-to-br from-indigo-200 to-violet-600 rounded-xl flex items-center justify-center shadow-md shadow-indigo-500/30 overflow-hidden">
               <img 
@@ -406,18 +422,55 @@ export default function LandingPage() {
               </span>
             </button>
 
-            <Link
-              to="/login"
-              className={`hidden md:inline-flex text-sm font-semibold transition ${scrolled ? "text-slate-700 hover:text-indigo-600" : "text-white/90 hover:text-white"}`}
-            >
-              Masuk
-            </Link>
-            <Link
-              to="/register"
-              className="hidden md:inline-flex bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-5 py-2.5 rounded-full transition shadow-md shadow-indigo-600/30"
-            >
-              Daftar
-            </Link>
+            {/* ========== KONDISI LOGIN / LOGOUT (DESKTOP) ========== */}
+            {activeUser ? (
+              <div className="hidden md:flex items-center space-x-3">
+                {/* User Profile Badge */}
+                <Link
+                  to="/member"
+                  className={`flex items-center gap-2 text-sm font-semibold transition`}
+                >
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 ${
+                    scrolled
+                      ? "bg-indigo-100 text-indigo-600"
+                      : "bg-white/15 text-white"
+                  }`}>
+                    <User size={16} />
+                  </div>
+                  <span className={`transition-colors duration-300 ${scrolled ? "text-slate-700" : "text-white/90"}`}>
+                    {activeUser}
+                  </span>
+                </Link>
+
+                {/* Divider */}
+                <div className={`w-px h-5 transition-colors duration-300 ${scrolled ? "bg-slate-200" : "bg-white/20"}`}></div>
+
+                {/* Logout Button */}
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-1.5 text-sm font-semibold text-red-500 hover:text-red-600 transition bg-red-50 hover:bg-red-100 px-4 py-2 rounded-full"
+                >
+                  <LogOut size={15} />
+                  Keluar
+                </button>
+              </div>
+            ) : (
+              <div className="hidden md:flex items-center space-x-3">
+                <Link
+                  to="/login"
+                  className={`text-sm font-semibold transition ${scrolled ? "text-slate-700 hover:text-indigo-600" : "text-white/90 hover:text-white"}`}
+                >
+                  Masuk
+                </Link>
+                <Link
+                  to="/register"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-5 py-2.5 rounded-full transition shadow-md shadow-indigo-600/30"
+                >
+                  Daftar
+                </Link>
+              </div>
+            )}
+            {/* ===================================================== */}
 
             <button
               className={`md:hidden p-2 transition ${scrolled ? "text-slate-600" : "text-white"}`}
@@ -447,10 +500,31 @@ export default function LandingPage() {
           <a href="#inspirasi" onClick={() => setMobileMenuOpen(false)} className="hover:text-indigo-600">Inspirasi</a>
           <a href="#member" onClick={() => setMobileMenuOpen(false)} className="hover:text-indigo-600">Member</a>
           <a href="#tentang" onClick={() => setMobileMenuOpen(false)} className="hover:text-indigo-600">Tentang</a>
-          <div className="flex flex-col gap-4 w-64">
-            <Link to="/login" className="w-full text-center py-3 text-slate-700 border border-slate-200 rounded-full hover:bg-slate-50 transition" onClick={() => setMobileMenuOpen(false)}>Masuk</Link>
-            <Link to="/register" className="w-full text-center py-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition" onClick={() => setMobileMenuOpen(false)}>Daftar</Link>
-          </div>
+          
+          {/* ========== KONDISI LOGIN / LOGOUT (MOBILE) ========== */}
+          {activeUser ? (
+            <div className="flex flex-col gap-4 w-64">
+              <Link
+                to="/member"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full text-center py-3 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full font-semibold flex items-center justify-center gap-2 hover:bg-indigo-100 transition"
+              >
+                <User size={18} /> {activeUser}
+              </Link>
+              <button
+                onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                className="w-full text-center py-3 bg-red-500 text-white rounded-full hover:bg-red-600 transition font-semibold flex items-center justify-center gap-2"
+              >
+                <LogOut size={18} /> Keluar
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4 w-64">
+              <Link to="/login" className="w-full text-center py-3 text-slate-700 border border-slate-200 rounded-full hover:bg-slate-50 transition" onClick={() => setMobileMenuOpen(false)}>Masuk</Link>
+              <Link to="/register" className="w-full text-center py-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition" onClick={() => setMobileMenuOpen(false)}>Daftar</Link>
+            </div>
+          )}
+          {/* ===================================================== */}
         </div>
       </header>
 
@@ -465,7 +539,6 @@ export default function LandingPage() {
           />
         </div>
         
-        {/* Decorative Elements */}
         <div className="absolute top-20 -left-20 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-[120px] opacity-30 animate-pulse" />
         <div className="absolute bottom-10 -right-20 w-80 h-80 bg-amber-500 rounded-full mix-blend-multiply filter blur-[120px] opacity-20 animate-pulse" style={{ animationDelay: "2s" }} />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-600 rounded-full mix-blend-multiply filter blur-[150px] opacity-20" />
@@ -759,7 +832,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ===== MEMBER & KODE PROMO ===== (BARU) */}
+      {/* ===== MEMBER & KODE PROMO ===== */}
       <section id="member" className="py-24 bg-slate-900 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-600/20 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-violet-600/20 rounded-full blur-3xl"></div>

@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { BsFillExclamationDiamondFill } from "react-icons/bs";
 import { ImSpinner2 } from "react-icons/im";
+import { authAPI } from "../../services/authAPI";
 
+// PENTING: Pastikan Anda juga mengimpor asset BackgroundWave dan Logo jika belum ada di atas
 import Logo from "../../assets/Logo.png";
 import BackgroundWave from "../../assets/style.png";
-// 🌟 Import service API yang telah dibuat
-import { authAPI } from "../../services/authAPI";
 
 export default function Register() {
     const navigate = useNavigate();
@@ -35,47 +35,43 @@ export default function Register() {
         }
 
         try {
-            // 🌟 Jalankan query insert data user baru ke tabel Supabase via REST API
+            // 🌟 PERBAIKAN: Menggunakan role "user" agar seragam dengan hak akses aplikasi
             await authAPI.registerUser({
-                fullname: formData.fullName, // 👈 Menggunakan fullname sesuai skema database Supabase Anda
+                fullname: formData.fullName, 
                 email: formData.email,
-                password: formData.password
+                password: formData.password,
+                role: "user" // 👈 Mengunci pendaftaran otomatis menjadi role 'user'
             });
 
-            // Jika sukses, arahkan ke login
+            // Berhasil mendaftar, langsung arahkan ke halaman login
             navigate("/login");
         } catch (err) {
             console.error(err);
             setError("Pendaftaran gagal! Silakan periksa koneksi internet atau gunakan email lain.");
         } finally {
-            loading(false);
+            setLoading(false);
         }
     };
 
     return (
         <div className="fixed inset-0 w-screen h-screen bg-background font-poppins flex items-center justify-center overflow-hidden">
-            {/* Latar Belakang Gelombang */}
             <div className="absolute top-0 left-0 h-full w-full pointer-events-none -z-10">
                 <img src={BackgroundWave} alt="Background Decor" className="h-full w-auto object-cover object-left" />
             </div>
         
-            {/* Dekorasi Lingkaran */}
             <div className="absolute -top-20 -right-20 w-80 h-80 border border-primary/20 rounded-full pointer-events-none -z-10"></div>
 
             <div className="w-full max-w-[360px] px-4 flex flex-col items-center">
-                {/* Logo & Judul Utama */}
                 <img src={Logo} alt="Logo" className="w-20 h-auto mb-4" />
                 <h1 className="text-[30px] font-bold text-primary mb-2 text-center">Join FurniCraft</h1>
                 <p className="text-xs text-text/60 mb-6 text-center">Create account to manage your furniture orders.</p>
                 
-                {/* Kotak Pesan Error */}
                 {error && (
                     <div className="w-full mb-4 p-3 bg-red-50 text-red-600 border border-red-100 rounded-xl flex items-center gap-2 text-[12px] font-medium">
                         <BsFillExclamationDiamondFill className="shrink-0" /> {error}
                     </div>
                 )}
 
-                {/* Formulir Pendaftaran */}
                 <form onSubmit={handleRegister} className="w-full space-y-4">
                     <input 
                         type="text" 
@@ -107,7 +103,6 @@ export default function Register() {
                         required
                     />
 
-                    {/* Tombol Kirim */}
                     <button 
                         type="submit" 
                         disabled={loading}
@@ -117,7 +112,6 @@ export default function Register() {
                     </button>
                 </form>
 
-                {/* Tautan Navigasi Kembali */}
                 <div className="mt-10 text-[13px] text-text">
                     Already member? <Link to="/login" className="text-primary font-bold hover:underline">Login here</Link>
                 </div>

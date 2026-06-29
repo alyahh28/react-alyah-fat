@@ -12,13 +12,13 @@ const headers = {
 }
 
 export const authAPI = {
-    // 1. Fungsi Registrasi (Insert user baru ke tabel)
+    // 1. Fungsi Registrasi (Insert user baru ke tabel dengan role default 'user')
     async registerUser(data) {  
         const response = await axios.post(API_URL, data, { headers })
         return response.data
     },
 
-    // 2. Fungsi Login (Cari user berdasarkan email dan password)
+    // 2. Fungsi Login (Cari user berdasarkan email dan password via query)
     async loginUser(email, password) {
         const urlWithFilter = `${API_URL}?email=eq.${encodeURIComponent(email)}&password=eq.${encodeURIComponent(password)}`
         const response = await axios.get(urlWithFilter, { headers })
@@ -39,9 +39,16 @@ export const authAPI = {
         return response.data
     },
 
-    // 🌟 5. BARU: Fungsi mengambil seluruh daftar users dari Supabase
+    // 5. Fungsi mengambil seluruh daftar users dari Supabase (Dipakai di Admin Panel)
     async getAllUsers() {
         const response = await axios.get(API_URL, { headers });
         return response.data;
+    },
+
+    // 🌟 Tambahan: Fungsi mengubah role user (Sangat berguna untuk fitur di Admin Panel kelak)
+    async updateUserRole(email, newRole) {
+        const urlWithFilter = `${API_URL}?email=eq.${encodeURIComponent(email)}`
+        const response = await axios.patch(urlWithFilter, { role: newRole }, { headers })
+        return response.data
     }
 }
