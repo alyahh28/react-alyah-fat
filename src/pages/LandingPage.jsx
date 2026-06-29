@@ -272,10 +272,20 @@ export default function LandingPage() {
 
   // ========== STATE LOGIN / LOGOUT ==========
   const [activeUser, setActiveUser] = useState("");
+  const [userPoints, setUserPoints] = useState(0);
+  const [userTier, setUserTier] = useState("Bronze");
 
   useEffect(() => {
     const user = localStorage.getItem("activeUser");
-    if (user) setActiveUser(user);
+    if (user) {
+      setActiveUser(user);
+      authAPI.getCurrentUser().then(userData => {
+        if (userData && userData.profile) {
+          setUserPoints(userData.profile.points || 0);
+          setUserTier(userData.profile.tier || "Bronze");
+        }
+      }).catch(err => console.error("Error getting user tier:", err));
+    }
   }, []);
 
   const handleLogout = () => {
@@ -356,27 +366,43 @@ export default function LandingPage() {
     }
   };
 
-  const handleNewsletter = (e) => {
+  const handleNewsletter = async (e) => {
     e.preventDefault();
     if (leadEmail) {
-      setIsSubmitted(true);
-      setLeadEmail("");
+      try {
+        const promo = await authAPI.generatePromoCode(leadEmail);
+        setIsSubmitted(true);
+        setLeadEmail("");
+        alert(`🎉 Selamat! Kode promo eksklusif Anda: ${promo.code}\n\nSimpan kode ini dan gunakan untuk mendapatkan diskon ${promo.discount_percent}%!`);
+      } catch (err) {
+        console.error("Gagal generate promo:", err);
+        alert("Gagal membuat kode promo, coba lagi nanti.");
+      }
     }
   };
 
   // Logika Kode Promo
-  const handlePromoCode = (e) => {
+  const handlePromoCode = async (e) => {
     e.preventDefault();
     if (!promoCode.trim()) {
       setPromoMessage("Kode promo tidak boleh kosong!");
       setIsPromoError(true);
       return;
     }
-    if (promoCode.toUpperCase() === "FURNI20") {
-      setPromoMessage("🎉 Selamat! Kode FURNI20 berhasil. Anda mendapat diskon 20% untuk pembelian selanjutnya.");
-      setIsPromoError(false);
-    } else {
-      setPromoMessage("Kode promo tidak valid atau sudah kadaluarsa. Coba kode: FURNI20");
+    
+    try {
+      const discount = await authAPI.validatePromoCode(promoCode.trim().toUpperCase());
+      if (discount) {
+        setPromoMessage(`🎉 Selamat! Kode berhasil divalidasi. Anda mendapat tambahan diskon ${discount}%.`);
+        setIsPromoError(false);
+        localStorage.setItem("appliedPromo", discount.toString());
+      } else {
+        setPromoMessage("Kode promo tidak valid atau sudah kadaluarsa.");
+        setIsPromoError(true);
+      }
+    } catch (err) {
+      console.error("Gagal validasi promo:", err);
+      setPromoMessage("Terjadi kesalahan sistem, coba lagi.");
       setIsPromoError(true);
     }
   };
@@ -474,9 +500,16 @@ export default function LandingPage() {
                   }`}>
                     <User size={16} />
                   </div>
-                  <span className={`transition-colors duration-300 ${scrolled ? "text-slate-700" : "text-white/90"}`}>
-                    {activeUser}
-                  </span>
+                  <div className="flex flex-col">
+                    <span className={`transition-colors duration-300 ${scrolled ? "text-slate-700" : "text-white/90"}`}>
+                      {activeUser}
+                    </span>
+                    {userPoints > 0 && (
+                      <span className={`text-[10px] uppercase font-bold flex items-center gap-1 ${scrolled ? "text-amber-500" : "text-amber-300"}`}>
+                        <Crown size={10} /> {userTier} ({userPoints} Pts)
+                      </span>
+                    )}
+                  </div>
                 </Link>
 
                 {/* Divider */}

@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ShoppingCart, Trash2, Plus, Minus, ArrowRight, PackageX } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { authAPI } from "../services/authAPI";
 
 export default function CartPopup() {
   const {
@@ -16,6 +17,22 @@ export default function CartPopup() {
   } = useCart();
 
   const navigate = useNavigate();
+
+  const [userTier, setUserTier] = useState("Bronze");
+  
+  useEffect(() => {
+    if (isCartOpen) {
+      authAPI.getCurrentUser().then(user => {
+        if (user && user.profile) {
+          setUserTier(user.profile.tier || "Bronze");
+        }
+      }).catch(err => console.error("Error fetching cart tier:", err));
+    }
+  }, [isCartOpen]);
+
+  const appliedPromo = parseInt(localStorage.getItem("appliedPromo") || "0");
+  const discountRate = authAPI.getTierDiscountRate(userTier) + (appliedPromo / 100);
+  const discountedTotalPrice = Math.round(totalPriceSum * (1 - discountRate));
 
   const handleCheckout = () => {
     setIsCartOpen(false);
@@ -105,9 +122,21 @@ export default function CartPopup() {
           <div className="pt-4 border-t border-slate-100 mt-auto">
             <div className="flex justify-between items-center mb-4">
               <span className="text-xs text-slate-500 font-medium">Total Perkiraan:</span>
-              <span className="text-xl font-black text-slate-900">
-                Rp {totalPriceSum.toLocaleString("id-ID")}
-              </span>
+              <div className="text-right">
+                {discountRate > 0 && (
+                  <span className="text-xs text-slate-400 line-through mr-2">
+                    Rp {totalPriceSum.toLocaleString("id-ID")}
+                  </span>
+                )}
+                <span className="text-xl font-black text-slate-900">
+                  Rp {discountedTotalPrice.toLocaleString("id-ID")}
+                </span>
+                {discountRate > 0 && (
+                  <div className="text-[10px] text-amber-600 font-bold mt-0.5">
+                    (Termasuk Diskon {discountRate * 100}%)
+                  </div>
+                )}
+              </div>
             </div>
             <button
               onClick={handleCheckout}

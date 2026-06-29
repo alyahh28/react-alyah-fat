@@ -116,7 +116,8 @@ export default function MemberDashboard() {
   };
 
   const currentTierInfo = getTierProgressInfo(userPoints);
-  const discountRate = authAPI.getTierDiscountRate(userTier);
+  const appliedPromo = parseInt(localStorage.getItem("appliedPromo") || "0");
+  const discountRate = authAPI.getTierDiscountRate(userTier) + (appliedPromo / 100);
 
   const loadMemberData = async () => {
     try {

@@ -52,7 +52,8 @@ export default function ProductDetail() {
         );
     }
 
-    const discountRate = authAPI.getTierDiscountRate(userTier);
+    const appliedPromo = parseInt(localStorage.getItem("appliedPromo") || "0");
+    const discountRate = authAPI.getTierDiscountRate(userTier) + (appliedPromo / 100);
     const originalPrice = product.price || 0;
     const discountedPrice = Math.round(originalPrice * (1 - discountRate));
 

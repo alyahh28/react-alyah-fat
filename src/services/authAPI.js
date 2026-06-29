@@ -149,6 +149,61 @@ export const authAPI = {
         return data;
     },
 
+    // ================= PROMO CODES (PRD 3) =================
+    async generatePromoCode(email) {
+        const code = `PROMO-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+        const { data, error } = await supabase
+            .from('promo_codes')
+            .insert([{
+                code: code,
+                email: email,
+                discount_percent: 10,
+                used: false
+            }])
+            .select();
+        
+        if (error) throw error;
+        return data[0];
+    },
+
+    async validatePromoCode(code) {
+        // Query untuk mencari promo code berdasarkan kode saja
+        const { data, error } = await supabase
+            .from('promo_codes')
+            .select('*')
+            .eq('code', code)
+            .eq('used', false)
+            .maybeSingle();
+
+        if (error) throw error;
+        
+        if (data) {
+            // Tandai sudah digunakan
+            const { error: updateError } = await supabase
+                .from('promo_codes')
+                .update({ used: true })
+                .eq('code', code);
+                
+            if (updateError) throw updateError;
+            return data.discount_percent;
+        }
+        
+        return null;
+    },
+
+
+
+    async getUserProfile(userId) {
+        const { data, error } = await supabase
+            .from('users')
+            .select('id, fullname, email, points, tier')
+            .eq('id', userId)
+            .maybeSingle();
+            
+        if (error) throw error;
+        return data;
+    },
+
     // ================= CRUD PRODUCTS =================
     async getAllProducts() {
         const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
