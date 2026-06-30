@@ -653,6 +653,37 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ===== ABOUT ===== */}
+      <section id="tentang" className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-16 items-center">
+          <ScrollReveal className="order-2 md:order-1">
+            <span className="text-indigo-600 font-semibold text-sm uppercase tracking-widest">Cerita Kami</span>
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mt-2 mb-6">
+              Tentang FurniCraft
+            </h2>
+            <p className="text-slate-600 leading-relaxed mb-6 text-lg">
+              Sejak 2015, kami menghadirkan furniture premium dengan material kayu pilihan terbaik. Setiap produk dirancang oleh pengrajin berpengalaman untuk memberikan kenyamanan dan keindahan di rumah Anda.
+            </p>
+            <div className="grid grid-cols-3 gap-8 text-center">
+              <div><div className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">8+</div><div className="text-slate-500 text-sm mt-1">Tahun</div></div>
+              <div><div className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">50K+</div><div className="text-slate-500 text-sm mt-1">Pelanggan</div></div>
+              <div><div className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">100%</div><div className="text-slate-500 text-sm mt-1">Kayu Asli</div></div>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal delay={200} className="order-1 md:order-2">
+            <div className="relative">
+              <div className="absolute -inset-4 bg-gradient-to-r from-indigo-100 to-violet-100 rounded-3xl rotate-2"></div>
+              <img
+                src="https://plus.unsplash.com/premium_photo-1684338795288-097525d127f0?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                alt="Kerajinan kami"
+                className="rounded-3xl shadow-2xl w-full relative"
+                onError={handleImageError}
+              />
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
       {/* ===== KATEGORI ===== */}
       <section id="koleksi" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <ScrollReveal className="text-center mb-16">
@@ -795,43 +826,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ===== GALERI INSPIRASI ===== */}
-      <section id="inspirasi" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ScrollReveal className="text-center mb-16">
-            <span className="text-indigo-600 font-semibold text-sm uppercase tracking-widest">Inspirasi</span>
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mt-2 mb-4">
-              Suasana Ruangan Impian
-            </h2>
-            <p className="text-slate-500 text-lg max-w-xl mx-auto">
-              Lihat furniture kami dalam dekorasi nyata yang memukau
-            </p>
-          </ScrollReveal>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { name: "Ruang Tamu", img: "https://images.unsplash.com/photo-1631679706909-1844bbd07221?q=80&w=1092&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
-              { name: "Kamar Tidur", img: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=300&fit=crop&auto=format" },
-              { name: "Ruang Kerja", img: "https://images.unsplash.com/photo-1497215842964-222b430dc094?w=400&h=300&fit=crop&auto=format" },
-              { name: "Ruang Makan", img: "https://images.unsplash.com/photo-1593136596203-7212b076f4d2?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" }
-            ].map((item, idx) => (
-              <ScrollReveal key={idx} delay={idx * 150}>
-                <div className="group relative rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 h-80">
-                  <img
-                    src={item.img}
-                    alt={item.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                    onError={handleImageError}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6">
-                    <h3 className="text-white font-bold text-2xl drop-shadow-md">{item.name}</h3>
-                  </div>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ===== MEMBER & KODE PROMO ===== */}
       <section id="member" className="py-24 bg-slate-900 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-600/20 rounded-full blur-3xl"></div>
@@ -904,64 +898,40 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ===== ABOUT ===== */}
-      <section id="tentang" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-16 items-center">
-          <ScrollReveal className="order-2 md:order-1">
-            <span className="text-indigo-600 font-semibold text-sm uppercase tracking-widest">Cerita Kami</span>
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mt-2 mb-6">
-              Tentang FurniCraft
+      {/* ===== GALERI INSPIRASI ===== */}
+      <section id="inspirasi" className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ScrollReveal className="text-center mb-16">
+            <span className="text-indigo-600 font-semibold text-sm uppercase tracking-widest">Inspirasi</span>
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mt-2 mb-4">
+              Suasana Ruangan Impian
             </h2>
-            <p className="text-slate-600 leading-relaxed mb-6 text-lg">
-              Sejak 2015, kami menghadirkan furniture premium dengan material kayu pilihan terbaik. Setiap produk dirancang oleh pengrajin berpengalaman untuk memberikan kenyamanan dan keindahan di rumah Anda.
+            <p className="text-slate-500 text-lg max-w-xl mx-auto">
+              Lihat furniture kami dalam dekorasi nyata yang memukau
             </p>
-            <div className="grid grid-cols-3 gap-8 text-center">
-              <div><div className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">8+</div><div className="text-slate-500 text-sm mt-1">Tahun</div></div>
-              <div><div className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">50K+</div><div className="text-slate-500 text-sm mt-1">Pelanggan</div></div>
-              <div><div className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">100%</div><div className="text-slate-500 text-sm mt-1">Kayu Asli</div></div>
-            </div>
           </ScrollReveal>
-          <ScrollReveal delay={200} className="order-1 md:order-2">
-            <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-r from-indigo-100 to-violet-100 rounded-3xl rotate-2"></div>
-              <img
-                src="https://plus.unsplash.com/premium_photo-1684338795288-097525d127f0?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                alt="Kerajinan kami"
-                className="rounded-3xl shadow-2xl w-full relative"
-                onError={handleImageError}
-              />
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* ===== NEWSLETTER ===== */}
-      <section id="kontak" className="py-24 bg-slate-900 text-white relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-3xl"></div>
-        <div className="max-w-2xl mx-auto px-4 text-center space-y-6 relative z-10">
-          <h2 className="text-3xl md:text-4xl font-bold">Dapatkan Promo Eksklusif</h2>
-          <p className="text-slate-400 text-lg">
-            Berlangganan newsletter kami dan dapatkan diskon 20% pertama Anda
-          </p>
-          {!isSubmitted ? (
-            <form onSubmit={handleNewsletter} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mt-8">
-              <Input
-                type="email"
-                placeholder="Alamat email Anda"
-                value={leadEmail}
-                onChange={(e) => setLeadEmail(e.target.value)}
-                required
-                className="flex-1 bg-slate-800 border-slate-700 rounded-xl text-white placeholder-slate-500 focus:ring-indigo-500 focus:border-indigo-500 h-12 px-4"
-              />
-              <Button type="submit" className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-xl px-6 h-12 hover:opacity-90 transition shadow-md">
-                Klaim Diskon
-              </Button>
-            </form>
-          ) : (
-            <div className="p-5 bg-emerald-600/20 border border-emerald-500/30 rounded-xl text-emerald-300 font-semibold max-w-md mx-auto mt-8">
-              🎉 Terima kasih! Kode voucher diskon 20% telah dikirim ke email Anda.
-            </div>
-          )}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { name: "Ruang Tamu", img: "https://images.unsplash.com/photo-1631679706909-1844bbd07221?q=80&w=1092&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
+              { name: "Kamar Tidur", img: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=300&fit=crop&auto=format" },
+              { name: "Ruang Kerja", img: "https://images.unsplash.com/photo-1497215842964-222b430dc094?w=400&h=300&fit=crop&auto=format" },
+              { name: "Ruang Makan", img: "https://images.unsplash.com/photo-1593136596203-7212b076f4d2?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" }
+            ].map((item, idx) => (
+              <ScrollReveal key={idx} delay={idx * 150}>
+                <div className="group relative rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 h-80">
+                  <img
+                    src={item.img}
+                    alt={item.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
+                    onError={handleImageError}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6">
+                    <h3 className="text-white font-bold text-2xl drop-shadow-md">{item.name}</h3>
+                  </div>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -998,6 +968,36 @@ export default function LandingPage() {
               </ScrollReveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ===== NEWSLETTER ===== */}
+      <section id="kontak" className="py-24 bg-slate-900 text-white relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-3xl"></div>
+        <div className="max-w-2xl mx-auto px-4 text-center space-y-6 relative z-10">
+          <h2 className="text-3xl md:text-4xl font-bold">Dapatkan Promo Eksklusif</h2>
+          <p className="text-slate-400 text-lg">
+            Berlangganan newsletter kami dan dapatkan diskon 20% pertama Anda
+          </p>
+          {!isSubmitted ? (
+            <form onSubmit={handleNewsletter} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mt-8">
+              <Input
+                type="email"
+                placeholder="Alamat email Anda"
+                value={leadEmail}
+                onChange={(e) => setLeadEmail(e.target.value)}
+                required
+                className="flex-1 bg-slate-800 border-slate-700 rounded-xl text-white placeholder-slate-500 focus:ring-indigo-500 focus:border-indigo-500 h-12 px-4"
+              />
+              <Button type="submit" className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-xl px-6 h-12 hover:opacity-90 transition shadow-md">
+                Klaim Diskon
+              </Button>
+            </form>
+          ) : (
+            <div className="p-5 bg-emerald-600/20 border border-emerald-500/30 rounded-xl text-emerald-300 font-semibold max-w-md mx-auto mt-8">
+              🎉 Terima kasih! Kode voucher diskon 20% telah dikirim ke email Anda.
+            </div>
+          )}
         </div>
       </section>
 

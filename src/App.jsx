@@ -76,20 +76,36 @@ function App() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          localStorage.setItem("isLoggedIn", "true");
-          const { data: profile } = await supabase
+          const { data: profile, error: profileError } = await supabase
             .from('users')
             .select('role, fullname')
-            .eq('id', session.user.id)
+            .eq('email', session.user.email)
             .maybeSingle();
 
-          if (profile) {
+          if (profileError || !profile) {
+            // Profil tidak ditemukan atau query gagal — jangan anggap login
+            console.warn('Session ada tapi profil tidak valid, sign out...');
+            await supabase.auth.signOut();
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("userRole");
+            localStorage.removeItem("activeUser");
+          } else {
+            // Profil valid — set sebagai logged in
+            localStorage.setItem("isLoggedIn", "true");
             localStorage.setItem("userRole", (profile.role || "member").toLowerCase());
             localStorage.setItem("activeUser", profile.fullname || session.user.email);
           }
+        } else {
+          // Tidak ada session — pastikan localStorage bersih
+          localStorage.removeItem("isLoggedIn");
+          localStorage.removeItem("userRole");
+          localStorage.removeItem("activeUser");
         }
       } catch (err) {
         console.error("Gagal memeriksa sesi Supabase:", err);
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("userRole");
+        localStorage.removeItem("activeUser");
       } finally {
         setCheckingSession(false);
       }

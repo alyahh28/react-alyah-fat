@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { BsFillExclamationDiamondFill } from "react-icons/bs";
 import { ImSpinner2 } from "react-icons/im";
-import { authAPI } from "../../services/authAPI";
+import { authAPI, supabase } from "../../services/authAPI";
 
 // PENTING: Pastikan Anda juga mengimpor asset BackgroundWave dan Logo jika belum ada di atas
 import Logo from "../../assets/Logo.png";
@@ -12,6 +12,7 @@ export default function Register() {
     const navigate = useNavigate();
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState("");
     const [formData, setFormData] = useState({
         fullName: "",
         email: "",
@@ -26,6 +27,7 @@ export default function Register() {
     const handleRegister = async (e) => {
         e.preventDefault();
         setError("");
+        setSuccess("");
         setLoading(true);
         
         if (!formData.fullName || !formData.email || !formData.password) {
@@ -34,16 +36,33 @@ export default function Register() {
             return;
         }
 
+        if (formData.password.length < 6) {
+            setError("Password minimal 6 karakter.");
+            setLoading(false);
+            return;
+        }
+
         try {
-            await authAPI.registerUser({
+            const result = await authAPI.registerUser({
                 fullname: formData.fullName, 
                 email: formData.email,
                 password: formData.password,
                 role: "member"
             });
 
-            // Berhasil mendaftar, langsung arahkan ke halaman login
-            navigate("/login");
+            // Sign out dari Supabase setelah registrasi agar tidak auto-login
+            // Ini mencegah PublicRoute redirect ke /member
+            await supabase.auth.signOut();
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("activeUser");
+            localStorage.removeItem("userRole");
+
+            if (result?.needsConfirmation) {
+                setSuccess(`Registrasi berhasil! Cek email ${formData.email} dan klik link konfirmasi, lalu login.`);
+            } else {
+                setSuccess("Registrasi berhasil! Silakan login dengan akun baru kamu.");
+                setTimeout(() => navigate("/login"), 1500);
+            }
         } catch (err) {
             console.error(err);
             setError(err.message || "Pendaftaran gagal! Silakan periksa koneksi internet atau gunakan email lain.");
@@ -68,6 +87,13 @@ export default function Register() {
                 {error && (
                     <div className="w-full mb-4 p-3 bg-red-50 text-red-600 border border-red-100 rounded-xl flex items-center gap-2 text-[12px] font-medium">
                         <BsFillExclamationDiamondFill className="shrink-0" /> {error}
+                    </div>
+                )}
+
+                {success && (
+                    <div className="w-full mb-4 p-3 bg-green-50 text-green-700 border border-green-200 rounded-xl flex items-start gap-2 text-[12px] font-medium">
+                        <span className="shrink-0 mt-0.5">✅</span>
+                        <span>{success} <Link to="/login" className="underline font-bold">Login sekarang →</Link></span>
                     </div>
                 )}
 

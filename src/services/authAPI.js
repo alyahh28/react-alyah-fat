@@ -24,6 +24,16 @@ export const authAPI = {
 
     // 1. Fungsi Registrasi (Supabase Auth + insert profile ke tabel users)
     async registerUser({ fullname, email, password, role = 'member' }) {
+        // Translate common Supabase errors to Indonesian
+        const translateError = (msg = '') => {
+            if (msg.includes('already registered') || msg.includes('User already registered'))
+                return 'Email ini sudah terdaftar. Silakan gunakan email lain atau langsung login.';
+            if (msg.includes('invalid email')) return 'Format email tidak valid.';
+            if (msg.includes('Password should be')) return 'Password minimal 6 karakter.';
+            if (msg.includes('weak_password')) return 'Password terlalu lemah. Gunakan minimal 6 karakter dengan kombinasi huruf dan angka.';
+            return msg || 'Pendaftaran gagal. Coba lagi.';
+        };
+
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email,
             password,
@@ -32,46 +42,110 @@ export const authAPI = {
             }
         });
 
-        if (authError) throw authError;
+        if (authError) {
+            const err = new Error(translateError(authError.message));
+            err.originalError = authError;
+            throw err;
+        }
+
+        // Check if email confirmation is required
+        // authData.user will exist but session will be null if confirmation needed
+        const needsConfirmation = authData?.user && !authData?.session;
 
         if (authData?.user) {
-            const { data: dbData, error: dbError } = await supabase
+            // Cek dulu apakah email sudah ada di tabel users
+            const { data: existingProfile } = await supabase
                 .from('users')
-                .upsert([{
-                    id: authData.user.id,
-                    fullname: fullname,
-                    email: email,
-                    role: role,
-                    points: 0,
-                    tier: 'Bronze'
-                }], { onConflict: 'id' })
-                .select();
+                .select('id')
+                .eq('email', email)
+                .maybeSingle();
 
-            if (dbError) {
-                console.error('Gagal menyimpan profil ke tabel users:', dbError);
+            if (existingProfile) {
+                // Email sudah ada di tabel users, skip insert
+                console.log('Profil sudah ada, skip insert.');
+            } else {
+                // Insert profil baru
+                const { data: insertedData, error: dbError } = await supabase
+                    .from('users')
+                    .insert([{
+                        fullname: fullname,
+                        email: email,
+                        password: password,
+                        role: role,
+                        points: 0,
+                        tier: 'Bronze'
+                    }])
+                    .select();
+
+                if (dbError) {
+                    console.error('❌ Gagal simpan profil ke tabel users:', dbError);
+                    // Lempar error agar terlihat di UI
+                    throw new Error(`Akun dibuat di Auth, tapi gagal simpan profil: ${dbError.message}`);
+                }
+                console.log('✅ Profil berhasil disimpan:', insertedData);
             }
-            return { authData, dbData };
         }
-        return authData;
+
+        return { authData, needsConfirmation };
     },
 
     // 2. Fungsi Login
     async loginUser(email, password) {
+        const translateError = (msg = '') => {
+            if (msg.includes('Invalid login credentials') || msg.includes('invalid_credentials'))
+                return 'Email atau password salah. Pastikan data yang kamu masukkan benar.';
+            if (msg.includes('Email not confirmed'))
+                return 'Email belum dikonfirmasi. Silakan cek inbox email kamu dan klik link verifikasi.';
+            if (msg.includes('Too many requests'))
+                return 'Terlalu banyak percobaan login. Tunggu beberapa menit lalu coba lagi.';
+            if (msg.includes('User not found')) return 'Akun dengan email ini tidak ditemukan.';
+            return msg || 'Login gagal. Coba lagi.';
+        };
+
         const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
             email,
             password
         });
 
-        if (authError) throw authError;
+        if (authError) {
+            const err = new Error(translateError(authError.message));
+            err.originalError = authError;
+            throw err;
+        }
 
         const user = authData.user;
-        if (!user) throw new Error("User tidak ditemukan");
+        if (!user) throw new Error('User tidak ditemukan.');
 
-        const { data: profile } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', user.id)
-            .maybeSingle();
+        let profile = null;
+        try {
+            const { data: profileData } = await supabase
+                .from('users')
+                .select('*')
+                .eq('email', email)
+                .maybeSingle();
+            profile = profileData;
+        } catch (profileErr) {
+            console.warn('Gagal ambil profil, lanjutkan dengan data Auth:', profileErr);
+        }
+
+        // Jika profil belum ada, buat otomatis
+        if (!profile) {
+            const fullnameFallback = user.user_metadata?.fullname || email.split('@')[0];
+            try {
+                const { data: newProfile } = await supabase.from('users').insert([{
+                    fullname: fullnameFallback,
+                    email: email,
+                    password: password,
+                    role: 'member',
+                    points: 0,
+                    tier: 'Bronze'
+                }]).select().single();
+                profile = newProfile || { fullname: fullnameFallback, role: 'member', points: 0, tier: 'Bronze' };
+            } catch (createErr) {
+                console.warn('Gagal buat profil otomatis:', createErr);
+                profile = { fullname: fullnameFallback, role: 'member', points: 0, tier: 'Bronze' };
+            }
+        }
 
         const role = (profile?.role || user.user_metadata?.role || 'member').toLowerCase();
         const fullname = profile?.fullname || user.user_metadata?.fullname || email.split('@')[0];
@@ -115,7 +189,7 @@ export const authAPI = {
         const { data: profile } = await supabase
             .from('users')
             .select('*')
-            .eq('id', user.id)
+            .eq('email', user.email)
             .maybeSingle();
 
         const role = (profile?.role || user.user_metadata?.role || 'member').toLowerCase();
