@@ -147,7 +147,7 @@ const testimonials = [
     city: "Jakarta",
     stars: 5,
     quote:
-      "Furnitur dari FurniCraft membuat rumah saya terasa begitu hangat. Kualitasnya luar biasa, desainnya timeless.",
+      "Furnitur dari FurnitureQ membuat rumah saya terasa begitu hangat. Kualitasnya luar biasa, desainnya timeless.",
     avatar: "https://i.pravatar.cc/150?img=44",
   },
   {

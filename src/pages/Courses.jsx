@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
 import productsData from "../data/products.json";
 import { authAPI } from "../services/authAPI";
+import { useCart } from "../context/CartContext";
 import { FaPlus, FaEdit, FaTrash, FaDatabase } from "react-icons/fa";
 
 import { 
@@ -37,6 +38,7 @@ export default function Courses({ isGuest = false }) {
 
     const userRole = (localStorage.getItem("userRole") || "").toLowerCase();
     const isAdmin = userRole === "admin" && !isGuest;
+    const { addToCart, setIsCartOpen } = useCart();
 
     const fetchProducts = async () => {
         setLoading(true);
@@ -330,12 +332,20 @@ export default function Courses({ isGuest = false }) {
                                         Stock: <span className="text-stone-800 font-bold">{p.stock}</span>
                                     </span>
                                     
-                                    <Link 
-                                        to={`/products/${p.id}`} 
-                                        className="bg-stone-900 text-white px-4 py-2 rounded-xl font-bold hover:bg-amber-800 transition-all shadow-sm text-[11px]"
-                                    >
-                                        Lihat Detail
-                                    </Link>
+                                    <div className="flex gap-2">
+                                        <button 
+                                            onClick={() => { addToCart(p); setIsCartOpen(true); }}
+                                            className="bg-indigo-600 text-white px-3 py-2 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-sm text-[11px]"
+                                        >
+                                            + Keranjang
+                                        </button>
+                                        <Link 
+                                            to={`/products/${p.id}`} 
+                                            className="bg-stone-900 text-white px-3 py-2 rounded-xl font-bold hover:bg-amber-800 transition-all shadow-sm text-[11px]"
+                                        >
+                                            Detail
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
                         </div>

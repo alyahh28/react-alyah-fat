@@ -28,6 +28,7 @@ const NotFound = React.lazy(() => import('./pages/NotFound.jsx'))
 
 // --- LAZY LOADING PAGES (MEMBER) ---
 const MemberDashboard = React.lazy(() => import('./pages/MemberDashboard.jsx')) 
+const MemberProfile = React.lazy(() => import('./pages/MemberProfile.jsx'))
 
 // --- LAZY LOADING PAGES (AUTH) ---
 const Login = React.lazy(() => import('./pages/auth/Login.jsx'))
@@ -156,9 +157,8 @@ function App() {
           </Route>
 
           {/* 🔒 PRIVATE ROUTES FOR MEMBER */}
-          <Route element={<ProtectedRoute allowedRole="member"><MemberDashboard /></ProtectedRoute>}>
-            <Route path="/member" element={<MemberDashboard />} />
-          </Route>
+          <Route path="/member" element={<ProtectedRoute allowedRole="member"><MemberDashboard /></ProtectedRoute>} />
+          <Route path="/member/profile" element={<ProtectedRoute allowedRole="member"><MemberProfile /></ProtectedRoute>} />
 
           {/* 🔓 AUTH ROUTES */}
           <Route element={<PublicRoute><AuthLayout /></PublicRoute>}>

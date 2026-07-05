@@ -2,6 +2,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { FaArrowLeft, FaWarehouse, FaMoneyBillWave, FaTag, FaPercentage, FaCrown } from "react-icons/fa";
 import { authAPI } from "../services/authAPI";
+import { useCart } from "../context/CartContext";
+import { ShoppingCart } from "lucide-react";
 
 export default function ProductDetail() {
     const { id } = useParams();
@@ -11,6 +13,7 @@ export default function ProductDetail() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [userTier, setUserTier] = useState("Bronze");
+    const { addToCart, setIsCartOpen } = useCart();
 
     useEffect(() => {
         const fetchProductDetail = async () => {
@@ -143,6 +146,13 @@ export default function ProductDetail() {
                                 </div>
                             </div>
                         </div>
+                        
+                        <button 
+                            onClick={() => { addToCart(product); setIsCartOpen(true); }}
+                            className="w-full mt-4 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl font-black text-lg hover:shadow-xl hover:shadow-indigo-500/30 transition-all flex items-center justify-center gap-3"
+                        >
+                            <ShoppingCart size={20} /> Masukkan ke Keranjang
+                        </button>
                     </div>
                 </div>
             </div>

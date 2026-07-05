@@ -365,22 +365,72 @@ export const authAPI = {
     },
 
     async getUserOrders(userId) {
-        const { data, error } = await supabase
-            .from('orders')
-            .select(`
-                *,
-                products (title, code, thumbnail, price)
-            `)
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false });
-        if (error) throw error;
-        return data || [];
+        // Ambil order lokal terlebih dahulu sebagai fallback
+        const localOrders = JSON.parse(localStorage.getItem(`local_orders_${userId}`) || '[]');
+        
+        try {
+            const { data, error } = await supabase
+                .from('orders')
+                .select(`
+                    *,
+                    products (title, code, thumbnail, price)
+                `)
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            
+            // Gabungkan order dari DB dengan order lokal (hindari duplikat)
+            const dbOrderIds = new Set((data || []).map(o => o.id));
+            const uniqueLocal = localOrders.filter(o => !dbOrderIds.has(o.id));
+            return [...(data || []), ...uniqueLocal];
+        } catch (err) {
+            console.warn("getUserOrders DB gagal, menggunakan data lokal:", err.message);
+            return localOrders;
+        }
     },
 
     async createOrder(orderData) {
-        const { data, error } = await supabase.from('orders').insert([orderData]).select();
-        if (error) throw error;
-        return data[0];
+        let finalOrderData = { ...orderData };
+        const pointsUsed = finalOrderData.points_used || 0;
+        // keep points_used for local storage, remove for Supabase insert
+        
+        // ---- Coba simpan ke Supabase terlebih dahulu ----
+        try {
+            const supabasePayload = { ...finalOrderData };
+            delete supabasePayload.points_used; // Supabase mungkin belum punya kolom ini
+            
+            const { data, error } = await supabase.from('orders').insert([supabasePayload]).select();
+            if (error) throw error;
+            
+            // Kurangi poin jika digunakan
+            if (pointsUsed > 0 && finalOrderData.user_id) {
+                await this.deductPoints(finalOrderData.user_id, pointsUsed);
+            }
+            return data[0];
+        } catch (dbError) {
+            // ---- FALLBACK: Simpan ke localStorage jika Supabase gagal ----
+            console.warn("Supabase createOrder gagal, fallback ke localStorage:", dbError.message);
+            
+            const localOrder = {
+                ...finalOrderData,
+                id: `local-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+                created_at: new Date().toISOString(),
+                status: finalOrderData.status || 'pending',
+                points_used: pointsUsed
+            };
+            
+            const userId = finalOrderData.user_id || 'unknown';
+            const existingOrders = JSON.parse(localStorage.getItem(`local_orders_${userId}`) || '[]');
+            existingOrders.unshift(localOrder);
+            localStorage.setItem(`local_orders_${userId}`, JSON.stringify(existingOrders));
+            
+            // Kurangi poin lokal jika digunakan
+            if (pointsUsed > 0 && userId) {
+                await this.deductPoints(userId, pointsUsed);
+            }
+            
+            return localOrder;
+        }
     },
 
     async updateOrderStatus(orderId, newStatus) {
@@ -440,15 +490,188 @@ export const authAPI = {
 
     // ================= POINT HISTORY (PRD 3) =================
     async getPointHistory(userId) {
-        const { data, error } = await supabase
-            .from('point_history')
-            .select(`
-                *,
-                orders (id, total_price, products(title))
-            `)
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false });
-        if (error) throw error;
-        return data || [];
+        let dbHistory = [];
+        try {
+            const { data, error } = await supabase
+                .from('point_history')
+                .select(`
+                    *,
+                    orders (id, total_price, products(title))
+                `)
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+            if (!error) dbHistory = data || [];
+        } catch (e) {
+            console.warn("DB point history missing:", e);
+        }
+
+        // Ambil juga dari localStorage (untuk poin non-transaksi jika DB menolak foreign key null)
+        const localHistory = JSON.parse(localStorage.getItem(`point_history_${userId}`) || "[]");
+        
+        // Gabungkan dan urutkan
+        const combined = [...dbHistory, ...localHistory].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        return combined;
+    },
+
+    // ================= NEW LOYALTY FEATURES (FASE 1-4) =================
+    
+    // Helper untuk menambah poin (fallback lokal jika DB strict)
+    async addPoints(userId, points, reason, orderId = null) {
+        try {
+            // Ambil user terkini
+            const { data: userProfile, error: getErr } = await supabase
+                .from('users')
+                .select('points')
+                .eq('id', userId)
+                .single();
+
+            if (getErr) throw getErr;
+
+            const currentPts = userProfile?.points || 0;
+            const newPts = currentPts + points;
+            const newTier = this.calculateTier(newPts);
+
+            // Update tabel users
+            await supabase
+                .from('users')
+                .update({ points: newPts, tier: newTier })
+                .eq('id', userId);
+
+            const logEntry = {
+                id: `loc_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
+                user_id: userId,
+                order_id: orderId,
+                points_earned: points,
+                created_at: new Date().toISOString(),
+                reason: reason // custom field untuk UI
+            };
+
+            // Simpan log di point_history, kalau gagal masukin ke localstorage
+            const { error: insertErr } = await supabase
+                .from('point_history')
+                .insert([{
+                    user_id: userId,
+                    order_id: orderId,
+                    points_earned: points
+                }]);
+                
+            if (insertErr) throw insertErr;
+        } catch (err) {
+            console.warn("Menggunakan LocalStorage untuk log poin karena error DB:", err.message);
+            const localKey = `point_history_${userId}`;
+            const history = JSON.parse(localStorage.getItem(localKey) || "[]");
+            history.push({
+                id: `loc_${Date.now()}_${Math.random().toString(36).substring(2,7)}`,
+                user_id: userId,
+                order_id: orderId,
+                points_earned: points,
+                created_at: new Date().toISOString(),
+                reason: reason
+            });
+            localStorage.setItem(localKey, JSON.stringify(history));
+        }
+    },
+
+    // Mengurangi poin
+    async deductPoints(userId, points) {
+        const { data: userProfile } = await supabase
+            .from('users')
+            .select('points')
+            .eq('id', userId)
+            .single();
+
+        const currentPts = userProfile?.points || 0;
+        if (currentPts < points) throw new Error("Poin tidak cukup.");
+        
+        const newPts = currentPts - points;
+        const newTier = this.calculateTier(newPts);
+
+        await supabase
+            .from('users')
+            .update({ points: newPts, tier: newTier })
+            .eq('id', userId);
+            
+        // Catat deduction di localStorage agar terlihat di riwayat
+        const localKey = `point_history_${userId}`;
+        const history = JSON.parse(localStorage.getItem(localKey) || "[]");
+        history.push({
+            id: `deduct_${Date.now()}`,
+            user_id: userId,
+            points_earned: -points, // negatif
+            created_at: new Date().toISOString(),
+            reason: "Penukaran Poin untuk Potongan Harga"
+        });
+        localStorage.setItem(localKey, JSON.stringify(history));
+    },
+
+    async claimWelcomeBonus(userId) {
+        const claimed = localStorage.getItem(`welcome_claimed_${userId}`);
+        if (!claimed) {
+            await this.addPoints(userId, 10, "Bonus Pendaftaran");
+            localStorage.setItem(`welcome_claimed_${userId}`, "true");
+            return true;
+        }
+        return false;
+    },
+
+    async completeProfile(userId, profileData) {
+        // Update user data (address, dob)
+        // Karena kolom ini mungkin belum ada di DB Supabase, kita gabungkan ke localStorage juga
+        const localProfileKey = `user_profile_ext_${userId}`;
+        localStorage.setItem(localProfileKey, JSON.stringify(profileData));
+        
+        try {
+            await supabase.from('users').update({ 
+                address: profileData.address,
+                dob: profileData.dob
+            }).eq('id', userId);
+        } catch (e) {
+            console.warn("DB tidak punya kolom address/dob, abaikan error", e);
+        }
+
+        const claimed = localStorage.getItem(`profile_bonus_claimed_${userId}`);
+        if (!claimed) {
+            await this.addPoints(userId, 20, "Melengkapi Profil");
+            localStorage.setItem(`profile_bonus_claimed_${userId}`, "true");
+            return true;
+        }
+        return false;
+    },
+
+    async dailyCheckIn(userId) {
+        const date = new Date().toISOString().split('T')[0];
+        const key = `daily_checkin_${userId}_${date}`;
+        if (!localStorage.getItem(key)) {
+            await this.addPoints(userId, 2, "Daily Check-in");
+            localStorage.setItem(key, "true");
+            return true;
+        }
+        return false;
+    },
+
+    async shareProduct(userId) {
+        const date = new Date().toISOString().split('T')[0];
+        const key = `share_product_${userId}_${date}`;
+        if (!localStorage.getItem(key)) {
+            await this.addPoints(userId, 5, "Share Produk ke Sosial Media");
+            localStorage.setItem(key, "true");
+            return true;
+        }
+        return false;
+    },
+
+    async submitReview(userId, orderId, rating, reviewText) {
+        const key = `review_claimed_${orderId}`;
+        if (!localStorage.getItem(key)) {
+            // Catat review ke localstorage (mock db)
+            const reviews = JSON.parse(localStorage.getItem('product_reviews') || "[]");
+            reviews.push({ orderId, userId, rating, reviewText, created_at: new Date().toISOString() });
+            localStorage.setItem('product_reviews', JSON.stringify(reviews));
+
+            await this.addPoints(userId, 15, "Ulasan Produk", orderId);
+            localStorage.setItem(key, "true");
+            return true;
+        }
+        return false;
     }
 };

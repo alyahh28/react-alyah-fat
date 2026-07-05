@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Logo from "../assets/Logo.png";
 import { authAPI } from "../services/authAPI";
+import { useCart } from "../context/CartContext";
 import {
   User,
   Award,
@@ -24,7 +25,7 @@ import {
 const crmRewards = [
   { id: "R1", title: "Potongan Langsung Rp 50.000", cost: 200, deskripsi: "Tanpa minimum transaksi" },
   { id: "R2", title: "Gratis Ongkir se-Jawa & Bali", cost: 350, deskripsi: "Maksimal subsidi Rp 150.000" },
-  { id: "R3", title: "Voucher Cashback FurniCraft 10%", cost: 500, deskripsi: "Hingga maksimal Rp 300.000" },
+  { id: "R3", title: "Voucher Cashback FurnitureQ 10%", cost: 500, deskripsi: "Hingga maksimal Rp 300.000" },
 ];
 
 /* ===================== SCROLL REVEAL ===================== */
@@ -74,6 +75,15 @@ export default function MemberDashboard() {
   const navigate = useNavigate();
   const [activeUser, setActiveUser] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
+  const { addToCart, setIsCartOpen } = useCart();
+  
+  // --- LOYALTY FASE 1 & 4 STATES ---
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [profileData, setProfileData] = useState({ address: '', dob: '' });
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewOrder, setReviewOrder] = useState(null);
+  const [reviewText, setReviewText] = useState("");
+  const [referralCopied, setReferralCopied] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [scrolled, setScrolled] = useState(false);
@@ -129,6 +139,21 @@ export default function MemberDashboard() {
         const tr = user.tier || authAPI.calculateTier(pts);
         setUserPoints(pts);
         setUserTier(tr);
+        
+        // Fase 1: Welcome Bonus
+        const claimed = await authAPI.claimWelcomeBonus(user.id);
+        if (claimed) {
+            setCrmMessage("Selamat datang! Anda mendapatkan +10 Poin pendaftaran.");
+            setUserPoints(prev => prev + 10);
+        }
+
+        // Tampilkan onboarding jika belum lengkap
+        if (!user.profile?.address || !user.profile?.dob) {
+            const extProfile = JSON.parse(localStorage.getItem(`user_profile_ext_${user.id}`) || "{}");
+            if (!user.profile?.address && !extProfile.address) {
+                setShowOnboarding(true);
+            }
+        }
 
         fetchUserOrders(user.id);
         fetchPointHistory(user.id);
@@ -140,12 +165,77 @@ export default function MemberDashboard() {
 
   const fetchProducts = async () => {
     setLoadingProducts(true);
+    let prods = [];
     try {
-      const prods = await authAPI.getAllProducts();
-      setDbProducts(prods);
+      prods = await authAPI.getAllProducts();
     } catch (err) {
-      console.error("Gagal memuat produk member:", err);
+      console.error("Gagal memuat produk member, menggunakan dummy data:", err);
     } finally {
+      // JIKA DATA KOSONG ATAU ERROR, GUNAKAN DUMMY DATA (50 PRODUK, 10 PER KATEGORI)
+      if (!prods || prods.length === 0) {
+          prods = [
+            // ===== LIVING ROOM (10 produk) =====
+            { id: "d-lr-1",  title: "Sofa Minimalis 3 Seater",     category: "Living Room", brand: "LuxWood",    price: 2500000, thumbnail: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-lr-2",  title: "Sofa L-Shape Premium",         category: "Living Room", brand: "FurnitureQ", price: 4800000, thumbnail: "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-lr-3",  title: "Kursi Santai Rotan Estetik",   category: "Living Room", brand: "RotanArt",   price: 1500000, thumbnail: "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-lr-4",  title: "Meja Kopi Kayu Solid",         category: "Living Room", brand: "LuxWood",    price: 1800000, thumbnail: "https://images.unsplash.com/photo-1530018607912-eff2daa1bac4?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-lr-5",  title: "Rak TV Kayu Walnut",           category: "Living Room", brand: "FurnitureQ", price: 2100000, thumbnail: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-lr-6",  title: "Sofa 2 Seater Scandinavian",   category: "Living Room", brand: "NordicHome", price: 2900000, thumbnail: "https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-lr-7",  title: "Meja Samping Kayu Jati",       category: "Living Room", brand: "LuxWood",    price: 750000,  thumbnail: "https://images.unsplash.com/photo-1581428982868-e410dd047a90?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-lr-8",  title: "Pouf Rajut Dekoratif",         category: "Living Room", brand: "RotanArt",   price: 480000,  thumbnail: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-lr-9",  title: "Rak Buku Minimalis 5 Tingkat", category: "Living Room", brand: "FurnitureQ", price: 1350000, thumbnail: "https://images.unsplash.com/photo-1594620302200-9a762244a156?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-lr-10", title: "Karpet Geometrik Premium",      category: "Living Room", brand: "NordicHome", price: 950000,  thumbnail: "https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?auto=format&fit=crop&w=400&q=80" },
+
+            // ===== BEDROOM (10 produk) =====
+            { id: "d-bd-1",  title: "Tempat Tidur Queen Size",       category: "Bedroom", brand: "LuxWood",    price: 4500000, thumbnail: "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-bd-2",  title: "Lemari Pakaian 3 Pintu",        category: "Bedroom", brand: "FurnitureQ", price: 3800000, thumbnail: "https://images.unsplash.com/photo-1595526114101-729f27027b47?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-bd-3",  title: "Nakas Minimalis Modern",         category: "Bedroom", brand: "NordicHome", price: 650000,  thumbnail: "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-bd-4",  title: "Meja Rias dengan Cermin",        category: "Bedroom", brand: "LuxWood",    price: 2200000, thumbnail: "https://images.unsplash.com/photo-1616137422495-1e9e46e2aa1e?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-bd-5",  title: "Lemari 2 Pintu Sliding",         category: "Bedroom", brand: "FurnitureQ", price: 2700000, thumbnail: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-bd-6",  title: "Headboard Berlapis Kain",        category: "Bedroom", brand: "NordicHome", price: 1100000, thumbnail: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-bd-7",  title: "Tempat Tidur King Size Kayu",    category: "Bedroom", brand: "LuxWood",    price: 6500000, thumbnail: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-bd-8",  title: "Rak Buku Samping Tempat Tidur",  category: "Bedroom", brand: "RotanArt",   price: 580000,  thumbnail: "https://images.unsplash.com/photo-1594620302200-9a762244a156?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-bd-9",  title: "Kabinet Penyimpanan 4 Laci",     category: "Bedroom", brand: "FurnitureQ", price: 1450000, thumbnail: "https://images.unsplash.com/photo-1567016432779-094069958ea5?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-bd-10", title: "Cermin Berdiri Full-Length",     category: "Bedroom", brand: "NordicHome", price: 890000,  thumbnail: "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=400&q=80" },
+
+            // ===== DINING (10 produk) =====
+            { id: "d-dn-1",  title: "Meja Makan Kayu Jati 6 Kursi",  category: "Dining", brand: "FurnitureQ", price: 6800000, thumbnail: "https://images.unsplash.com/photo-1577140917170-285929fb55b7?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-dn-2",  title: "Set Kursi Makan Rotan (4 pcs)", category: "Dining", brand: "RotanArt",   price: 2400000, thumbnail: "https://images.unsplash.com/photo-1549497538-303791108f95?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-dn-3",  title: "Meja Makan Bulat Marble",        category: "Dining", brand: "LuxWood",    price: 5200000, thumbnail: "https://images.unsplash.com/photo-1617104678098-de229db51175?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-dn-4",  title: "Kursi Makan Scandinavian",       category: "Dining", brand: "NordicHome", price: 850000,  thumbnail: "https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-dn-5",  title: "Bufet Kayu Vintage 3 Pintu",     category: "Dining", brand: "FurnitureQ", price: 3600000, thumbnail: "https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-dn-6",  title: "Kursi Bar Tinggi Minimalis",     category: "Dining", brand: "LuxWood",    price: 680000,  thumbnail: "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-dn-7",  title: "Meja Makan 4 Kursi Industrial",  category: "Dining", brand: "FurnitureQ", price: 4100000, thumbnail: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-dn-8",  title: "Rak Piring Kayu Tempel Dinding", category: "Dining", brand: "RotanArt",   price: 420000,  thumbnail: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-dn-9",  title: "Meja Lipat Multifungsi",         category: "Dining", brand: "NordicHome", price: 1200000, thumbnail: "https://images.unsplash.com/photo-1617104678098-de229db51175?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-dn-10", title: "Set Meja Makan 2 Kursi Cafe",    category: "Dining", brand: "LuxWood",    price: 1750000, thumbnail: "https://images.unsplash.com/photo-1549497538-303791108f95?auto=format&fit=crop&w=400&q=80" },
+
+            // ===== OFFICE (10 produk) =====
+            { id: "d-of-1",  title: "Meja Kerja Minimalis L-Shape",  category: "Office", brand: "NordicHome", price: 2800000, thumbnail: "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-of-2",  title: "Kursi Ergonomis Executive",      category: "Office", brand: "ErgoPro",    price: 3500000, thumbnail: "https://images.unsplash.com/photo-1505409628601-edc9af17fda6?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-of-3",  title: "Rak Arsip Besi 5 Tingkat",       category: "Office", brand: "FurnitureQ", price: 1100000, thumbnail: "https://images.unsplash.com/photo-1544986581-efac024faf62?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-of-4",  title: "Meja Kerja Standing Desk",       category: "Office", brand: "ErgoPro",    price: 4200000, thumbnail: "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-of-5",  title: "Kursi Mesh Breathable",          category: "Office", brand: "NordicHome", price: 1800000, thumbnail: "https://images.unsplash.com/photo-1541558869434-2840d308329a?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-of-6",  title: "Kabinet Kunci Arsip 4 Laci",     category: "Office", brand: "FurnitureQ", price: 2300000, thumbnail: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-of-7",  title: "Meja Komputer Sederhana",        category: "Office", brand: "NordicHome", price: 980000,  thumbnail: "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-of-8",  title: "Partisi Kantor Kaca 120cm",      category: "Office", brand: "ErgoPro",    price: 1650000, thumbnail: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-of-9",  title: "Loker Karyawan 3 Pintu",         category: "Office", brand: "FurnitureQ", price: 2900000, thumbnail: "https://images.unsplash.com/photo-1544986581-efac024faf62?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-of-10", title: "Meja Meeting Oval 8 Kursi",      category: "Office", brand: "LuxWood",    price: 7500000, thumbnail: "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=400&q=80" },
+
+            // ===== DECOR (10 produk) =====
+            { id: "d-dc-1",  title: "Pot Tanaman Keramik Putih",      category: "Decor", brand: "RotanArt",   price: 180000, thumbnail: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-dc-2",  title: "Lampu Meja Arsitek Hitam",       category: "Decor", brand: "NordicHome", price: 450000, thumbnail: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-dc-3",  title: "Cermin Rotan Bulat 60cm",        category: "Decor", brand: "RotanArt",   price: 320000, thumbnail: "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-dc-4",  title: "Rak Dinding Hexagonal",          category: "Decor", brand: "NordicHome", price: 250000, thumbnail: "https://images.unsplash.com/photo-1594620302200-9a762244a156?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-dc-5",  title: "Bantal Sofa Motif Bohemian",     category: "Decor", brand: "FurnitureQ", price: 120000, thumbnail: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-dc-6",  title: "Vas Bunga Terraco Modern",       category: "Decor", brand: "RotanArt",   price: 95000,  thumbnail: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-dc-7",  title: "Lampu Gantung Rotan Boho",       category: "Decor", brand: "RotanArt",   price: 680000, thumbnail: "https://images.unsplash.com/photo-1513506003901-1e6a35073d57?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-dc-8",  title: "Hiasan Dinding Makrame",         category: "Decor", brand: "NordicHome", price: 210000, thumbnail: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-dc-9",  title: "Set Lilin Aromaterapi",          category: "Decor", brand: "FurnitureQ", price: 75000,  thumbnail: "https://images.unsplash.com/photo-1602607144478-da69f3a96be7?auto=format&fit=crop&w=400&q=80" },
+            { id: "d-dc-10", title: "Frame Foto Set 3 Ukuran",        category: "Decor", brand: "NordicHome", price: 145000, thumbnail: "https://images.unsplash.com/photo-1558865869-c93f6f8482af?auto=format&fit=crop&w=400&q=80" },
+          ];
+      }
+      setDbProducts(prods);
       setLoadingProducts(false);
     }
   };
@@ -180,6 +270,69 @@ export default function MemberDashboard() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const handleDailyCheckin = async () => {
+    if (!currentUser) return;
+    const success = await authAPI.dailyCheckIn(currentUser.id);
+    if (success) {
+      setUserPoints(prev => prev + 2);
+      setCrmMessage("Berhasil Check-in harian! +2 Poin");
+      fetchPointHistory(currentUser.id);
+    } else {
+      setCrmMessage("Anda sudah check-in hari ini.");
+    }
+  };
+
+  const handleShareProduct = async () => {
+    if (!currentUser) return;
+    const success = await authAPI.shareProduct(currentUser.id);
+    if (success) {
+      setUserPoints(prev => prev + 5);
+      setCrmMessage("Terima kasih telah membagikan produk! +5 Poin");
+      fetchPointHistory(currentUser.id);
+    } else {
+      setCrmMessage("Anda sudah klaim poin share hari ini.");
+    }
+  };
+
+  const handleCopyReferral = () => {
+    navigator.clipboard.writeText(`FURNI-${currentUser?.id?.substring(0,6).toUpperCase() || 'MEMBER'}`);
+    setReferralCopied(true);
+    setTimeout(() => setReferralCopied(false), 2000);
+  };
+
+  const handleCompleteProfileSubmit = async (e) => {
+    e.preventDefault();
+    if (!profileData.address || !profileData.dob) {
+       alert("Lengkapi semua data!"); return;
+    }
+    const success = await authAPI.completeProfile(currentUser.id, profileData);
+    if (success) {
+       setUserPoints(prev => prev + 20);
+       setCrmMessage("Profil lengkap! +20 Poin");
+       fetchPointHistory(currentUser.id);
+    }
+    setShowOnboarding(false);
+  };
+
+  const handleOpenReview = (order) => {
+    setReviewOrder(order);
+    setReviewText("");
+    setReviewModalOpen(true);
+  };
+
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    const success = await authAPI.submitReview(currentUser.id, reviewOrder.id, 5, reviewText);
+    if (success) {
+      setUserPoints(prev => prev + 15);
+      setCrmMessage("Terima kasih atas ulasan Anda! +15 Poin");
+      fetchPointHistory(currentUser.id);
+    } else {
+      setCrmMessage("Pesanan ini sudah diulas.");
+    }
+    setReviewModalOpen(false);
+  };
 
   const handleLogout = async () => {
     await authAPI.logoutUser();
@@ -268,7 +421,7 @@ export default function MemberDashboard() {
             <div className="w-10 h-10 bg-gradient-to-br from-indigo-200 to-violet-600 rounded-xl flex items-center justify-center shadow-md shadow-indigo-500/30 overflow-hidden">
               <img
                 src={Logo}
-                alt="FurniCraft Logo"
+                alt="FurnitureQ Logo"
                 className="w-full h-full object-cover p-1.5"
               />
             </div>
@@ -277,7 +430,7 @@ export default function MemberDashboard() {
                 scrolled ? "text-slate-900" : "text-white"
               }`}
             >
-              FurniCraft
+              FurnitureQ
             </span>
           </Link>
 
@@ -343,7 +496,42 @@ export default function MemberDashboard() {
             </p>
           </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Misi Harian (Fase 2) */}
+            <ScrollReveal>
+              <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 shadow-xl h-full flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-center mb-3">
+                    <p className="text-xs text-indigo-300 font-medium">Misi Harian & Referral</p>
+                    <CheckCircle size={16} className="text-emerald-400" />
+                  </div>
+                  <div className="space-y-2.5">
+                    <button onClick={handleDailyCheckin} className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition group text-left">
+                      <div>
+                        <p className="text-sm font-bold text-white group-hover:text-amber-300 transition">Check-in Harian</p>
+                        <p className="text-[10px] text-indigo-200 mt-0.5">Klaim bonus login tiap hari</p>
+                      </div>
+                      <span className="text-xs font-black bg-amber-500 text-white px-2 py-1 rounded-lg">+2 Pts</span>
+                    </button>
+                    <button onClick={handleShareProduct} className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition group text-left">
+                      <div>
+                        <p className="text-sm font-bold text-white group-hover:text-amber-300 transition">Share ke Medsos</p>
+                        <p className="text-[10px] text-indigo-200 mt-0.5">Bagikan katalog kami</p>
+                      </div>
+                      <span className="text-xs font-black bg-amber-500 text-white px-2 py-1 rounded-lg">+5 Pts</span>
+                    </button>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-white/10">
+                  <p className="text-[10px] text-indigo-200 mb-1.5 font-medium">Ajak Teman (Referral Code)</p>
+                  <button onClick={handleCopyReferral} className="w-full flex items-center justify-between bg-black/20 p-2.5 rounded-xl hover:bg-black/30 transition border border-white/5 text-left">
+                    <span className="font-mono text-sm font-bold text-amber-300 tracking-wider">FURNI-{activeUser?.substring(0,6).toUpperCase() || 'MEMBER'}</span>
+                    <span className="text-[10px] text-indigo-300 font-semibold">{referralCopied ? 'Tersalin ✓' : 'Salin'}</span>
+                  </button>
+                </div>
+              </div>
+            </ScrollReveal>
+
             {/* Profile Card */}
             <ScrollReveal>
               <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 shadow-xl h-full flex flex-col justify-between">
@@ -354,16 +542,19 @@ export default function MemberDashboard() {
                   <div>
                     <p className="text-xs text-indigo-300 font-medium">Profil Member,</p>
                     <h2 className="text-xl font-bold text-white leading-snug">
-                      {activeUser || "Member FurniCraft"}
+                      {activeUser || "Member FurnitureQ"}
                     </h2>
                     <span className="inline-flex items-center gap-1 mt-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                       <CheckCircle size={12} /> Status: {userTier}
                     </span>
                   </div>
                 </div>
-                <div className="mt-4 pt-4 border-t border-white/10 text-xs text-indigo-300 flex justify-between">
-                  <span>Hak Diskon Checkout:</span>
-                  <span className="font-semibold text-amber-300">{currentTierInfo.discountText}</span>
+                <div className="mt-4 pt-4 border-t border-white/10 text-xs flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
+                  <div>
+                    <span className="text-indigo-300">Hak Diskon Checkout: </span>
+                    <span className="font-semibold text-amber-300">{currentTierInfo.discountText}</span>
+                  </div>
+                  <Link to="/member/profile" className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold transition text-center">Lihat Profil & Riwayat</Link>
                 </div>
               </div>
             </ScrollReveal>
@@ -488,6 +679,12 @@ export default function MemberDashboard() {
                           }`}>
                             {ord.status || 'pending'}
                           </span>
+                          { (ord.status === 'shipped' || ord.status === 'completed') && !localStorage.getItem(`review_claimed_${ord.id}`) && (
+                              <button onClick={() => handleOpenReview(ord)} className="mt-2 block w-full text-center bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold py-1 rounded-lg transition">Terima & Ulas (+15 Pts)</button>
+                          )}
+                          { localStorage.getItem(`review_claimed_${ord.id}`) && (
+                              <span className="mt-2 block w-full text-center text-[10px] text-emerald-600 font-bold">✓ Diulas</span>
+                          ) }
                         </td>
                       </tr>
                     ))}
@@ -674,7 +871,7 @@ export default function MemberDashboard() {
                             </p>
                           </div>
                           <button
-                            onClick={() => handleOpenOrderModal(product)}
+                            onClick={() => { addToCart(product); setIsCartOpen(true); setCrmMessage(`🛒 ${product.title} ditambahkan ke keranjang!`); }}
                             className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-full text-xs font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all flex items-center gap-1.5"
                           >
                             <ShoppingCart size={14} /> Pesan
@@ -790,14 +987,57 @@ export default function MemberDashboard() {
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center">
                 <span className="text-white font-bold text-xl">F</span>
               </div>
-              <span className="font-bold text-2xl text-white">FurniCraft</span>
+              <span className="font-bold text-2xl text-white">FurnitureQ</span>
             </Link>
             <p className="text-sm text-slate-500">
-              &copy; {new Date().getFullYear()} FurniCraft. All rights reserved.
+              &copy; {new Date().getFullYear()} FurnitureQ. All rights reserved.
             </p>
           </div>
         </div>
       </footer>
+
+      {/* ===== ONBOARDING MODAL ===== */}
+      {showOnboarding && (
+        <div id="onboarding-modal" className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 text-center relative shadow-2xl">
+            <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">🎉</div>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Selamat Datang di FurnitureQ!</h3>
+            <p className="text-sm text-slate-500 mb-6">Lengkapi profil Anda (Alamat & Tanggal Lahir) sekarang untuk mendapatkan <strong className="text-amber-600">+20 Poin</strong> tambahan!</p>
+            <form onSubmit={handleCompleteProfileSubmit} className="space-y-4 text-left">
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Tanggal Lahir</label>
+                <input type="date" required value={profileData.dob} onChange={e => setProfileData({...profileData, dob: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Alamat Pengiriman Utama</label>
+                <textarea required rows="2" value={profileData.address} onChange={e => setProfileData({...profileData, address: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500" placeholder="Jl. Merdeka No. 1..." />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button type="button" onClick={() => setShowOnboarding(false)} className="w-full py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-sm">Nanti Saja</button>
+                <button type="submit" className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm">Simpan & Klaim Poin</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ===== REVIEW MODAL ===== */}
+      {reviewModalOpen && reviewOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 relative shadow-2xl">
+            <button onClick={() => setReviewModalOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><X size={20}/></button>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Konfirmasi & Ulasan</h3>
+            <p className="text-xs text-slate-500 mb-4">Berikan ulasan untuk pesanan <strong>{reviewOrder.products?.title}</strong> dan dapatkan <strong className="text-emerald-600">+15 Poin</strong>!</p>
+            <form onSubmit={handleSubmitReview} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-2">Ulasan Produk</label>
+                <textarea required rows="3" value={reviewText} onChange={e => setReviewText(e.target.value)} className="w-full p-3 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500" placeholder="Kualitas kayu sangat bagus..." />
+              </div>
+              <button type="submit" className="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/30">Kirim Ulasan</button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

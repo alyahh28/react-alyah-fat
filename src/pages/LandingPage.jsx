@@ -459,19 +459,7 @@ export default function LandingPage() {
 
           {/* Right actions */}
           <div className="flex items-center space-x-4">
-            <form
-              onSubmit={handleSearch}
-              className="hidden lg:flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2"
-            >
-              <Search size={16} className="text-slate-400" />
-              <input
-                type="text"
-                placeholder="Cari furniture..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="ml-2 bg-transparent border-none text-sm text-white placeholder-slate-300 focus:outline-none w-32"
-              />
-            </form>
+            
 
             <button 
               onClick={toggleCart}
