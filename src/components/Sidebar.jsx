@@ -9,6 +9,10 @@ import {
   MdSettings,
   MdHelp,
   MdLogout,
+  MdLocalOffer,
+  MdAccountBalanceWallet,
+  MdReportProblem,
+  MdSecurity,
 } from "react-icons/md";
 import { NavLink, useNavigate } from "react-router-dom";
 import Logo from "../assets/Logo.png";
@@ -30,13 +34,15 @@ export default function Sidebar() {
         : "text-white/70 hover:text-white hover:bg-white/10 font-medium"
     }`;
 
+  const adminSubRole = localStorage.getItem("adminSubRole") || "super_admin";
+
   return (
     <div className="flex min-h-screen w-64 shrink-0 flex-col bg-[#9E4BDC] p-6 sticky top-0 z-40 font-poppins rounded-r-[40px] shadow-2xl">
       <div className="flex justify-center mb-16 mt-4">
-        <div className="bg-white/20 p-4 rounded-[22px] backdrop-blur-sm">
+        <div className="bg-white/10 p-4 rounded-[22px] backdrop-blur-sm">
           <img
             src={Logo}
-            alt="Logo"
+            alt="FurinitureQ Logo"
             className="w-10 h-10 object-contain invert brightness-0"
           />
         </div>
@@ -47,24 +53,48 @@ export default function Sidebar() {
           <MdDashboard className="text-xl" /> <span>Dashboard</span>
         </NavLink>
 
-        <NavLink to="/products" className={menuClass}>
-          <MdOutlineChair className="text-xl" /> <span>Collections</span>
-        </NavLink>
-        <NavLink to="/orders" className={menuClass}>
-          <MdShoppingCart className="text-xl" /> <span>Orders</span>
-        </NavLink>
-        <NavLink to="/customers" className={menuClass}>
-          <MdPeople className="text-xl" /> <span>Customers</span>
-        </NavLink>
-        
-        {/* 🌟 BARU: Menu Navigasi Samping menuju Halaman Users CRM */}
-        <NavLink to="/users" className={menuClass}>
-          <MdSupervisorAccount className="text-xl" /> <span>Users</span>
-        </NavLink>
+        {(adminSubRole === "super_admin" || adminSubRole === "logistik") && (
+          <>
+            <NavLink to="/products" className={menuClass}>
+              <MdOutlineChair className="text-xl" /> <span>Collections</span>
+            </NavLink>
+            <NavLink to="/craftsmen" className={menuClass}>
+              <MdHandyman className="text-xl" /> <span>Craftsmen</span>
+            </NavLink>
+          </>
+        )}
 
-        <NavLink to="/craftsmen" className={menuClass}>
-          <MdHandyman className="text-xl" /> <span>Craftsmen</span>
-        </NavLink>
+        {(adminSubRole === "super_admin" || adminSubRole === "finansial") && (
+          <>
+            <NavLink to="/orders" className={menuClass}>
+              <MdShoppingCart className="text-xl" /> <span>Orders</span>
+            </NavLink>
+            <NavLink to="/finance" className={menuClass}>
+              <MdAccountBalanceWallet className="text-xl" /> <span>Finance</span>
+            </NavLink>
+            <NavLink to="/complaints" className={menuClass}>
+              <MdReportProblem className="text-xl" /> <span>Complaints</span>
+            </NavLink>
+            <NavLink to="/customers" className={menuClass}>
+              <MdPeople className="text-xl" /> <span>Customers</span>
+            </NavLink>
+          </>
+        )}
+        
+        {adminSubRole === "super_admin" && (
+          <>
+            <NavLink to="/users" className={menuClass}>
+              <MdSupervisorAccount className="text-xl" /> <span>Users</span>
+            </NavLink>
+            <NavLink to="/promotions" className={menuClass}>
+              <MdLocalOffer className="text-xl" /> <span>Promotions</span>
+            </NavLink>
+            <NavLink to="/audit" className={menuClass}>
+              <MdSecurity className="text-xl" /> <span>Audit Log</span>
+            </NavLink>
+          </>
+        )}
+
         <NavLink to="/messages" className={menuClass}>
           <MdMessage className="text-xl" /> <span>Messages</span>
         </NavLink>

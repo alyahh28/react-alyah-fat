@@ -25,6 +25,10 @@ const Mentor = React.lazy(() => import('./pages/Mentor.jsx'))
 const Message = React.lazy(() => import('./pages/Message.jsx'))
 const Settings = React.lazy(() => import('./pages/Settings.jsx'))
 const NotFound = React.lazy(() => import('./pages/NotFound.jsx'))
+const Promotions = React.lazy(() => import('./pages/Promotions.jsx'))
+const Finance = React.lazy(() => import('./pages/Finance.jsx'))
+const Complaints = React.lazy(() => import('./pages/Complaints.jsx'))
+const AuditLog = React.lazy(() => import('./pages/AuditLog.jsx'))
 
 // --- LAZY LOADING PAGES (MEMBER) ---
 const MemberDashboard = React.lazy(() => import('./pages/MemberDashboard.jsx')) 
@@ -34,6 +38,7 @@ const MemberProfile = React.lazy(() => import('./pages/MemberProfile.jsx'))
 const Login = React.lazy(() => import('./pages/auth/Login.jsx'))
 const Register = React.lazy(() => import('./pages/auth/Register.jsx'))
 const Forgot = React.lazy(() => import('./pages/auth/Forgot.jsx'))
+const AdminLogin = React.lazy(() => import('./pages/auth/AdminLogin.jsx'))
 
 // 🔒 1. Protected Route Berbasis Role
 function ProtectedRoute({ children, allowedRole }) {
@@ -152,6 +157,10 @@ function App() {
             <Route path="/products" element={<Courses isGuest={false} />} />
             <Route path="/products/:id" element={<ProductDetail isGuest={false} />} />
             <Route path="/craftsmen" element={<Mentor />} />
+            <Route path="/promotions" element={<Promotions />} />
+            <Route path="/finance" element={<Finance />} />
+            <Route path="/complaints" element={<Complaints />} />
+            <Route path="/audit" element={<AuditLog />} />
             <Route path="/messages" element={<Message />} />
             <Route path="/settings" element={<Settings />} />
           </Route>
@@ -162,6 +171,7 @@ function App() {
 
           {/* 🔓 AUTH ROUTES */}
           <Route element={<PublicRoute><AuthLayout /></PublicRoute>}>
+            <Route path="/admin/control-panel" element={<AdminLogin />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot" element={<Forgot />} />

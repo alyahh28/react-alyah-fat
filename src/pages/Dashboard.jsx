@@ -1,70 +1,94 @@
 // src/pages/Dashboard.jsx
 import Header from "../components/Header";
 import StatCard from "../components/StatCard";
-import PromoBanner from "../components/PromoBanner";
 import SiteHealthCard from "../components/SiteHealthCard";
 import OnlineSalesCard from "../components/OnlineSalesCard";
-import ClientStatisticCard from "../components/ClientStatisticCard";
-import CurrencyStatusCard from "../components/CurrencyStatusCard";
-import MiningStatusCard from "../components/MiningStatusCard";
 import MyBalancesCard from "../components/MyBalancesCard";
+import { useEffect, useState } from "react";
+import { MdWarning, MdWaterDrop } from "react-icons/md";
+
+// Mock Components for FurinitureQ specific needs
+const OvenMonitorCard = () => (
+    <div className="bg-white rounded-3xl p-6 shadow-sm flex items-center justify-between">
+        <div>
+            <h3 className="text-[#9E4BDC] font-bold text-sm mb-1">Wood Oven Moisture</h3>
+            <p className="text-2xl font-black text-gray-800">12.4<span className="text-sm font-medium text-gray-500">% MC</span></p>
+            <p className="text-xs text-green-500 font-medium mt-1">✓ Optimal for furniture</p>
+        </div>
+        <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center">
+            <MdWaterDrop className="text-blue-500 text-3xl" />
+        </div>
+    </div>
+);
+
+const LowStockAlert = () => (
+    <div className="bg-orange-50 rounded-3xl p-6 shadow-sm border border-orange-100 flex items-start gap-4">
+        <div className="w-10 h-10 rounded-full bg-orange-100 flex shrink-0 items-center justify-center">
+            <MdWarning className="text-orange-500 text-xl" />
+        </div>
+        <div>
+            <h3 className="text-orange-800 font-bold text-sm mb-1">Low Stock Alert</h3>
+            <p className="text-xs text-orange-600 mb-2">Critical raw materials running low:</p>
+            <ul className="text-xs text-orange-700 font-medium space-y-1">
+                <li>• Kayu Jati Perhutani (Grade A) - 3 m³</li>
+                <li>• Lem Fox Prima - 2 Pail</li>
+            </ul>
+        </div>
+    </div>
+);
+
+
 
 export default function Dashboard() {   
+    const [currentTime, setCurrentTime] = useState(new Date());
+
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+        return () => clearInterval(timer);
+    }, []);
+
     return (
         <div className="flex-1 bg-[#F4F4F4] min-h-screen p-8 overflow-x-hidden font-poppins text-slate-800">
             
-            {/* Header bawa judul custom */}
-            <Header pageTitle="Workshop Overview" />
+            <Header pageTitle="FurinitureQ Command Center" />
 
-            {/* Sub-header text workshop */}
-            <div className="mb-6 -mt-2">
-                <p className="text-gray-400 text-xs font-medium">
-                    Workshop LuxWood hari ini dipantau berjalan dengan optimal.
+            <div className="mb-8 flex justify-between items-center -mt-2">
+                <p className="text-gray-500 text-xs font-medium">
+                    Monitor produksi dan operasional secara real-time.
                 </p>
+                <div className="text-xs font-bold bg-white px-4 py-1.5 rounded-full shadow-sm text-[#9E4BDC]">
+                    {currentTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                </div>
             </div>
 
-            {/* Main Content Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mt-2">
                 
-                {/* COLUMN 1 & 2 (Kiri dan Tengah) */}
+                {/* COLUMN 1 & 2 */}
                 <div className="xl:col-span-2 flex flex-col gap-8">
                     
-                    {/* Section Workshop Stats */}
-                    <div className="flex flex-col gap-3">
-                        <h2 className="font-bold text-[#22285E] text-lg">Workshop Stats</h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <StatCard title="ACTIVE PROJECTS" value="42 Units" percentage="12%" isUp={true} />
-                            <StatCard title="PRODUCTION DONE" value="75%" percentage="05%" isUp={true} />
-                            <StatCard title="TOTAL REVENUE" value="Rp 184.5M" percentage="10%" isUp={true} />
-                            <StatCard title="MATERIAL WASTAGE" value="2.4%" percentage="06%" isUp={false} />
-                        </div>
+                    {/* Key Metrics */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <StatCard title="ACTIVE USERS" value="1,284" percentage="8%" isUp={true} />
+                        <StatCard title="PRODUCTION DONE" value="75%" percentage="05%" isUp={true} />
+                        <StatCard title="TOTAL REVENUE" value="Rp 284.5M" percentage="14%" isUp={true} />
+                        <StatCard title="PROD. CASH" value="Rp 50.2M" percentage="2%" isUp={false} />
                     </div>
 
-                    {/* Banner Fitur Premium Cloud Workshop */}
-                    <PromoBanner />
+                    {/* Charts Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <OnlineSalesCard /> {/* Sales Chart */}
+                        <SiteHealthCard /> {/* Contains some activity data */}
+                    </div>
 
-                    {/* Row Tengah: Logistik & Penjualan */}
+                    {/* Monitor Row */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <SiteHealthCard />
-                        <OnlineSalesCard />
-                    </div>
-
-                    {/* Row Bawah: Ketersediaan Bahan & Statistik */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="md:col-span-1">
-                            <CurrencyStatusCard />
-                        </div>
-                        <div className="md:col-span-2">
-                            <ClientStatisticCard />
-                        </div>
+                        <OvenMonitorCard />
+                        <LowStockAlert />
                     </div>
                 </div>
 
-                {/* COLUMN 3 (Kanan) */}
+                {/* COLUMN 3 */}
                 <div className="flex flex-col gap-8">
-                    {/* Status Keaktifan Pengrajin */}
-                    <MiningStatusCard />
-
                     {/* Arus Kas / Keuangan Gudang */}
                     <MyBalancesCard />
                 </div>

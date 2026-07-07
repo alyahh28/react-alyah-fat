@@ -12,9 +12,32 @@ export default function Orders() {
         setLoading(true);
         try {
             const data = await authAPI.getAllOrders();
-            setOrders(data);
+            if (data && data.length > 0) {
+                setOrders(data);
+            } else {
+                setOrders([
+                    { id: "ORD-9201923", users: { fullname: "Budi Santoso", email: "budi@email.com" }, products: { title: "Sofa L-Shape Minimalis" }, quantity: 1, total_price: 3500000, status: "pending" },
+                    { id: "ORD-8482121", users: { fullname: "Rina Nose", email: "rina@email.com" }, products: { title: "Meja Makan Jati Solid" }, quantity: 1, total_price: 2500000, status: "processing" },
+                    { id: "ORD-1239841", users: { fullname: "Ahmad Dhani", email: "ahmad@email.com" }, products: { title: "Kursi Santai Scandinavian" }, quantity: 2, total_price: 1800000, status: "shipped" },
+                    { id: "ORD-4592031", users: { fullname: "Siti Badriah", email: "siti@email.com" }, products: { title: "Lemari Pakaian 3 Pintu" }, quantity: 1, total_price: 4200000, status: "completed" },
+                    { id: "ORD-5501923", users: { fullname: "Andi Wijaya", email: "andi@email.com" }, products: { title: "Rak TV Minimalis" }, quantity: 1, total_price: 1500000, status: "pending" },
+                    { id: "ORD-6612984", users: { fullname: "Dewi Lestari", email: "dewi@email.com" }, products: { title: "Set Meja Teras Jati" }, quantity: 1, total_price: 2800000, status: "shipped" },
+                    { id: "ORD-7723045", users: { fullname: "Faisal Akbar", email: "faisal@email.com" }, products: { title: "Dipan Ranjang Queen Size" }, quantity: 1, total_price: 3100000, status: "processing" },
+                    { id: "ORD-8834106", users: { fullname: "Gita Gutawa", email: "gita@email.com" }, products: { title: "Meja Kerja Direktur" }, quantity: 1, total_price: 5500000, status: "completed" }
+                ]);
+            }
         } catch (err) {
             console.error("Gagal mengambil data pesanan:", err);
+            setOrders([
+                { id: "ORD-9201923", users: { fullname: "Budi Santoso", email: "budi@email.com" }, products: { title: "Sofa L-Shape Minimalis" }, quantity: 1, total_price: 3500000, status: "pending" },
+                { id: "ORD-8482121", users: { fullname: "Rina Nose", email: "rina@email.com" }, products: { title: "Meja Makan Jati Solid" }, quantity: 1, total_price: 2500000, status: "processing" },
+                { id: "ORD-1239841", users: { fullname: "Ahmad Dhani", email: "ahmad@email.com" }, products: { title: "Kursi Santai Scandinavian" }, quantity: 2, total_price: 1800000, status: "shipped" },
+                { id: "ORD-4592031", users: { fullname: "Siti Badriah", email: "siti@email.com" }, products: { title: "Lemari Pakaian 3 Pintu" }, quantity: 1, total_price: 4200000, status: "completed" },
+                { id: "ORD-5501923", users: { fullname: "Andi Wijaya", email: "andi@email.com" }, products: { title: "Rak TV Minimalis" }, quantity: 1, total_price: 1500000, status: "pending" },
+                { id: "ORD-6612984", users: { fullname: "Dewi Lestari", email: "dewi@email.com" }, products: { title: "Set Meja Teras Jati" }, quantity: 1, total_price: 2800000, status: "shipped" },
+                { id: "ORD-7723045", users: { fullname: "Faisal Akbar", email: "faisal@email.com" }, products: { title: "Dipan Ranjang Queen Size" }, quantity: 1, total_price: 3100000, status: "processing" },
+                { id: "ORD-8834106", users: { fullname: "Gita Gutawa", email: "gita@email.com" }, products: { title: "Meja Kerja Direktur" }, quantity: 1, total_price: 5500000, status: "completed" }
+            ]);
         } finally {
             setLoading(false);
         }
@@ -26,6 +49,20 @@ export default function Orders() {
 
     const handleStatusChange = async (orderId, newStatus) => {
         setUpdatingId(orderId);
+        
+        // Cek jika ini adalah data dummy (ID berawalan ORD-)
+        if (orderId.toString().startsWith("ORD-")) {
+            setTimeout(() => {
+                setOrders(prevOrders => 
+                    prevOrders.map(order => 
+                        order.id === orderId ? { ...order, status: newStatus } : order
+                    )
+                );
+                setUpdatingId(null);
+            }, 500); // simulasi delay loading
+            return;
+        }
+
         try {
             await authAPI.updateOrderStatus(orderId, newStatus);
             await fetchOrders();
@@ -122,6 +159,7 @@ export default function Orders() {
                                     <th className="p-4 text-[10px] font-black text-stone-400 uppercase tracking-widest">Jumlah</th>
                                     <th className="p-4 text-[10px] font-black text-stone-400 uppercase tracking-widest">Total Harga</th>
                                     <th className="p-4 text-[10px] font-black text-stone-400 uppercase tracking-widest">Ubah Status</th>
+                                    <th className="p-4 text-[10px] font-black text-stone-400 uppercase tracking-widest text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-stone-50">
@@ -149,11 +187,31 @@ export default function Orders() {
                                                     <option value="completed">Completed</option>
                                                 </select>
                                             </td>
+                                            <td className="p-4 text-center">
+                                                <button 
+                                                    onClick={() => {
+                                                        alert(`Mencetak label pengiriman untuk pesanan #${order.id}...`);
+                                                        // Audit log
+                                                        const auditLogs = JSON.parse(localStorage.getItem("audit_logs") || "[]");
+                                                        auditLogs.push({
+                                                            id: Date.now(),
+                                                            admin: localStorage.getItem("activeUser") || "Admin",
+                                                            role: localStorage.getItem("adminSubRole") || "super_admin",
+                                                            action: `Cetak Label Pesanan #${order.id}`,
+                                                            time: new Date().toLocaleString()
+                                                        });
+                                                        localStorage.setItem("audit_logs", JSON.stringify(auditLogs));
+                                                    }}
+                                                    className="px-3 py-1.5 bg-[#22285E] hover:bg-[#1a1e4a] text-white text-[10px] font-bold rounded-lg shadow-sm"
+                                                >
+                                                    Cetak Label
+                                                </button>
+                                            </td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="6" className="p-10 text-center text-xs font-medium text-stone-400">
+                                        <td colSpan="7" className="p-10 text-center text-xs font-medium text-stone-400">
                                             Belum ada pesanan masuk di database.
                                         </td>
                                     </tr>

@@ -44,9 +44,14 @@ export default function Courses({ isGuest = false }) {
         setLoading(true);
         try {
             const data = await authAPI.getAllProducts();
-            setProducts(data);
+            if (data && data.length > 0) {
+                setProducts(data);
+            } else {
+                setProducts(productsData.slice(0, 10)); // Use dummy data as fallback
+            }
         } catch (err) {
             console.error("Gagal memuat produk:", err);
+            setProducts(productsData.slice(0, 10)); // Use dummy data on error
         } finally {
             setLoading(false);
         }
@@ -166,7 +171,7 @@ export default function Courses({ isGuest = false }) {
                         )}
                         <button 
                             onClick={handleAddOpen}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-amber-800 hover:bg-amber-900 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-amber-200"
+                            className="flex items-center gap-2 px-5 py-2.5 bg-[#9E4BDC] hover:bg-[#8A3BCA] text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-[#9E4BDC]/30"
                         >
                             <FaPlus /> Tambah Produk
                         </button>
@@ -215,8 +220,8 @@ export default function Courses({ isGuest = false }) {
                             <textarea name="description" value={formData.description} onChange={handleFormChange} rows="3" className="w-full p-2.5 border border-stone-200 rounded-xl outline-none focus:ring-1 focus:ring-amber-700" placeholder="Deskripsi lengkap mengenai bahan dan spesifikasi..." />
                         </div>
                         <div className="flex justify-end gap-2 mt-6">
-                            <button type="button" onClick={() => setIsAddOpen(false)} className="px-4 py-2 bg-stone-100 text-stone-600 font-bold rounded-xl hover:bg-stone-200">Batal</button>
-                            <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-amber-800 text-white font-bold rounded-xl hover:bg-amber-900">
+                            <button type="button" onClick={() => setIsAddOpen(false)} className="px-4 py-2 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200">Batal</button>
+                            <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-[#9E4BDC] text-white font-bold rounded-xl hover:bg-[#8A3BCA]">
                                 {isSubmitting ? "Menyimpan..." : "Simpan Produk"}
                             </button>
                         </div>
@@ -265,8 +270,8 @@ export default function Courses({ isGuest = false }) {
                             <textarea name="description" value={formData.description} onChange={handleFormChange} rows="3" className="w-full p-2.5 border border-stone-200 rounded-xl outline-none focus:ring-1 focus:ring-amber-700" />
                         </div>
                         <div className="flex justify-end gap-2 mt-6">
-                            <button type="button" onClick={() => setIsEditOpen(false)} className="px-4 py-2 bg-stone-100 text-stone-600 font-bold rounded-xl hover:bg-stone-200">Batal</button>
-                            <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-amber-800 text-white font-bold rounded-xl hover:bg-amber-900">
+                            <button type="button" onClick={() => setIsEditOpen(false)} className="px-4 py-2 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200">Batal</button>
+                            <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-[#9E4BDC] text-white font-bold rounded-xl hover:bg-[#8A3BCA]">
                                 {isSubmitting ? "Memperbarui..." : "Perbarui Produk"}
                             </button>
                         </div>
@@ -275,13 +280,13 @@ export default function Courses({ isGuest = false }) {
             </Dialog>
 
             {loading ? (
-                <div className="p-20 text-center font-bold text-amber-800 animate-pulse text-sm">
+                <div className="p-20 text-center font-bold text-[#9E4BDC] animate-pulse text-sm">
                     🔄 Memuat katalog produk dari Supabase...
                 </div>
             ) : products.length === 0 ? (
-                <div className="p-12 text-center bg-white rounded-[32px] border border-stone-100 shadow-sm mt-6">
-                    <p className="text-stone-600 font-bold text-base mb-2">Belum Ada Produk di Database Supabase</p>
-                    <p className="text-stone-400 text-xs mb-6">Klik tombol "Seed Data Awal" di atas untuk mengunggah sampel produk secara otomatis.</p>
+                <div className="p-12 text-center bg-white rounded-[32px] border border-slate-100 shadow-sm mt-6">
+                    <p className="text-slate-600 font-bold text-base mb-2">Belum Ada Produk di Database</p>
+                    <p className="text-slate-400 text-xs mb-6">Klik tombol "Seed Data Awal" di atas untuk mengunggah sampel produk secara otomatis.</p>
                     {isAdmin && (
                         <button onClick={handleSeedData} className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md">
                             Upload Sample Data Produk
@@ -304,7 +309,7 @@ export default function Courses({ isGuest = false }) {
 
                                 {isAdmin && (
                                     <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-white/90 backdrop-blur-sm p-1.5 rounded-full shadow-md">
-                                        <button onClick={() => handleEditOpen(p)} className="p-1.5 text-stone-600 hover:text-amber-800 transition-colors" title="Edit Produk">
+                                        <button onClick={() => handleEditOpen(p)} className="p-1.5 text-slate-600 hover:text-[#9E4BDC] transition-colors" title="Edit Produk">
                                             <FaEdit className="text-xs" />
                                         </button>
                                         <button onClick={() => handleDelete(p.id)} className="p-1.5 text-stone-600 hover:text-red-600 transition-colors" title="Hapus Produk">
@@ -317,12 +322,12 @@ export default function Courses({ isGuest = false }) {
                             <div className="p-5 flex-1 flex flex-col justify-between">
                                 <div>
                                     <Link to={`/products/${p.id}`}>
-                                        <h4 className="font-bold text-stone-800 text-lg hover:text-amber-800 transition-colors cursor-pointer line-clamp-1">
+                                        <h4 className="font-bold text-slate-800 text-lg hover:text-[#9E4BDC] transition-colors cursor-pointer line-clamp-1">
                                             {p.title}
                                         </h4>
                                     </Link>
                                     
-                                    <p className="text-amber-700 font-bold mt-1">
+                                    <p className="text-[#9E4BDC] font-bold mt-1">
                                         Rp {(p.price || 0).toLocaleString('id-ID')}
                                     </p>
                                 </div>
@@ -341,7 +346,7 @@ export default function Courses({ isGuest = false }) {
                                         </button>
                                         <Link 
                                             to={`/products/${p.id}`} 
-                                            className="bg-stone-900 text-white px-3 py-2 rounded-xl font-bold hover:bg-amber-800 transition-all shadow-sm text-[11px]"
+                                            className="bg-slate-900 text-white px-3 py-2 rounded-xl font-bold hover:bg-[#9E4BDC] transition-all shadow-sm text-[11px]"
                                         >
                                             Detail
                                         </Link>

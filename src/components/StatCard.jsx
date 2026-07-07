@@ -4,7 +4,7 @@ export default function StatCard({ title, value, percentage, isUp, chartImage })
         <div className="bg-white p-5 rounded-[24px] border border-gray-100 shadow-sm flex justify-between items-center w-full">
             <div className="flex flex-col gap-1">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{title}</span>
-                <span className="text-xl font-bold text-[#22285E]">{value}</span>
+                <span className="text-xl font-bold text-[#9E4BDC]">{value}</span>
             </div>
             <div className="flex flex-col items-end gap-1">
                 {/* Di mockup ada mini chart, kita bisa pakai icon/image placeholder */}

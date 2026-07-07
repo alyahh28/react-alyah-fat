@@ -6,10 +6,10 @@ export default function Header({ pageTitle = "Dashboard" }) {
     return (
         <div className="flex justify-between items-center py-6 px-4 bg-transparent font-poppins w-full">
             <div className="flex items-center gap-4">
-                <button className="lg:hidden text-[#22285E] text-2xl">
+                <button className="lg:hidden text-[#9E4BDC] text-2xl">
                     <HiMenuAlt2 />
                 </button>
-                <h1 className="text-[28px] font-bold text-[#22285E] leading-none tracking-tight">{pageTitle}</h1>
+                <h1 className="text-[28px] font-bold text-[#9E4BDC] leading-none tracking-tight">{pageTitle}</h1>
             </div>
 
             <div className="flex items-center gap-5">
@@ -19,14 +19,14 @@ export default function Header({ pageTitle = "Dashboard" }) {
                     <input 
                         type="text" 
                         placeholder="Cari sesuatu..." 
-                        className="bg-transparent border-none outline-none text-[13px] text-[#22285E] w-full font-medium"
+                        className="bg-transparent border-none outline-none text-[13px] text-[#9E4BDC] w-full font-medium"
                     />
                 </div>
 
                 {/* User Info */}
                 <div className="flex items-center gap-3 pl-5 border-l border-gray-200">
                     <div className="text-right hidden sm:block">
-                        <p className="text-[14px] font-bold text-[#22285E] leading-tight">Alyah Najwa</p>
+                        <p className="text-[14px] font-bold text-[#9E4BDC] leading-tight">Alyah Najwa</p>
                         <p className="text-[11px] text-[#7A7E9E] font-semibold uppercase tracking-wider">Administrator</p>
                     </div>
                     <div className="relative">

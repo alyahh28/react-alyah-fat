@@ -177,6 +177,7 @@ export const authAPI = {
         localStorage.removeItem("isLoggedIn");
         localStorage.removeItem("activeUser");
         localStorage.removeItem("userRole");
+        localStorage.removeItem("adminSubRole");
         if (error) console.error("SignOut error:", error);
     },
 
