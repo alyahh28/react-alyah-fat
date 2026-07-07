@@ -82,6 +82,37 @@ export default function Courses({ isGuest = false }) {
         }));
     };
 
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                const MAX_WIDTH = 800;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > MAX_WIDTH) {
+                    height = Math.round((height * MAX_WIDTH) / width);
+                    width = MAX_WIDTH;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                const dataUrl = canvas.toDataURL("image/webp", 0.8);
+                setFormData(prev => ({ ...prev, thumbnail: dataUrl }));
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    };
+
     const handleAddOpen = () => {
         setFormData({
             title: "",
@@ -212,8 +243,13 @@ export default function Courses({ isGuest = false }) {
                             </div>
                         </div>
                         <div>
-                            <label className="font-bold text-stone-700 block mb-1">URL Gambar (Thumbnail)</label>
-                            <input type="url" name="thumbnail" value={formData.thumbnail} onChange={handleFormChange} required className="w-full p-2.5 border border-stone-200 rounded-xl outline-none focus:ring-1 focus:ring-amber-700" placeholder="https://..." />
+                            <label className="font-bold text-stone-700 block mb-1">Upload Gambar (Thumbnail)</label>
+                            <div className="flex flex-col gap-2">
+                                {formData.thumbnail && (
+                                    <img src={formData.thumbnail} alt="Preview" className="w-full h-32 object-cover rounded-xl border border-stone-200" />
+                                )}
+                                <input type="file" accept="image/*" onChange={handleImageUpload} className="w-full p-2 border border-stone-200 rounded-xl outline-none text-xs file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-[11px] file:font-semibold file:bg-[#9E4BDC]/10 file:text-[#9E4BDC] hover:file:bg-[#9E4BDC]/20 cursor-pointer" />
+                            </div>
                         </div>
                         <div>
                             <label className="font-bold text-stone-700 block mb-1">Deskripsi Produk</label>
@@ -262,8 +298,13 @@ export default function Courses({ isGuest = false }) {
                             </div>
                         </div>
                         <div>
-                            <label className="font-bold text-stone-700 block mb-1">URL Gambar (Thumbnail)</label>
-                            <input type="url" name="thumbnail" value={formData.thumbnail} onChange={handleFormChange} required className="w-full p-2.5 border border-stone-200 rounded-xl outline-none focus:ring-1 focus:ring-amber-700" />
+                            <label className="font-bold text-stone-700 block mb-1">Upload Gambar (Thumbnail)</label>
+                            <div className="flex flex-col gap-2">
+                                {formData.thumbnail && (
+                                    <img src={formData.thumbnail} alt="Preview" className="w-full h-32 object-cover rounded-xl border border-stone-200" />
+                                )}
+                                <input type="file" accept="image/*" onChange={handleImageUpload} className="w-full p-2 border border-stone-200 rounded-xl outline-none text-xs file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-[11px] file:font-semibold file:bg-[#9E4BDC]/10 file:text-[#9E4BDC] hover:file:bg-[#9E4BDC]/20 cursor-pointer" />
+                            </div>
                         </div>
                         <div>
                             <label className="font-bold text-stone-700 block mb-1">Deskripsi Produk</label>
