@@ -44,14 +44,10 @@ export default function Courses({ isGuest = false }) {
         setLoading(true);
         try {
             const data = await authAPI.getAllProducts();
-            if (data && data.length > 0) {
-                setProducts(data);
-            } else {
-                setProducts(productsData.slice(0, 10)); // Use dummy data as fallback
-            }
+            setProducts(data || []);
         } catch (err) {
             console.error("Gagal memuat produk:", err);
-            setProducts(productsData.slice(0, 10)); // Use dummy data on error
+            setProducts([]);
         } finally {
             setLoading(false);
         }

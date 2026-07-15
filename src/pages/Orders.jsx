@@ -12,32 +12,10 @@ export default function Orders() {
         setLoading(true);
         try {
             const data = await authAPI.getAllOrders();
-            if (data && data.length > 0) {
-                setOrders(data);
-            } else {
-                setOrders([
-                    { id: "ORD-9201923", users: { fullname: "Budi Santoso", email: "budi@email.com" }, products: { title: "Sofa L-Shape Minimalis" }, quantity: 1, total_price: 3500000, status: "pending" },
-                    { id: "ORD-8482121", users: { fullname: "Rina Nose", email: "rina@email.com" }, products: { title: "Meja Makan Jati Solid" }, quantity: 1, total_price: 2500000, status: "processing" },
-                    { id: "ORD-1239841", users: { fullname: "Ahmad Dhani", email: "ahmad@email.com" }, products: { title: "Kursi Santai Scandinavian" }, quantity: 2, total_price: 1800000, status: "shipped" },
-                    { id: "ORD-4592031", users: { fullname: "Siti Badriah", email: "siti@email.com" }, products: { title: "Lemari Pakaian 3 Pintu" }, quantity: 1, total_price: 4200000, status: "completed" },
-                    { id: "ORD-5501923", users: { fullname: "Andi Wijaya", email: "andi@email.com" }, products: { title: "Rak TV Minimalis" }, quantity: 1, total_price: 1500000, status: "pending" },
-                    { id: "ORD-6612984", users: { fullname: "Dewi Lestari", email: "dewi@email.com" }, products: { title: "Set Meja Teras Jati" }, quantity: 1, total_price: 2800000, status: "shipped" },
-                    { id: "ORD-7723045", users: { fullname: "Faisal Akbar", email: "faisal@email.com" }, products: { title: "Dipan Ranjang Queen Size" }, quantity: 1, total_price: 3100000, status: "processing" },
-                    { id: "ORD-8834106", users: { fullname: "Gita Gutawa", email: "gita@email.com" }, products: { title: "Meja Kerja Direktur" }, quantity: 1, total_price: 5500000, status: "completed" }
-                ]);
-            }
+            setOrders(data || []);
         } catch (err) {
             console.error("Gagal mengambil data pesanan:", err);
-            setOrders([
-                { id: "ORD-9201923", users: { fullname: "Budi Santoso", email: "budi@email.com" }, products: { title: "Sofa L-Shape Minimalis" }, quantity: 1, total_price: 3500000, status: "pending" },
-                { id: "ORD-8482121", users: { fullname: "Rina Nose", email: "rina@email.com" }, products: { title: "Meja Makan Jati Solid" }, quantity: 1, total_price: 2500000, status: "processing" },
-                { id: "ORD-1239841", users: { fullname: "Ahmad Dhani", email: "ahmad@email.com" }, products: { title: "Kursi Santai Scandinavian" }, quantity: 2, total_price: 1800000, status: "shipped" },
-                { id: "ORD-4592031", users: { fullname: "Siti Badriah", email: "siti@email.com" }, products: { title: "Lemari Pakaian 3 Pintu" }, quantity: 1, total_price: 4200000, status: "completed" },
-                { id: "ORD-5501923", users: { fullname: "Andi Wijaya", email: "andi@email.com" }, products: { title: "Rak TV Minimalis" }, quantity: 1, total_price: 1500000, status: "pending" },
-                { id: "ORD-6612984", users: { fullname: "Dewi Lestari", email: "dewi@email.com" }, products: { title: "Set Meja Teras Jati" }, quantity: 1, total_price: 2800000, status: "shipped" },
-                { id: "ORD-7723045", users: { fullname: "Faisal Akbar", email: "faisal@email.com" }, products: { title: "Dipan Ranjang Queen Size" }, quantity: 1, total_price: 3100000, status: "processing" },
-                { id: "ORD-8834106", users: { fullname: "Gita Gutawa", email: "gita@email.com" }, products: { title: "Meja Kerja Direktur" }, quantity: 1, total_price: 5500000, status: "completed" }
-            ]);
+            setOrders([]);
         } finally {
             setLoading(false);
         }

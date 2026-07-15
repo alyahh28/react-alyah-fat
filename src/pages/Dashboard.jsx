@@ -6,6 +6,7 @@ import OnlineSalesCard from "../components/OnlineSalesCard";
 import MyBalancesCard from "../components/MyBalancesCard";
 import { useEffect, useState } from "react";
 import { MdWarning, MdWaterDrop } from "react-icons/md";
+import { authAPI } from "../services/authAPI";
 
 // Mock Components for FurinitureQ specific needs
 const OvenMonitorCard = () => (
@@ -41,11 +42,44 @@ const LowStockAlert = () => (
 
 export default function Dashboard() {   
     const [currentTime, setCurrentTime] = useState(new Date());
+    const [stats, setStats] = useState({
+        activeUsers: 0,
+        completedOrders: 0,
+        totalOrders: 0,
+        totalRevenue: 0,
+        prodCash: 0
+    });
 
     useEffect(() => {
         const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+        
+        const fetchDashboardData = async () => {
+            try {
+                const users = await authAPI.getAllUsers();
+                const orders = await authAPI.getAllOrders();
+                
+                const completed = orders.filter(o => o.status === 'completed');
+                const revenue = completed.reduce((sum, order) => sum + (order.total_price || 0), 0);
+                
+                setStats({
+                    activeUsers: users.length,
+                    completedOrders: completed.length,
+                    totalOrders: orders.length,
+                    totalRevenue: revenue,
+                    prodCash: revenue * 0.15 // Estimasi uang tunai
+                });
+            } catch (err) {
+                console.error("Gagal memuat data dashboard:", err);
+            }
+        };
+
+        fetchDashboardData();
         return () => clearInterval(timer);
     }, []);
+
+    const productionPercentage = stats.totalOrders > 0 
+        ? Math.round((stats.completedOrders / stats.totalOrders) * 100) 
+        : 0;
 
     return (
         <div className="flex-1 bg-[#F4F4F4] min-h-screen p-8 overflow-x-hidden font-poppins text-slate-800">
@@ -68,10 +102,10 @@ export default function Dashboard() {
                     
                     {/* Key Metrics */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <StatCard title="ACTIVE USERS" value="1,284" percentage="8%" isUp={true} />
-                        <StatCard title="PRODUCTION DONE" value="75%" percentage="05%" isUp={true} />
-                        <StatCard title="TOTAL REVENUE" value="Rp 284.5M" percentage="14%" isUp={true} />
-                        <StatCard title="PROD. CASH" value="Rp 50.2M" percentage="2%" isUp={false} />
+                        <StatCard title="ACTIVE USERS" value={stats.activeUsers.toLocaleString('id-ID')} percentage="Real-time" isUp={true} />
+                        <StatCard title="PRODUCTION DONE" value={`${productionPercentage}%`} percentage={`${stats.completedOrders} / ${stats.totalOrders}`} isUp={true} />
+                        <StatCard title="TOTAL REVENUE" value={`Rp ${(stats.totalRevenue/1000000).toFixed(1)}M`} percentage="Real-time" isUp={true} />
+                        <StatCard title="PROD. CASH" value={`Rp ${(stats.prodCash/1000000).toFixed(1)}M`} percentage="Est 15%" isUp={true} />
                     </div>
 
                     {/* Charts Row */}

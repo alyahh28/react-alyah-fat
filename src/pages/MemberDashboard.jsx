@@ -155,7 +155,7 @@ export default function MemberDashboard() {
             }
         }
 
-        fetchUserOrders(user.id);
+        fetchUserOrders(user.profile?.id || user.id);
         fetchPointHistory(user.id);
       }
     } catch (err) {
@@ -375,7 +375,7 @@ export default function MemberDashboard() {
       const totalPrice = discountedUnitPrice * orderQuantity;
 
       const orderPayload = {
-        user_id: currentUser.id,
+        user_id: currentUser.profile?.id || currentUser.id,
         product_id: selectedProduct.id,
         quantity: orderQuantity,
         total_price: totalPrice,

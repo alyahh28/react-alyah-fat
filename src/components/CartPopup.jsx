@@ -89,7 +89,7 @@ export default function CartPopup() {
         const itemDiscPrice = Math.round(item.price * (1 - discountRate));
         
         const orderPayload = {
-          user_id: currentUser.id,
+          user_id: currentUser.profile?.id || currentUser.id,
           product_id: item.id,
           quantity: item.quantity,
           total_price: itemDiscPrice * item.quantity,

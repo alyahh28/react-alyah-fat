@@ -82,6 +82,18 @@ export const authAPI = {
                     // Lempar error agar terlihat di UI
                     throw new Error(`Akun dibuat di Auth, tapi gagal simpan profil: ${dbError.message}`);
                 }
+                
+                // Tambahkan otomatis ke tabel customers (CRM)
+                try {
+                    await supabase.from('customers').insert([{
+                        fullname: fullname,
+                        email: email
+                    }]);
+                    console.log('✅ Berhasil menyinkronkan ke tabel Customers');
+                } catch (crmErr) {
+                    console.warn('Gagal menyinkronkan ke tabel Customers:', crmErr);
+                }
+
                 console.log('✅ Profil berhasil disimpan:', insertedData);
             }
         }
@@ -225,6 +237,30 @@ export const authAPI = {
     },
 
     // ================= PROMO CODES (PRD 3) =================
+    async getAllPromoCodes() {
+        const { data, error } = await supabase
+            .from('promo_codes')
+            .select('*')
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        return data || [];
+    },
+
+    async createPromoCode({ code, discount_percent }) {
+        const { data, error } = await supabase
+            .from('promo_codes')
+            .insert([{
+                code: code.toUpperCase(),
+                email: null, // Berlaku untuk semua pengguna jika null
+                discount_percent: parseInt(discount_percent, 10),
+                used: false
+            }])
+            .select();
+        
+        if (error) throw error;
+        return data[0];
+    },
+
     async generatePromoCode(email) {
         const code = `PROMO-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
         const { data, error } = await supabase

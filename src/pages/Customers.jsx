@@ -55,23 +55,10 @@ export default function Customers() {
         setIsLoading(true);
         try {
             const data = await authAPI.getAllCustomers();
-            if (data && data.length > 0) {
-                setCustomers(data);
-            } else {
-                setCustomers([
-                    { id: "CUST-001", fullname: "Budi Santoso", email: "budi@example.com", phone: "081234567890", address: "Jl. Sudirman No. 1, Jakarta" },
-                    { id: "CUST-002", fullname: "Siti Aminah", email: "siti@example.com", phone: "081987654321", address: "Jl. Merdeka No. 2, Bandung" },
-                    { id: "CUST-003", fullname: "Joko Anwar", email: "joko@example.com", phone: "081512345678", address: "Jl. Pahlawan No. 3, Surabaya" },
-                    { id: "CUST-004", fullname: "Rina Nose", email: "rina@example.com", phone: "081299998888", address: "Jl. Gatot Subroto No. 4, Medan" }
-                ]);
-            }
+            setCustomers(data || []);
         } catch (err) {
             console.error("Gagal mengambil data pelanggan:", err);
-            setCustomers([
-                { id: "CUST-001", fullname: "Budi Santoso", email: "budi@example.com", phone: "081234567890", address: "Jl. Sudirman No. 1, Jakarta" },
-                { id: "CUST-002", fullname: "Siti Aminah", email: "siti@example.com", phone: "081987654321", address: "Jl. Merdeka No. 2, Bandung" },
-                { id: "CUST-003", fullname: "Joko Anwar", email: "joko@example.com", phone: "081512345678", address: "Jl. Pahlawan No. 3, Surabaya" }
-            ]);
+            setCustomers([]);
         } finally {
             setIsLoading(false);
         }

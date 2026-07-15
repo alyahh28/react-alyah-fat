@@ -34,7 +34,7 @@ export default function MemberProfile() {
                 const history = await authAPI.getPointHistory(currentUser.id);
                 setPointHistory(history);
 
-                const dbOrders = await authAPI.getUserOrders(currentUser.id);
+                const dbOrders = await authAPI.getUserOrders(currentUser.profile?.id || currentUser.id);
                 setOrders(dbOrders);
             } catch (err) {
                 console.error("Gagal load history:", err);
