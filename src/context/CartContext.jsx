@@ -5,7 +5,7 @@ const CartContext = createContext();
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState(() => {
     try {
-      const saved = localStorage.getItem("furnicraft_cart");
+      const saved = localStorage.getItem("FurnitureQ_cart");
       return saved ? JSON.parse(saved) : [];
     } catch (e) {
       return [];
@@ -16,7 +16,7 @@ export const CartProvider = ({ children }) => {
 
   useEffect(() => {
     try {
-      localStorage.setItem("furnicraft_cart", JSON.stringify(cartItems));
+      localStorage.setItem("FurnitureQ_cart", JSON.stringify(cartItems));
     } catch (e) {
       console.error("Gagal menyimpan keranjang ke localStorage:", e);
     }

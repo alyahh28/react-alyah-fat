@@ -49,7 +49,7 @@ export default function Forgot() {
             <div className="w-full max-w-[360px] px-4 flex flex-col items-center">
                 <img src={Logo} alt="Logo" className="w-20 h-auto mb-4" />
                 <h1 className="text-[26px] font-bold text-primary mb-2 text-center">Reset Password</h1>
-                <p className="text-xs text-text/70 mb-6 text-center">Ubah kata sandi akun Supabase LuxWood Anda.</p>
+                <p className="text-xs text-text/70 mb-6 text-center">Ubah kata sandi akun Supabase FurnitureQ Anda.</p>
 
                 {error && (
                     <div className="w-full mb-4 p-3 bg-red-50 text-red-600 border border-red-100 rounded-xl flex items-center gap-2 text-[12px] font-medium">

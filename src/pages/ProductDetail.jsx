@@ -94,7 +94,7 @@ export default function ProductDetail() {
                                 {product.category || "General"}
                             </span>
                             <span className="text-stone-400 text-xs font-bold">•</span>
-                            <span className="text-stone-500 text-xs font-bold">{product.brand || "LuxWood"}</span>
+                            <span className="text-stone-500 text-xs font-bold">{product.brand || "FurnitureQ"}</span>
                         </div>
                         
                         <h1 className="text-3xl lg:text-4xl font-black text-stone-800 mb-4 leading-tight">

@@ -358,12 +358,12 @@ export default function GuestDashboard() {
             <div className="w-10 h-10 bg-gradient-to-br from-indigo-200 to-violet-600 rounded-xl flex items-center justify-center shadow-md shadow-indigo-500/30 overflow-hidden">
               <img 
                 src={Logo} 
-                alt="FurniCraft Logo" 
+                alt="FurnitureQ Logo" 
                 className="w-full h-full object-cover p-1.5" 
               />
             </div>
             <span className={`font-bold text-2xl transition-colors duration-300 ${scrolled ? "text-slate-900" : "text-white"}`}>
-              FurniCraft
+              FurnitureQ
             </span>
           </Link>
 
@@ -776,7 +776,7 @@ export default function GuestDashboard() {
                     <Crown size={16} /> Keuntungan Member
                   </div>
                   <h2 className="text-3xl md:text-4xl font-extrabold">
-                    Gabung Member FurniCraft 🎉
+                    Gabung Member FurnitureQ 🎉
                   </h2>
                   <p className="text-indigo-100 leading-relaxed">
                     Dapatkan akses eksklusif ke Flash Sale, promo bulanan, dan voucher pengguna baru. Masukkan kode promo Anda di bawah ini untuk klaim diskon langsung!
@@ -837,7 +837,7 @@ export default function GuestDashboard() {
           <ScrollReveal className="order-2 md:order-1">
             <span className="text-indigo-600 font-semibold text-sm uppercase tracking-widest">Cerita Kami</span>
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mt-2 mb-6">
-              Tentang FurniCraft
+              Tentang FurnitureQ
             </h2>
             <p className="text-slate-600 leading-relaxed mb-6 text-lg">
               Sejak 2015, kami menghadirkan furniture premium dengan material kayu pilihan terbaik. Setiap produk dirancang oleh pengrajin berpengalaman untuk memberikan kenyamanan dan keindahan di rumah Anda.
@@ -932,7 +932,7 @@ export default function GuestDashboard() {
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center">
                 <span className="text-white font-bold text-xl">F</span>
               </div>
-              <span className="font-bold text-2xl text-white">FurniCraft</span>
+              <span className="font-bold text-2xl text-white">FurnitureQ</span>
             </Link>
             <p className="text-slate-500 text-sm leading-relaxed">Menghadirkan furniture premium dengan material kayu pilihan terbaik sejak 2015.</p>
           </div>
@@ -949,7 +949,7 @@ export default function GuestDashboard() {
             <h4 className="text-white font-bold mb-4">Kontak</h4>
             <ul className="space-y-3 text-sm">
               <li className="flex items-center gap-2">📞 0812-3456-7890</li>
-              <li className="flex items-center gap-2">📧 halo@furnicraft.id</li>
+              <li className="flex items-center gap-2">📧 halo@FurnitureQ.id</li>
               <li className="flex items-center gap-2">📍 Jl. Kayu No.10, Jakarta</li>
             </ul>
           </div>
@@ -969,7 +969,7 @@ export default function GuestDashboard() {
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-6 border-t border-slate-800 text-sm text-center text-slate-600">
-          &copy; {new Date().getFullYear()} FurniCraft. All rights reserved. |{" "}
+          &copy; {new Date().getFullYear()} FurnitureQ. All rights reserved. |{" "}
           <Link to="/privacy" className="hover:text-indigo-400 transition">
             Kebijakan Privasi
           </Link>
@@ -985,7 +985,7 @@ export default function GuestDashboard() {
           Ada pertanyaan? Chat kami 😊
         </div>
         <a
-          href="https://wa.me/6281234567890?text=Halo%20FurniCraft%2C%20saya%20mau%20tanya%20soal%20produk"
+          href="https://wa.me/6281234567890?text=Halo%20FurnitureQ%2C%20saya%20mau%20tanya%20soal%20produk"
           target="_blank"
           rel="noopener noreferrer"
           className="w-14 h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-xl transform hover:scale-110 hover:rotate-12 transition-all"

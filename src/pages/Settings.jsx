@@ -28,7 +28,7 @@ export default function Settings() {
                         <input 
                             type="text" 
                             className="w-full px-4 py-2 border border-stone-200 rounded-xl focus:ring-2 focus:ring-amber-600 outline-none transition-all" 
-                            placeholder="LuxWood Furniture" 
+                            placeholder="FurnitureQ Furniture" 
                         />
                     </div>
                     <div>
@@ -36,7 +36,7 @@ export default function Settings() {
                         <input 
                             type="email" 
                             className="w-full px-4 py-2 border border-stone-200 rounded-xl focus:ring-2 focus:ring-amber-600 outline-none transition-all" 
-                            placeholder="admin@luxwood.com" 
+                            placeholder="admin@FurnitureQ.com" 
                         />
                     </div>
                 </div>

@@ -351,7 +351,7 @@ export const authAPI = {
             title: p.title,
             code: p.code || `LW-${Math.floor(100 + Math.random() * 900)}`,
             category: p.category || 'General',
-            brand: p.brand || 'LuxWood',
+            brand: p.brand || 'FurnitureQ',
             price: p.price || 0,
             stock: p.stock || 10,
             thumbnail: p.thumbnail || '',

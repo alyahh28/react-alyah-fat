@@ -3,15 +3,24 @@ import { MdReportProblem, MdCheckCircle, MdCancel, MdLoop } from "react-icons/md
 import PageHeader from "../components/PageHeader";
 
 export default function Complaints() {
-    const [complaints, setComplaints] = useState([
-        { id: "CMP-101", orderId: "ORD-998", customer: "Budi Santoso", issue: "Barang lecet saat pengiriman", status: "Pending", date: "2026-07-07" },
-        { id: "CMP-102", orderId: "ORD-912", customer: "Siti Aminah", issue: "Warna tidak sesuai pesanan", status: "Refunded", date: "2026-07-05" },
-        { id: "CMP-103", orderId: "ORD-854", customer: "Joko Anwar", issue: "Kurang baut perakitan", status: "Resolved", date: "2026-07-02" },
-    ]);
+    const [complaints, setComplaints] = useState(() => {
+        const stored = localStorage.getItem("complaints");
+        if (stored) {
+            return JSON.parse(stored);
+        }
+        const initial = [
+            { id: "CMP-101", orderId: "ORD-998", customer: "Budi Santoso", issue: "Barang lecet saat pengiriman", status: "Pending", date: "2026-07-07" },
+            { id: "CMP-102", orderId: "ORD-912", customer: "Siti Aminah", issue: "Warna tidak sesuai pesanan", status: "Refunded", date: "2026-07-05" },
+            { id: "CMP-103", orderId: "ORD-854", customer: "Joko Anwar", issue: "Kurang baut perakitan", status: "Resolved", date: "2026-07-02" },
+        ];
+        localStorage.setItem("complaints", JSON.stringify(initial));
+        return initial;
+    });
 
     const handleAction = (id, newStatus) => {
         const updated = complaints.map(c => c.id === id ? { ...c, status: newStatus } : c);
         setComplaints(updated);
+        localStorage.setItem("complaints", JSON.stringify(updated));
 
         // Audit log
         const auditLogs = JSON.parse(localStorage.getItem("audit_logs") || "[]");

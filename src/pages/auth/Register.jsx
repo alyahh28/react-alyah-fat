@@ -81,7 +81,7 @@ export default function Register() {
 
             <div className="w-full max-w-[360px] px-4 flex flex-col items-center">
                 <img src={Logo} alt="Logo" className="w-20 h-auto mb-4" />
-                <h1 className="text-[30px] font-bold text-primary mb-2 text-center">Join FurniCraft</h1>
+                <h1 className="text-[30px] font-bold text-primary mb-2 text-center">Join FurnitureQ</h1>
                 <p className="text-xs text-text/60 mb-6 text-center">Create account to manage your furniture orders.</p>
                 
                 {error && (

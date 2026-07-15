@@ -114,7 +114,7 @@ export default function Courses({ isGuest = false }) {
             title: "",
             code: `LW-${Math.floor(100 + Math.random() * 900)}`,
             category: "Living Room",
-            brand: "LuxWood",
+            brand: "FurnitureQ",
             price: 1000000,
             stock: 10,
             thumbnail: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600",

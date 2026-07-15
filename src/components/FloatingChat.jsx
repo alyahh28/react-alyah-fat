@@ -33,7 +33,7 @@ export default function FloatingChat() {
     try {
       const systemPrompt = {
         role: "system",
-        content: "Kamu adalah asisten virtual SAHAJA AI yang dibuat khusus untuk toko furniture bernama 'FurniCraft'. Jawablah dengan ramah, profesional, dan gunakan bahasa Indonesia yang sopan. Produk yang tersedia: Sofa Kayu Jati, Meja Makan Minimalis, Kursi Rotan Alami, dan Lemari Pakaian Premium. Arahkan pengguna untuk 'Lihat Koleksi' atau menghubungi tim sales jika mereka ingin membeli atau bertanya harga."
+        content: "Kamu adalah asisten virtual SAHAJA AI yang dibuat khusus untuk toko furniture bernama 'FurnitureQ'. Jawablah dengan ramah, profesional, dan gunakan bahasa Indonesia yang sopan. Produk yang tersedia: Sofa Kayu Jati, Meja Makan Minimalis, Kursi Rotan Alami, dan Lemari Pakaian Premium. Arahkan pengguna untuk 'Lihat Koleksi' atau menghubungi tim sales jika mereka ingin membeli atau bertanya harga."
       };
 
       // Menggunakan URL dari .env
@@ -89,7 +89,7 @@ export default function FloatingChat() {
                 />
               </div>
               <div>
-                <h3 className="font-bold text-sm">FurniCraft X SAHAJA AI</h3>
+                <h3 className="font-bold text-sm">FurnitureQ X SAHAJA AI</h3>
                 {/* Teks online diubah ke indigo-100 */}
                 <p className="text-[10px] text-indigo-100 flex items-center gap-1">
                   <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> Online

@@ -154,7 +154,7 @@ export default function Customers() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-3xl font-black text-stone-800 tracking-tight">Data Pelanggan</h1>
-                    <p className="text-stone-400 text-sm font-medium">Pantau profil dan loyalitas pelanggan LuxWood.</p>
+                    <p className="text-stone-400 text-sm font-medium">Pantau profil dan loyalitas pelanggan FurnitureQ.</p>
                 </div>
 
                 <Dialog open={isAddOpen} onOpenChange={handleModalOpenChange}>
@@ -167,7 +167,7 @@ export default function Customers() {
                         <DialogHeader>
                             <DialogTitle className="text-lg font-bold text-stone-800">Tambah Pelanggan Baru</DialogTitle>
                             <DialogDescription className="text-stone-400 text-xs mt-1">
-                                Daftarkan data profile customer baru ke dalam sistem database internal LuxWood CRM.
+                                Daftarkan data profile customer baru ke dalam sistem database internal FurnitureQ CRM.
                             </DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleAddSubmit} className="space-y-3 mt-4">
