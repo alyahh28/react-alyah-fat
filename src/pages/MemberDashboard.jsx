@@ -435,6 +435,16 @@ export default function MemberDashboard() {
           </Link>
 
           <div className="flex items-center space-x-5">
+            <Link
+              to="/"
+              className={`hidden md:flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-full transition-all duration-300 ${
+                scrolled
+                  ? "bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
+                  : "bg-white/10 text-white hover:bg-white/20"
+              }`}
+            >
+              Ke Halaman Utama
+            </Link>
             <div
               className={`hidden md:flex items-center gap-2 text-sm font-medium transition-colors duration-300 ${
                 scrolled ? "text-slate-600" : "text-white/80"
@@ -979,19 +989,61 @@ export default function MemberDashboard() {
         </div>
       )}
 
-      {/* ===== FOOTER MINI ===== */}
-      <footer className="bg-slate-950 text-slate-400 pt-12 pb-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <Link to="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-xl">F</span>
-              </div>
-              <span className="font-bold text-2xl text-white">FurnitureQ</span>
-            </Link>
+      {/* ===== FOOTER ===== */}
+      <footer className="bg-slate-950 text-slate-400 pt-16 pb-8 border-t border-slate-900 relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+            <div className="col-span-1 md:col-span-2">
+              <Link to="/" className="flex items-center space-x-3 group mb-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform duration-300">
+                  <span className="text-white font-bold text-2xl">F</span>
+                </div>
+                <span className="font-extrabold text-3xl text-white tracking-tight group-hover:text-indigo-300 transition-colors">
+                  FurnitureQ
+                </span>
+              </Link>
+              <p className="text-slate-400 leading-relaxed max-w-sm">
+                Solusi furnitur premium untuk setiap sudut ruangan Anda. Dapatkan kenyamanan dan estetika dalam satu sentuhan elegan.
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="text-white font-bold text-lg mb-5">Layanan Member</h4>
+              <ul className="space-y-3 text-sm">
+                <li><a href="#" className="hover:text-indigo-400 transition-colors flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> Riwayat Pesanan</a></li>
+                <li><a href="#" className="hover:text-indigo-400 transition-colors flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> Point & Reward CRM</a></li>
+                <li><a href="#" className="hover:text-indigo-400 transition-colors flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> Diskon Tier Member</a></li>
+                <li><a href="#" className="hover:text-indigo-400 transition-colors flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> Pengaturan Profil</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="text-white font-bold text-lg mb-5">Bantuan</h4>
+              <ul className="space-y-3 text-sm">
+                <li><a href="#" className="hover:text-indigo-400 transition-colors flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> Pusat Bantuan</a></li>
+                <li><a href="#" className="hover:text-indigo-400 transition-colors flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> Cara Pemesanan</a></li>
+                <li><a href="#" className="hover:text-indigo-400 transition-colors flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> Kebijakan Privasi</a></li>
+                <li><a href="#" className="hover:text-indigo-400 transition-colors flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> Syarat & Ketentuan</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="pt-8 border-t border-slate-800/50 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-slate-500">
               &copy; {new Date().getFullYear()} FurnitureQ. All rights reserved.
             </p>
+            <div className="flex items-center gap-4 text-xs font-bold">
+              <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all text-slate-400">
+                IG
+              </a>
+              <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all text-slate-400">
+                FB
+              </a>
+              <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all text-slate-400">
+                X
+              </a>
+            </div>
           </div>
         </div>
       </footer>

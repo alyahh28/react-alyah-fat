@@ -476,28 +476,15 @@ export default function LandingPage() {
             {/* ========== KONDISI LOGIN / LOGOUT (DESKTOP) ========== */}
             {activeUser ? (
               <div className="hidden md:flex items-center space-x-3">
-                {/* User Profile Badge */}
                 <Link
                   to="/member"
-                  className={`flex items-center gap-2 text-sm font-semibold transition`}
-                >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 ${
+                  className={`flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-full transition-all shadow-md ${
                     scrolled
-                      ? "bg-indigo-100 text-indigo-600"
-                      : "bg-white/15 text-white"
-                  }`}>
-                    <User size={16} />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className={`transition-colors duration-300 ${scrolled ? "text-slate-700" : "text-white/90"}`}>
-                      {activeUser}
-                    </span>
-                    {userPoints > 0 && (
-                      <span className={`text-[10px] uppercase font-bold flex items-center gap-1 ${scrolled ? "text-amber-500" : "text-amber-300"}`}>
-                        <Crown size={10} /> {userTier} ({userPoints} Pts)
-                      </span>
-                    )}
-                  </div>
+                      ? "bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-600/30"
+                      : "bg-white text-indigo-600 hover:bg-gray-100 shadow-black/10"
+                  }`}
+                >
+                  <User size={16} /> Ke Halaman Member
                 </Link>
 
                 {/* Divider */}
@@ -620,6 +607,14 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-wrap justify-center gap-4 pt-6">
+            {activeUser && (
+              <Link
+                to="/member"
+                className="group px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-full shadow-xl shadow-amber-500/30 hover:shadow-amber-500/50 hover:scale-105 transition-all flex items-center gap-2"
+              >
+                <Crown size={18} /> Masuk ke Member Area
+              </Link>
+            )}
             <Link
               to="/guest/products"
               className="group px-8 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-full shadow-xl shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:scale-105 transition-all flex items-center gap-2"
